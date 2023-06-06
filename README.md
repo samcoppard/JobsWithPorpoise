@@ -22,4 +22,6 @@ A daily cron job runs the file __synchronise.py__, which runs the following file
 - __new_jobs.py__
     * Checks all the scraped jobs to see which ones are new today i.e. not already in the PostgreSQL database
     * Any new jobs are added to the database
-    * They're also added to the Webflow CMS (with many interlinked records to make things fun) and published to the live site
+    * They're also added to the Webflow CMS (with many interlinked records to make things fun) and published to the live site 
+   
+_N.B. This is a new repo that replaces an earlier private repo, which would have exposed sensitive information if I made it public._
