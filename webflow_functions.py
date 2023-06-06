@@ -129,6 +129,72 @@ def create_webflow_job(job_name, job_title, job_link, job_date, job_date_str, jo
     return data["_id"]
 
 
+def create_webflow_org(name, website, careers_page, mission, accreditations, available_roles, hiring, bizorchar, sectors):
+    """ Create a new item in the Organisations collection, and return its Webflow item ID """
+
+    # Get your Webflow authorisation token
+    webflow_token = keyring.get_password("login", "Webflow Token")
+
+    url = "https://api.webflow.com/collections/62e3ab17f169f84e746dc54e/items"
+
+    payload = {"fields": {
+        "slug": "",  # Webflow will auto-generate the slug if this is left blank, avoiding duplication issues
+        "_archived": False,
+        "_draft": False,  # It might look like this publishes the item, but it doesn't
+        "name": name,  # This doesn't need to be unique
+        "org-website": website,
+        "careers-page": careers_page,
+        "mission": mission,
+        "accreditations-2": accreditations, # List of Webflow item IDs (or an empty string)
+        "available-roles": available_roles, # List of Webflow item IDs (or an empty string)
+        "currently-hiring-2": hiring,  # "Yes" or "No"
+        "biz": bizorchar,  # List containing a single Webflow item ID
+        "sectors": sectors  # List of Webflow item IDs (or an empty string)
+    }}
+
+    headers = {
+        "accept": "application/json",
+        "content-type": "application/json",
+        "authorization": f"Bearer {webflow_token}"
+    }
+
+    response = requests.post(url, json=payload, headers=headers)
+
+    # Parse the text part of the response into JSON, then extract the collection item ID
+    json_string = response.text
+    data = json.loads(json_string)
+    return data["_id"]
+
+
+
+def patch_webflow_org(org_webflow_id, org_slug, org_name, hiring, available_roles):
+    """ Patch an item in the Organisations collection. We only ever need to change the 'currently hiring' and 'available roles' fields, so that's all this function does """
+
+    # Get your Webflow authorisation token
+    webflow_token = keyring.get_password("login", "Webflow Token")
+    
+    url = f"https://api.webflow.com/collections/62e3ab17f169f84e746dc54e/items/{org_webflow_id}"
+
+    payload = {"fields": {
+        "slug": org_slug,  # required
+        "name": org_name,  # required
+        "_archived": False,
+        "_draft": False,
+        "currently-hiring-2": hiring,  # "Yes" or "No"
+        "available-roles": available_roles  # List of Webflow item IDs (or an empty string)
+    }}
+    
+    headers = {
+        "accept": "application/json",
+        "content-type": "application/json",
+        "authorization": f"Bearer {webflow_token}"
+    }
+
+    response = requests.patch(url, json=payload, headers=headers)
+
+    print(response.text)
+
+
 
 def publish_items(collection, list_of_item_ids):
     """ Publish multiple items in a single Webflow collection """
