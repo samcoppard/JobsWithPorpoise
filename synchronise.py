@@ -4,7 +4,7 @@ import time
 # Create a method to run individual files
 
 def runpy(filename):
-    string = 'python3 ' + './Jobs_With_Porpoise/' + filename
+    string = 'python3 ' + './JobsWithPorpoise/' + filename
     os.system(string)
 
 # Create a method to run everything

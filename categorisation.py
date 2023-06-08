@@ -65,7 +65,7 @@ southeast = [
     'Sevenoaks', 'Dartford', 'Maidstone', 'Tonbridge', 'South East', 'Slough',
     'Berkshire', 'Woking', 'Winchester', 'Newbury', 'Wallingford', 'Egham',
     'Aldershot', 'Chichester', 'West Malling', 'Farnham', 'Romsey', 'Worthing',
-    'Pevensey', 'Sevenoaks', 'Canterbury', 'Rye', 'Horsham', 'Weybridge',
+    'Pevensey', 'Sevenoaks', 'Canterbury', 'Rye', 'Horsham', 'Weybridge', 'Winnersh',
     'South East, Uk', 'Hastings', 'Eastbourne', 'Wokingham', 'Basingstoke',
     'Aylesbury', 'Buckinghamshire', 'Reigate', 'Banstead', 'Maidenhead', 'Lewes',
     'Eastleigh', 'Portsmouth', 'Dymchurch', 'Sittingbourne', 'Ramsdell', 'Hampstead Norreys', 'Smol Warehouse', 'Raf Welford', 'Crawley', 'Sunbury'
@@ -122,7 +122,7 @@ abroad = [
     'Düsseldorf', 'Duisburg', 'Berlin', 'Sydney', 'New South Wales', 'Australia',
     'Belgium', 'Auckland', 'New Zealand', 'Boston', 'New York', 'Nyc', 'Cluj',
     'Romania', 'Chicago', 'North America', 'Paris', 'Amsterdam', 'San Francisco',
-    'California', 'Madagascar', 'Timor-Leste', 'Denmark', 'Remote - Us',
+    'California', 'Madagascar', 'Timor-Leste', 'Denmark', 'Remote - Us', 'Ouagadougou',
     'Georgia', 'Belgrade', 'Serbia', 'Apeldoorn', 'Netherlands', 'Remote Usa',
     'Ireland Only', 'Austria', 'France', 'Germany', 'Italy', 'Norway', 'Poland',
     'Portugal', 'Spain', 'Sweden', 'Switzerland', 'Oslo', 'Madrid', 'Lisbon',
@@ -134,10 +134,10 @@ abroad = [
     'Austin', 'Boulder', 'Raleigh', 'San Juan', 'La Paz', 'Jakarta', 'Nordic Region',
     'New Orleans', 'Bavaria', 'Frankfurt', 'Valencia', 'Tokyo', 'Houston',
     'Ascoli Piceno', 'Portadown', 'Melbourne', 'Gibraltar', 'Rawalpindi',
-    'Tando Allayar', 'Northeast Us', 'New England', 'Bayern', 'Tanzania',
-    'Usa / Remote', 'Japan', 'Ontario', 'Canada', 'Ghana', 'Remote, Us',
-    'Vilnius', 'Lithuania', 'Leira', 'Coimbra', 'Belize', 'U.S. Remote',
-    'Dusseldorf', 'Alicante', 'Pacific Time Zone', 'Copenhagen', 'Shenzhen',
+    'Tando Allayar', 'Northeast Us', 'New England', 'Bayern', 'Tanzania', 'Cameroon',
+    'Usa / Remote', 'Japan', 'Ontario', 'Canada', 'Ghana', 'Remote, Us', 'Yaounde',
+    'Vilnius', 'Lithuania', 'Leira', 'Coimbra', 'Belize', 'U.S. Remote', 'Logistique',
+    'Dusseldorf', 'Alicante', 'Pacific Time Zone', 'Copenhagen', 'Shenzhen', 'Du Projet',
     'Duisberg', 'Athens', 'Greece', 'Dublin', 'Andavadoaka', 'Coslada', 'Sindh', 'Pakistan', 'Detroit', 'Northern Ireland', 'Région', 'Lille', 'Indonesia', 'Tando Allahyar'
 ]
 
@@ -285,7 +285,7 @@ scraped_jobs['Job Title'] = [
 
 # Now we need to tidy everything up with title case, but with exceptions for words that should stay capitalised
 # Define a list of words to exclude from being title cased
-exclusions = ["PA", "EMEA", "APPG", "BizDev", "PSP", "BD", "MD", "CEO", "ESG", "GHG", "HS2", "REDD", "EHS", "EIA", "ELM", "DAS/PSS", "NCEA", "INNS", "GWCL", "MEL", "GIS", "BI", "BA", "EDA", "ETRM", "DNA", "UX", "UI", "UX/UI", "UI/UX", "NVH", "BIM", "CAD", "RF", "CAE", "EE", "EDS", "HV", "EC&I", "GDA", "BoP", "MEICA", "BMS", "PV", "FMEA", "ETF", "FP&A", "CFO", "HR", "EDI", "IT", "ICT", "NetOps", "TechOps", "CSIRT", "GRC", "EIR", "COMAH", "PR", "CRM", "SEO", "PPC", "CMO", "COO", "FOI", "FCRM", "HSE", "EHS", "SHE", "UAV", "HGV", "SA", "CPO", "CTO", "ML", "AI", "DevOps", "QA", "iOS", "SQA", "SW", "IT", "SRE", ".NET", "TypeScript", "NetOps", "BMS", "VP", "NED", "US", "QHSE", "LCA", "EPD", "CDR", "CI", "CD", "CI/CD", "LEF", "HSQE", "UK", "UK)", "NPP", "SG3", "MMO", "UX/", "/UI", "API", "USA)", "(NY", "(HR)", "MEICA)", "(MEICA", "(MEICA)", "FSGo", "SIG", "AIT", "OEM", "FTE", "DBRC", "HTS", "BES", "FCERM", ")FCERM", "(FCERM", "(FCERM)",
+exclusions = ["PA", "EMEA", "APPG", "BizDev", "PSP", "BD", "MD", "CEO", "ESG", "GHG", "HS2", "REDD", "EHS", "EIA", "ELM", "DAS/PSS", "NCEA", "INNS", "GWCL", "MEL", "GIS", "BI", "BA", "EDA", "ETRM", "DNA", "UX", "UI", "UX/UI", "UI/UX", "NVH", "BIM", "CAD", "RF", "CAE", "EE", "EDS", "HV", "EC&I", "GDA", "BoP", "MEICA", "BMS", "PV", "FMEA", "ETF", "FP&A", "CFO", "HR", "EDI", "IT", "ICT", "NetOps", "TechOps", "CSIRT", "GRC", "EIR", "COMAH", "PR", "CRM", "SEO", "PPC", "CMO", "COO", "FOI", "FCRM", "HSE", "EHS", "SHE", "UAV", "HGV", "SA", "CPO", "CTO", "ML", "AI", "DevOps", "QA", "iOS", "SQA", "SW", "IT", "SRE", ".NET", "TypeScript", "NetOps", "BMS", "VP", "NED", "US", "QHSE", "LCA", "EPD", "CDR", "CI", "CD", "CI/CD", "LEF", "HSQE", "UK", "UK)", "NPP", "SG3", "MMO", "UX/", "/UI", "API", "USA)", "(NY", "(HR)", "MEICA)", "(MEICA", "(MEICA)", "FSGo", "SIG", "AIT", "OEM", "FTE", "DBRC", "HTS", "BES", "FCERM", ")FCERM", "(FCERM", "(FCERM)", "MBA", "(s)",
               "(UK", "(UK)", "(UK-)", "UK/EU", "UK/EU)", "(UK/EU", "(UK/EU)", "POS", "NNR", "FTC", "EU", "EMEA", "EMEA)", "(EMEA", "(EMEA)", "EV", "IoT", "NEAS", "CV", "GMT", "VCF", "UK/I", "SDR", ")SDR", "(SDR", "(SDR)", "FTC)", "(FTC", "(FTC)", "EV)", "(EV", "(HSE", "(EHS", "(SHE", "(QHSE", "HSE)", "EHS)", "SHE)", "QHSE)", "(HSE)", "(EHS)", "(SHE)", "(QHSE)", "(CI)", "(GMT", "GMT)", "HMNB", "RAF", "(AWS)", "AWS", "NRG", "(NRG)", "EPR", "(PM1)", "(PM2)", "PM", "(IEP)", "IEP", "(FCRM)", "BoP", "(UK&IE)", "UK&IE", "TCAF", "(TCAF)", "ZCL", "HQ", "ERP", "OPEX", "PMO", "PDME", "SQL", "ECO", "HabiMap", "FP&A", "DACH", "EAN", "LNA", "TaaS", "(TaaS)", "PSO", "NFM", "(NFM)", "DVP", "NE", "SE", "NW", "SW", "SWE", "PDM", "KAM", "BOM", "BoM", "CFD/MHD", "CFD", "MHD", "EAC", "UKPN", "or", "x", "x2", "x3", "x4", "'s", "s", "CSM)", "(CSM)", "(CSM", "DCO", "DCO/", "DCO/Planning", "Co-ordinator", "Co-ordination", "the", "and", "of", "to", "for", "up"]
 
 
@@ -343,7 +343,7 @@ bizdev = [
     'Corporate Programme', 'Account Handler', 'Estimator', 'Director of Development',
     'Growth and Strategic Planning', 'Account Officer', 'Business Evangelist',
     'Senior Engagement Officer', 'Account Go-To-Market Manager', 'Director of Transformation',
-    'Commercial Coordinator', 'Market Design', 'Investor Relations',
+    'Commercial Coordinator', 'Market Design', 'Investor Relations', 'MBA',
     'Portfolio Associate', 'Associate - Development', 'Client Onboarding',
     'Development Officer', 'Partnership Advisor', 'Key Account Manager',
     'Corporate Relations Officer', 'Commercial Strategy', 'Stakeholder Manager',
@@ -351,12 +351,12 @@ bizdev = [
     'Business Change Manager', 'BD Director', 'Enterprise Account Director', 'PSO',
     'Licensing', 'Channel Manager', 'Managing Director', 'MD', 'Carbon Portfolio',
     'Associate Director', 'Private Sector Engagement', 'Director of Change',
-    'External Relations', 'Strategic Partnerships', 'Strategic Alliance',
-    'Head of Partnerships', 'Account Management', 'Client Success',
+    'External Relations', 'Strategic Partnerships', 'Strategic Alliance', 'Country Manager',
+    'Head of Partnerships', 'Account Management', 'Client Success', 'Lead Generation',
     'Commercial Partner', 'Commercial Director', 'Commercial Analyst', 'Relationship Manager', 'Chief Executive Officer', 'CEO', 'Partnerships -', 'Kielder Team Manager', 'Novel CDR Business', 'Business Planning', 'Strategy Associate', 'Partnerships Director', 'Climate Strategy and Development', 'Chief Executive', 'Land Advice Service Manager', 'Partnerships Officer', 'Awards Manager', 'Partner Manager', 'Director of Client Services', 'ERP', 'Enterprise Resource', 'Partnership Enablement', 'Head of Change Enablement', 'Corporate Development', 'Portfolio Manager', 'Client Lead', 'Trading Development', 'Climate Contribution Fund', 'Director of Advisory', 'Global Director', 'Innovation Lead', 'Regional Manager', 'Commercial Operations', 'Partnerships Marketing', 'Trade Marketing', 'Key Partner', 'Supplier Manager'
 ]
 campaigning = [
-    'Campaign', 'Community Action', 'Climate Action', 'Partnerships Executive',
+    'Campaign', 'Community Action', 'Climate Action', 'Partnerships Executive', 'Activist',
     'Campaigner', 'Actions Coordinator', 'Action for Nature', 'Head of Action', 'Head Of Action', 'Investigator'
 ]
 climate = [
@@ -375,7 +375,7 @@ climate = [
     'Metric Senior Specialist', 'Metric Specialist', 'Carbon Project',
     'Carbon Management', 'Carbon Inventory', 'Sustainable Diets', 'Clean Power',
     'Sustainable Business Partner', 'Sustainable Business Manager', 'Green Infrastructure',
-    'Climate Methodologies', 'EHS', 'Environmental Health', 'EIA',
+    'Climate Methodologies', 'EHS', 'Environmental Health', 'EIA', 'Carbon Funds',
     'Environmental Impact Assessment', 'Environmental Consultant', 'Net Zero',
     'E&B', 'Carbon Registry', 'Climate Services', 'Carbon Services', 'Head of Food System Transformation',
     'Nature Strategy', 'Renewable Energy Solutions', 'Area Environment Manager', 'Head of Resilience', 'Environment Adviser', 'Air Quality', 'Environment Officer', 'LCA', 'EPD', 'Sustainable Standards', 'Climate Strategy', 'Carbon Projects', 'NEAS', 'Carbon Partnership', 'Renewables', 'Climate Digitalization', 'Climate Science', 'Tropical Cyclones', 'Renewable Energy', 'Life Cycle Assessment', 'Life Cycle Analys', 'Climate Intern', 'Energy Attribute Certificates', 'EAC', 'Impact Manager', 'Offshore Wind', 'Onshore Wind', 'Wind Energy', 'Sustainable Travel'
@@ -398,29 +398,29 @@ conservation = [
     'Tree Action Plan', 'Marine Specialist', 'NCEA', 'Nutrient Markets',
     'Natural Capital & Ecosystem Assessment', 'Natural England Adviser',
     'Agricultural Advisor', 'Land Advisor', 'Biodiversity Planning', 'Keeper',
-    'Nature-Based', 'Nature Based', 'NBS', 'Nature Restoration',
+    'Nature-Based', 'Nature Based', 'NBS', 'Nature Restoration', 'Reserve Trainee',
     'Great Crested Newt', 'Greener Farming', 'Greener Fisheries', 'Beaver',
     'Biodiversity', 'Wildcat', 'Pine Marten', 'Reintroduction', 'Bat Advisor',
     'Treescapes', 'Eelscapes', 'Forest Creation', 'Freshwater Scientist',
     'Invasive Species', 'Glasshouse', 'INNS', 'Restoring', 'Natural History',
     'Trillion Trees', 'Species Specialist', 'Contaminated Land', 'Landscape Partnership',
     'Environment Management Incident', 'Nautral Course', 'Natural Course',
-    'GWCL', 'Groundwater', 'Advisor for Trees', 'Marine Monitoring',
+    'GWCL', 'Groundwater', 'Advisor for Trees', 'Marine Monitoring', 'Landscape Advice',
     'Environment Monitoring', 'Environmental Monitoring', 'Field Monitoring',
     'Polar Oceans Specialist', 'Marine Senior Adviser', 'Marine Adviser',
-    'Farm Adviser', 'Grey Squirrel', 'Species Protection Officer',
+    'Farm Adviser', 'Grey Squirrel', 'Species Protection Officer', 'Reserves Trainee',
     'Fisheries Technical Specialist', 'Estate Manage', 'Animal Care', 'REDD',
     'Kelp', 'Strategic Environment Planning', 'Waterways Workforce', 'Fish',
     'Restoration', 'Squirrel', 'Pool Frog', 'Woodland Hope', 'Farming Adviser',
     'Land Management Scheme Development', 'Fresh Water & Air', 'Urban Forestry',
-    'Stork', 'Mussel', 'Species and Recording Officer', 'Pollution',
+    'Stork', 'Mussel', 'Species and Recording Officer', 'Pollution', 'Farm Officer',
     'Environmental Internship', 'Seabird', 'New To Nature', 'Watercress',
-    'Marine Lead Adviser', 'Environmental Quality', 'Corncrake',
+    'Marine Lead Adviser', 'Environmental Quality', 'Corncrake', 'Land Use',
     'Landscape Project Officer', 'Park Manager', 'Coastal Habitat', 'Seagrass',
-    'Atlantic Rainforest', 'Get The Marches Buzzing', 'Freshwater',
-    'Major Marine Developments', 'Environment Officer - Agriculture',
+    'Atlantic Rainforest', 'Get The Marches Buzzing', 'Freshwater', 'Natural Solutions',
+    'Major Marine Developments', 'Environment Officer - Agriculture', 'Environmental Practitioner',
     'Wigan Greenheart', 'Habitat Survey', 'Saving Sites', 'Working Wetlands',
-    'Habitats Officer', 'Reserves Assistant', 'Woodland Assistant',
+    'Habitats Officer', 'Reserves Assistant', 'Woodland Assistant', 'Catchment Coordinator',
     'Land Manage', 'Estuarine And Coastal', 'Marine Technical Officer',
     'DNA Based Monitoring', 'Reserve Manager', 'Woodland Lead Adviser', 'Ringer', 'Marine Future', 'Wilder Landscapes', 'Botanical Surveyor', 'Coast Explorer', 'Water Quality', 'Agriculture Technical Assistant', 'Managing Moors', 'Wilder Lives', 'Wilder Childhood', 'UK Habs Surveyor', 'Landscape Officer', 'Mammals', 'Carnivore', 'Woodland Creation', 'Estate Officer', 'Forestry Intern', 'Tree Nursery', 'Action for Nature', 'Local Wildlife Sites', 'Wetlands Expert', 'HabiMap', 'Wilder Ouse', 'New to Nature', 'Catchment Manager', 'Microplastic', 'Chemicals of Emerging Concern', 'Monitoring Systems', 'NPP', 'Northumberland Peat Partnership', 'Wildlife Care'
 ]
@@ -438,7 +438,7 @@ customer_service = [
     'Customer Advisor', 'Driver Support', 'Technical Support Engineer',
     'Customer Satisfaction', 'Installation Coordinator', 'Customer Excellence',
     'Energy Support Social Worker', 'Visitor Reception Officer', 'Customer and Operations',
-    'Wildlife Centre Officer', 'Green Home Installation Manager',
+    'Wildlife Centre Officer', 'Green Home Installation Manager', 'Digital Services Agent',
     'Technical Support Manager', 'Domestic Surveyor', 'Service Assistant',
     'Visitor Centre Assistant', 'Solar Onboarding', 'Domestic Energy Assessor',
     'Centre Assistant', 'Travel Experience Intern', 'Travel Experience Freelancer',
@@ -460,7 +460,7 @@ data = [
 design = [
     'Design', 'Graphic', 'Video', 'Photo', 'Image', 'UX', 'UI', 'Art Director',
     'Studio Manager', 'Creative', 'Artworker', 'Animator', 'Filmmaker',
-    'Landscape Planner', 'Label Art', 'Studio Assistant', 'Artist'
+    'Landscape Planner', 'Label Art', 'Studio Assistant', 'Artist', 'Visual Merchandiser'
 ]
 ecology = [
     'Ecologist', 'Ecology', 'Ecological', 'Ponds Officer', 'Marine Specialist',
@@ -473,7 +473,7 @@ engineering = [
     'Fault', 'Powertrain', 'Thermal', 'Refrigeration', 'Suspension',
     'Composites', 'NVH', 'Tooling Engineer', 'Functional Validation',
     'Safety Engineer', 'Materials', 'Project Engineer', 'BIM', 'Civil',
-    'Mechatronics', 'Controls Engineer', 'Control Engineer',
+    'Mechatronics', 'Controls Engineer', 'Control Engineer', 'Extrusion Technician',
     'Tendering Engineer', 'Field Service Engineer', 'Fuel Cell Engineer',
     'Charging Validation', 'Packaging Engineer', 'Engineering Technician',
     'Engineer, Northern Ireland', 'Engineer - Highways', 'Engineer, Scotland',
@@ -481,7 +481,7 @@ engineering = [
     'Data Acquisition Engineer', 'Test Engineer - Control Systems',
     'RF Engineer', 'Magnet Systems Engineer', 'Engineering Analyst',
     'Magnet Instrumentation', 'Physicist/Engineer', 'Design Engineer',
-    'Safety Case', 'Modelling Engineer', 'Cryogenic Engineer',
+    'Safety Case', 'Modelling Engineer', 'Cryogenic Engineer', 'Extrusion Engineer',
     'Integration Engineer', 'Charging Infrastructure', 'Engineer - Vehicle',
     'Frame Engineer', 'CAE', 'Development Engineer', 'Diagnostic',
     'Voltage Engineer', 'EE', 'Analysis Engineer', 'Body Systems Concepts',
@@ -509,18 +509,18 @@ engineering = [
 finance = [
     'Accountant', 'Accounts', 'Finance', 'Financial', 'Invest', 'ETF', 'FP&A',
     'Tax', 'Capital', 'Trader', 'Treasury', 'Economist', 'Fintech', 'Invoicing',
-    'Payroll', 'CFO', 'Chief Financial Officer', 'Accounts Admin',
+    'Payroll', 'CFO', 'Chief Financial Officer', 'Accounts Admin', 'Money Laundering',
     'Credit Controller', 'Quantity Surveyor', 'Securities', 'Lending', 'Audit',
     'Income', 'Credit Specialist', 'Credit Risk', 'Accounting', 'Carbon Deals',
     'Middle Office', 'Carbon Market', 'Integrated Compensation', 'Originator',
-    'Purchase Ledger', 'Credit Manager', 'Capital Marketplace',
+    'Purchase Ledger', 'Credit Manager', 'Capital Marketplace', 'Carbon Funds',
     'Credit Control Officer', 'Banking', 'Economy', 'Credit Underwriter', 'Fund Manager', 'Affordability', 'M&A', 'Procure to Pay', 'Trading', 'Billing', 'Funding Manager'
 ]
 hr = [
-    'People', 'HR', 'Recruitment', 'Recruiter', 'Human Resources', 'Training',
-    'Talent', 'Culture', 'Resourcing Consultant', 'Volunteer Co-ordinator',
+    'People', 'HR', 'Recruitment', 'Recruiter', 'Human Resources', 'Training', 'Induction Officer',
+    'Talent', 'Culture', 'Resourcing Consultant', 'Volunteer Co-ordinator', 'Total Reward',
     'Learning and Development', 'Compensation', 'Benefits', 'Workforce Planning',
-    'Resource Advisor', 'Equality, Diversity and Inclusion', 'EDI',
+    'Resource Advisor', 'Equality, Diversity and Inclusion', 'EDI', 'Shift Coordinator', 'Shift Manager',
     'Safeguarding', 'Wellbeing', 'Head of Reward', 'Health, Safety & Wellbeing', 'Organisational Development', 'Career Entry', 'Skills Advisor', 'Team Manager', 'Head of Change Enablement', 'Learning & Development', 'Professional Development', 'Skills Officer', 'Anti-Racism'
 ]
 it = [
@@ -537,7 +537,7 @@ it = [
 ]
 legal = [
     'Legal', 'Regulation', 'Regulator', 'Law', 'Certification', 'Compliance',
-    'Risk', 'Functional Safety', 'GRC', 'Protected Sites Senior Adviser',
+    'Risk', 'Functional Safety', 'GRC', 'Protected Sites Senior Adviser', 'In-House Counsel',
     'District Level Licensing', 'Regional Counsel', 'Paralegal', 'Planning Consent',
     'Standards Manager', 'Assurance', 'Area Incident', 'Monitoring Assessor',
     'Waste Assessor', 'Environment Management Incident', 'Head of Contracts',
@@ -549,20 +549,20 @@ marketing = [
     'Social Media', 'Demand Generation', 'Branding', 'PR', 'Outreach', 'CRM',
     'Digital Acquisition', 'SEO', 'Search Engine Optimisation', 'Advertising',
     'PPC', 'Copywriter', 'Copy Writer', 'Copywriting', 'Press Officer',
-    'Head of Ecommerce', 'Media Officer', 'Head of Press',
-    'Head of Creative Production', 'CMO', 'Consumer Insight',
+    'Head of Ecommerce', 'Media Officer', 'Head of Press', 'Promotions Officer',
+    'Head of Creative Production', 'CMO', 'Consumer Insight', 'E-Commerce Promotions',
     'Digital Engagement', 'Brand Manager', 'Engagement Manager',
     'Engagement Specialist', 'Engagement Lead', 'User Research', 'Paid Ads',
-    'Brand Executive', 'Paid Social', 'E-Commerce Associate',
-    'User Acquisition', 'Brand Strategy', 'Ecommerce Manager',
+    'Brand Executive', 'Paid Social', 'E-Commerce Associate', 'Membership Manager',
+    'User Acquisition', 'Brand Strategy', 'Ecommerce Manager', 'Promoter',
     'Youth Ambassador', 'Storytelling', 'Brand Rep', 'Stories',
-    'B2B Demand Specialist', 'Travel Experience Intern',
+    'B2B Demand Specialist', 'Travel Experience Intern', 'Lead Generation',
     'Brand Ambassador', 'Engagement Advisor', 'Influencer', 'Brand Sponsor', 'Pr Manager', 'Media Relations', 'Media Manager', 'Martech'
 ]
 operations = [
     'Operations', 'Ops', 'Logistics', 'Quality Assistant', 'Planner',
     'Head of Land', 'Dataflow', 'MEL', 'Fulfilment', 'Knowledge and Research',
-    'Knowledge & Research', 'O&M', 'Project Officer', 'Operator',
+    'Knowledge & Research', 'O&M', 'Project Officer', 'Operator', 'Planning Assistant',
     'Business Process Analyst', 'Volunteer Co-ordinator', 'Skills Co-ordinator',
     'Technical Manager', 'Global Resilience Programme', 'Impact Coordinator',
     'Building Standards Manager', 'Warehouse Support Lead', 'Facilities Manager',
@@ -598,19 +598,19 @@ operations = [
     'Inventory Manager', 'Associate Director', 'Project Installation Manager',
     'Quality and Performance', 'Fleet Manager', 'Customer Demand Manager',
     'Manager - Vehicle Development Workshop', 'Spare Parts Manager',
-    'Vehicle Development Workshop Manager', 'Claims Handler',
+    'Vehicle Development Workshop Manager', 'Claims Handler', 'Depot Liaison',
     'Operational Delivery', 'Performance Monitoring', 'Process Development',
     'Access All Areas Trainee', 'Managing Director', 'MD', 'Associate Director',
     'HSE', 'EHS', 'SHE', 'HSQE', 'Health & Safety', 'Health and Safety',
     'Safety, Health', 'Wholesale Co-ordinator', 'Grocery Technologist',
     'Project Support Coordinator', 'Contract Coordinator', 'Corporate Services',
-    'Wholesale & Consessions Co-ordinator', 'Merchandising',
+    'Wholesale & Consessions Co-ordinator', 'Merchandising', 'Country Manager',
     'Domestic Energy Assessor', 'Regional Manager', 'Project Support Assistant',
     'Quality Partner', 'Quality Specialist', 'Quality Coordinator',
     'Portfolio Officer', 'Contract Supervisor', 'Portfolio (Senior) Associate',
     'Portfolio Associate', 'Installation Manager', 'Flood Incident',
-    'Technical Support Coordinator', 'Buildings Manager',
-    'Business Application Manager', 'Secretariat', 'Governance',
+    'Technical Support Coordinator', 'Buildings Manager', 'Shift Coordinator',
+    'Business Application Manager', 'Secretariat', 'Governance', 'Change Control Coordinator',
     'Executive Co-ordination Manager', 'Operational Manager', 'Contracts Officer', 'Delivery Lead', 'Head of Delivery', 'CI Practitioner', 'Process Lead', 'Metering Specialist', 'Operational Unit Manager', 'Head of Scheme Delivery', 'Charging Solutions Energy Lead', 'Implementation Specialist', 'Implementation Manager', 'Operational Readiness', 'Fund Manager', 'Membership Assistant', 'Depot Manager', 'Portfolio Delivery', 'Fresh Produce Technologist', 'Dispatch Associate', 'Quality Manager', 'Support Services Specialist', 'Collections', 'ERP', 'Enterprise Resource', 'Quality Systems Engineer', 'Venues Co-Ordinator', 'Consents Expert', 'Standards & Methodology', 'Head of Action', 'Head Of Action', 'ECO Specialist', 'Global Director', 'Quality Executive', 'Change Lead', 'Retrofit Coordinator', 'BoM', 'Bill of Materials', 'Operational Support', 'Supplier Manager', 'Events Officer'
 ]
 other = [
@@ -620,26 +620,26 @@ other = [
     'Charity Shop Manager', 'Engagement Officer', 'Centre Manager', 'Education',
     'Nature Nursery', 'HGV Technician', 'HGV Truck Technician', 'Test Driver',
     'Service Support', 'Historic Environment', 'Social Science', 'Bike Rider',
-    'Synthesis and Learning', 'Veterinary', 'Maintenance Officer',
+    'Synthesis and Learning', 'Veterinary', 'Maintenance Officer', 'Warehouse Staff',
     'Sustainable Development Programme - Senior Adviser', 'Strategist',
-    'Healthy Travel Officer', 'Schools Officer', 'Retail Manager',
-    'Site Manager', 'Senior Adviser – Business & Capability', 'Event',
+    'Healthy Travel Officer', 'Schools Officer', 'Retail Manager', 'Cargobike Rider',
+    'Site Manager', 'Senior Adviser – Business & Capability', 'Event', 'E-Cyclist',
     'Learning Designer', 'Digital Learning', 'Chef', 'Strategic Solution',
     'Team Member 3', 'Navigation Moorings', 'Navigation Enforcement', 'NFM',
     'Facilities Officer', 'Navigation Senior Advisor', 'Packaging Cleaner',
     'Recoveries Technical', 'Smart Meter Apprentice', 'Site Supervisor',
-    'Insulation Installer', 'Heating Surveyor', 'Solar Surveyor',
+    'Insulation Installer', 'Heating Surveyor', 'Solar Surveyor', 'Warehouse Shift',
     'Delivery Driver', 'Delivery Rider', 'Warehouse Operative', 'Caretaker',
     'Pot Washer', 'Senior Contract Support Officer', 'Chemicals Future Funding',
     'Environment & Business Adviser', 'Evidence Advisor', 'AIT Officer',
     'Waterways Business Officer', 'Water Resources Security of Supply',
-    'Manufacturing Operative', 'Warehouse Supervisor', 'Inspector',
+    'Manufacturing Operative', 'Warehouse Supervisor', 'Inspector', 'Teaching',
     'Building Surveyor', 'Learning Officer', 'Cleaner', 'Heat Pump Engineer',
     'Field Support Specialist', 'Waterways Advisor', 'Hazardous Waste',
     'I Bike Officer', 'Definition of Waste', 'Adviser - Coastal Programme',
     'Coastal Planning', 'Water Quality Officer', 'Water Quality Advisor',
     'Chartered Surveyor', 'Store Manager', 'Cambridge Assistant Manager',
-    'Warehouse Recycling Operative', 'Driver', 'Proforest Graduate',
+    'Warehouse Recycling Operative', 'Driver', 'Proforest Graduate', 'Beverage Assistant',
     'Graduate Scheme 2023', 'Domestic Surveyor', 'Project Delivery Assistant',
     'Kitchen', 'Water Resource', 'Environment Incident', 'Camp Manager',
     'Lecturer', 'Bike Mechanic', 'Bicycle Mechanic', 'Bike Builder', 'Sports',
@@ -648,16 +648,16 @@ other = [
     'Water Company', 'Thames Estuary 2100', 'Humber Strategy', 'Maintenance Manager',
     'Incident Planning Officer', 'Publisher', 'Field Technician', 'Facilities Support',
     'Recycling Advisor', 'Site Care Assistant', 'Planning Officer', 'Activity Support',
-    'Landscape Architect', 'Solar Technical Executive', 'Flood Inciedent',
+    'Landscape Architect', 'Solar Technical Executive', 'Flood Inciedent', 'Shop Assistant',
     'Food Industry Team Coordinator', 'Textiles', 'Publishing', 'Facilities Technician',
-    'Gas Industry Expert', 'Boston Barrier', 'Water Level', 'Flood Strategy',
+    'Gas Industry Expert', 'Boston Barrier', 'Water Level', 'Flood Strategy', 'Deputy Manager At Weddings',
     'Outdoor Learning', 'Skomer Visitor Officer', 'Barista', 'Housekeeper', 'Plumber', 'Forest School', 'Construction Manager', 'Construction Supervisor', 'Appraisal Senior Advisor', 'Archivist', 'Reservoir', 'Knowledge Specialist', 'Gas Shipper Expert', 'Area Director', 'Area Manager', 'Fens 2100+', 'Depot Assistant', 'Sweeper Driver', 'Flood Warning Officer', 'Technical Officer', 'Technical Advisor', 'Laundry Assistant', 'Laundry Supervisor', 'Tour Guide', 'Machine Operator', 'Contract Senior Advisor', 'Health Specialist', 'Waste Treatment', 'Waste Storage', 'Catering', 'Packing Assistant', 'Tactical Drought', 'Organisational Resilience', 'Information Management', 'Corporate Strategy', 'Incident Officer', 'Journalist', 'Plasterer', 'Amenity Maintenance', 'Associate - Offshore Wind', 'MMO Support Officer'
 ]
 outdoorsy = [
     'Horticultural', 'Field Data', 'Field Ecologist', 'Ranger',
     'Wild Spaces Officer', 'Reserves Manager', 'Biological Recorder',
     'Farm Advice Officer', 'Reserves Officer', 'Reserve Officer',
-    'Landscape Operative', 'Warden', 'Conservation Officer',
+    'Landscape Operative', 'Warden', 'Conservation Officer', 'Reserves Trainee',
     'Grazing Officer', 'Work Party', 'Walled Garden', 'Wildlife Care',
     'Habitat Biodiversity Assessment', 'Ponds Officer', 'Stocksperson', 'NCEA',
     'Natural Capital & Ecosystem Assessment', 'Keeper', 'Arborist',
@@ -665,9 +665,9 @@ outdoorsy = [
     'Arb Team Leader', 'Glasshouse', 'Field Operations', 'Operations Field',
     'Marine Monitoring', 'Field Monitoring', 'Fencing Site Supervisor',
     'SA Exchange Technician', 'Grey Squirrel', 'Species Protection Officer',
-    'Waterways Workforce', 'Landscaper', 'Gardener',
+    'Waterways Workforce', 'Landscaper', 'Gardener', 'Reserve Trainee',
     'Species and Recording Officer', 'Field Worker', 'Field Surveyor',
-    'Camp Manager', 'Habitat Survey', 'Arboricultural Surveyor',
+    'Camp Manager', 'Habitat Survey', 'Arboricultural Surveyor', 'Environmental Practitioner',
     'Habitats Officer', 'Reserves Assistant', 'Woodland Assistant',
     'Land Manage', 'Field Technician', 'Wildlife Boat Guide', 'Reserve Manager',
     'Field Team', 'Outdoor Learning', 'Ringer', 'Horticulture', 'Botanical Surveyor', 'Acorn Farm', 'UK Habs Surveyor', 'Grounds Maintenance', 'Grounds Person', 'Landscape Officer', 'Woodland Creation Officer', 'Estate Officer', 'HabiMap', 'Amenity Maintenance', 'Survey Contractor'
@@ -678,7 +678,7 @@ procurement = [
 ]
 product = [
     'Product', 'CPO', 'Climate Methodologies Lead', 'Ecommerce Manager',
-    'Retention', 'Packaging Manager'
+    'Retention', 'Packaging Manager', 'Platform Owner', 'Solution Owner'
 ]
 project_mgmt = [
     'Project Manager', 'Programme Manager', 'Programme Lead', 'Project Director',
@@ -699,7 +699,7 @@ project_mgmt = [
     'HS2 Manager', 'Programme Delivery Advisor', 'Manager Smarth Growth',
     'Delivery Manager', 'Estate Manage', 'Senior Managing Consultant',
     'Manager Business Applications Technology', 'Global Director',
-    'Programs Coordinator', 'Publishing Systems Coordinator',
+    'Programs Coordinator', 'Publishing Systems Coordinator', 'Group Planning',
     'Coordinator – Climate Program', 'Customer Excellence Lead',
     'Programme Coordination', 'National Monitoring Technical Officer',
     'Project Controls Manager', 'Project Development Coordination',
@@ -727,18 +727,18 @@ rewilding = [
     'Wilder Engagement', 'Wilder Rivers', 'Restoring', 'Trillion Trees',
     'Nature North', 'Advisor for Trees', 'Kelp', 'Restoration', 'Pool Frog',
     'Woodland Hope', 'Urban Forestry', 'Stork', 'Mussel', 'Corncrake',
-    'Seagrass', 'Atlantic Rainforest', 'Get the Marches Buzzing',
+    'Seagrass', 'Atlantic Rainforest', 'Get the Marches Buzzing', 'Natural Solutions',
     'Wigan Greenheart', 'Working Wetlands', 'Woodland Lead Adviser', 'Wilder Landscapes', 'Managing Moors', 'Woodland Creation', 'Forestry Intern', 'Tree Nursery', 'Local Wildlife Sites', 'Wilder Ouse', 'Wilder', 'NPP', 'Northumberland Peat Partnership'
 ]
 sales = [
-    'Sales', 'Fundraising', 'Commercial Lead', 'Account Executive', 'Donor',
+    'Sales', 'Fundraising', 'Commercial Lead', 'Account Executive', 'Donor', 'Membership Manager',
     'Commercial Manager', 'Fundraiser', 'Individual Giving', 'Bid Development',
     'Philanthropy', 'Legacy Giving', 'Membership Recruiter', 'Grant', 'Trusts',
-    'In Memory', 'In Memoriam', 'Membership Officer', 'Electrical Estimator',
+    'In Memory', 'In Memoriam', 'Membership Officer', 'Electrical Estimator', 'Philanthropy Manager',
     'Revenue Operations', 'Development Officer', 'Head of Independent Partners',
     'Supporter Experience', 'Client Associate', 'Development Manager', 'Development Assistant',
     'Income Generation', 'Information Officer', 'Bid Manager', 'Wholesale Lead',
-    'Public Funding', 'Charges Team', 'Licensing', 'Development Coordinator',
+    'Public Funding', 'Charges Team', 'Licensing', 'Development Coordinator', 'Lead Generation',
     'Major Giving', 'Legacies', 'Field Activation', 'Novel CDR Business', 'Income Advisor', 'Climate Contribution Fund', 'Funding', 'SDR'
 ]
 science = [
@@ -766,7 +766,7 @@ software = [
     '.NET', 'Support Engineer', 'C++', 'React Native', 'Next.js',
     'Security Engineer', 'Rust', 'TypeScript', 'Haskell', 'Data Acquisition',
     'Test Engineer - Control Systems', 'Cloud Architect', 'Security Analyst',
-    'Security Architect', 'Infotainment', 'ETRM Developer',
+    'Security Architect', 'Infotainment', 'ETRM Developer', 'Enterprise Architect',
     'Chief Technical Officer', 'Tech Lead', 'NetOps', 'Network Operations',
     'Golang', 'Data Warehouse', 'Kafka', 'Web Developer', 'Network Cloud',
     'Windows', 'App Developer', 'App Development', 'Web Engineer',
@@ -783,14 +783,13 @@ shit_jobs = [
     'Hospitality Assistant', 'Catering Assistant', 'Recycling Service Operative',
     'HGV', 'Maintenance Technician', 'Warehouse Associate', 'Courier',
     'Sortation Support', 'Retail Assistant',
-    'Retail Sales Associate', 'Retail Supervisor', 'Warehouse Staff',
-    'Cafe', 'Café', 'Warehouse Shift', 'Cargobike Rider',
-    'Housekeeping', 'Cook', 'Mechanisation Arb',
+    'Retail Sales Associate', 'Retail Supervisor',
+    'Cafe', 'Café', 'Housekeeping', 'Cook', 'Mechanisation Arb',
     'Mechanised Arb', 'Key Holder', 'Cleaning Technician'
 ]
 sw_or_eng = [
     'Lead Engineer', 'Test Engineer', 'Systems Engineer', 'Head of Engineering',
-    'Engineering Manager', 'Senior Engineer', 'Director of Engineering'
+    'Engineering Manager', 'Senior Engineer', 'Director of Engineering', 'Principal Engineer'
 ]
 trustees = [
     'Trustee', 'Honorary', 'Treasurer', 'Chair of the Board',
