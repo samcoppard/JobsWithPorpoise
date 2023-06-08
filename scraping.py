@@ -4881,23 +4881,19 @@ class EVenergy(scrapy.Spider):
       c0 = job['relationships']['locations']['data']
       # If the city is filled in, store it in c. Otherwise, set c to be an empty string
       if c0 != []:
-        c1 = job['relationships']['locations']['data'][0]['id']
-        c2 = data['included']
-        for item in c2:
-          if item['id'] == c1:
-            c3 = item['attributes']['name']
-      else:
-        c3 = ""
-      # Check if the job is remote (this seems to always be filled in, hopefully it stays that way), then append that status to the location (unless it's not remote)
-      remote = job['attributes']['remote-status']
-      if remote != "none":
-        c = c3 + " - " + remote + " remote"
-      else:
-        c = c3
-      # Filter out non-UK jobs
-      if 'New York' not in c:
-        job_list.append(
-            {'Company': 'EV.energy', 'Job Title': a, 'Job URL': b, 'Location': c})
+        print(c0)
+        c1 = [location['id'] for location in c0]
+        print(c1)
+        org_locations = data['included']
+        job_locations = []
+        for item in org_locations:
+          if item['id'] in c1:
+            job_locations.append(item['attributes']['city'])
+        print(job_locations)
+        if 'London' in job_locations:
+          c = 'Fully Remote'
+          job_list.append(
+              {'Company': 'EV.energy', 'Job Title': a, 'Job URL': b, 'Location': c})
 
 
 # Create the Spider class
