@@ -5,6 +5,7 @@ from psycopg2.extras import DictCursor
 from datetime import date
 import requests
 import json
+import time
 
 # Pull in the csv of categorised jobs
 scraped_csv = pd.read_csv('categorised_jobs.csv')
@@ -124,11 +125,10 @@ def get_collection_items(collection, offset):
 
 #This dictionary will store the names and Webflow Item IDs of every item in every collection (except Jobs & Organisations)
 collection_items_dict = {}
-offset = 0
 
 get_webflow_collections()
 for collection in ['Sectors', 'Accreditations', 'Business or charities', 'Available roles', 'Locations', 'Seniorities']:
-    get_collection_items(collection, offset)
+    get_collection_items(collection, offset=0)
 
 #Add the extra IDs you need that aren't stored in collections (these are dropdown options in Webflow)
 collection_items_dict["Multiple locations - true"] = "455ae768ed4cb346f4a0e6a28621f8bf"
@@ -213,6 +213,9 @@ for job in jobs_created_today:
         cursor.execute("UPDATE jobs \
                     SET webflow_item_id = %s \
                     WHERE concat_name = %s AND date_removed IS NULL;", (data["_id"], job['concat_name']))
+
+    #Simplest way to get around rate limiting issues (should do this in a better way in future)    
+    time.sleep(1)
 
 
 # Commit the changes
