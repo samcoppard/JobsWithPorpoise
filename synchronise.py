@@ -1,5 +1,4 @@
 import os
-import time
 
 # Create a method to run individual files
 
@@ -21,6 +20,12 @@ def scrape_to_postgres_to_webflow():
 
     # Run the file that updates Postgres and Webflow with new jobs
     runpy("new_jobs.py")
+
+    # Run the file that updates organisations in Postgres
+    runpy("psql_org_update.py")
+
+    # Run the file that syncs orgs in Webflow CMS with orgs in psql
+    runpy("org_sync.py")
 
 
 scrape_to_postgres_to_webflow()
