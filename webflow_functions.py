@@ -21,7 +21,7 @@ def get_webflow_api_key():
 
 
 def get_webflow_collections():
-    """Return a dictionary of all Webflow collection names and IDs"""
+    """ Return a dictionary of all Webflow collection names and IDs """
     
     # Get your Webflow API key and site ID
     site_id = get_webflow_site_id()
@@ -44,8 +44,8 @@ def get_webflow_collections():
     return collection_dict
 
 
-def get_collection_items(collection, offset, collection_items_dict={}):
-    """Return a dictionary of all item names and IDs for a particular collection"""
+def get_collection_items(collection, offset, dict={}):
+    """ Return a dictionary of all item names and IDs for a particular collection """
 
     # Get your Webflow API key
     webflow_token = get_webflow_api_key()
@@ -69,13 +69,32 @@ def get_collection_items(collection, offset, collection_items_dict={}):
 
         # Add returned collection items and their item IDs to the dictionary
         for item in data['items']:
-            collection_items_dict[item['name']] = item['_id']
+            dict[f"{collection} - {item['name']}"] = item['_id']
 
         if data['count'] + data['offset'] < data['total']:
             offset += 100
-            get_collection_items(collection, offset, collection_items_dict)
+            get_collection_items(collection, offset, dict)
 
-        return collection_items_dict
+        return dict
+
+
+
+def get_static_collection_items():
+    """ Return a dictionary of all item names and IDs for all static collections i.e. not Jobs or Organisations, plus IDs for dropdown options """
+    static_collection_items_dict = {}
+
+    for collection in ['Sectors', 'Accreditations', 'Business or charities', 'Available roles', 'Locations', 'Seniorities']:
+        get_collection_items(collection, offset=0, dict=static_collection_items_dict)
+
+    # Add the extra IDs you need that aren't stored in collections (these are dropdown options in Webflow)
+    static_collection_items_dict["Multiple locations - true"] = "455ae768ed4cb346f4a0e6a28621f8bf"
+    static_collection_items_dict["Multiple locations - false"] = "27ac7f940152cdfc8a8368aa282da9e3"
+    static_collection_items_dict["Rewilding - true"] = "dacaf901d0aeed0c3359f1447380ada3"
+    static_collection_items_dict["Rewilding - false"] = "4c1341378df85b075fe19ae70c0c9b96"
+    static_collection_items_dict["BizOrChar - Business"] = "7f61f4cb6e6c23177283916a85bf40db"
+    static_collection_items_dict["BizOrChar - Charity"] = "6396a5d85efc020870e39f39ac2758d8"
+
+    return static_collection_items_dict
 
 
 

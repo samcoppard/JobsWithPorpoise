@@ -24,39 +24,13 @@ psql_orgs = [dict(row) for row in rows]
 
 """ Pull all fields for all orgs in Webflow CMS """
 
-
-def get_webflow_collections():
-    """Return a dictionary of all Webflow collection names and IDs"""
-
-    # Get your Webflow authorisation token and site ID
-    site_id = keyring.get_password("login", "Webflow Site ID")
-    webflow_token = keyring.get_password("login", "Webflow Token")
-
-    url = f"https://api.webflow.com/sites/{site_id}/collections"
-
-    headers = {
-        "accept": "application/json",
-        "authorization": f"Bearer {webflow_token}"
-    }
-
-    response = requests.get(url, headers=headers)
-
-    json_string = response.text
-    data = json.loads(json_string)
-
-    collection_dict = {collection["name"]
-        : collection["_id"] for collection in data}
-
-    return collection_dict
-
-
 def get_webflow_orgs(offset, orgs_list=[]):
     """Return a dictionary of all item names and IDs for a particular collection"""
 
     # Get your Webflow authorisation token
     webflow_token = keyring.get_password("login", "Webflow Token")
 
-    url = f"https://api.webflow.com/collections/{get_webflow_collections()['Organisations']}/items?limit=100&offset={offset}"
+    url = f"https://api.webflow.com/collections/{webflow_functions.get_webflow_collections()['Organisations']}/items?limit=100&offset={offset}"
 
     headers = {
         "accept": "application/json",
@@ -95,52 +69,13 @@ def get_webflow_orgs(offset, orgs_list=[]):
 webflow_orgs = get_webflow_orgs(0)
 
 
-""" Compare webflow orgs with psql orgs """
-# To make it a fair comparison, we need to convert psql strings e.g. 'Software' into Webflow item IDs e.g. '6425b9336545cb72069357c7'
+""" Compare webflow orgs with PSQL orgs """
+# To compare like for like, we need to convert PSQL strings e.g. 'Software' into Webflow item IDs e.g. '6425b9336545cb72069357c7'
 
+# Store the names and Webflow item IDs of every item in every collection (except Jobs & Organisations), plus the IDs for important dropdown options in Webflow
+collection_items_dict = webflow_functions.get_static_collection_items()
 
-def get_collection_items(collection, offset):
-    """Return a dictionary of all item names and IDs for a particular collection"""
-
-    # Get your Webflow authorisation token and site ID
-    webflow_token = keyring.get_password("login", "Webflow Token")
-
-    if collection not in ["Organisations", "Jobs", "Sectors", "Accreditations", "Business or charities", "Available roles", "Locations", "Seniorities"]:
-        print("Please use a valid collection name")
-
-    else:
-        url = f"https://api.webflow.com/collections/{get_webflow_collections()[collection]}/items?limit=100&offset={offset}"
-
-        headers = {
-            "accept": "application/json",
-            "authorization": f"Bearer {webflow_token}"
-        }
-
-        response = requests.get(url, headers=headers)
-
-        # Parse the text part of the response into JSON
-        json_string = response.text
-        data = json.loads(json_string)
-
-        # Add returned collection items and their item IDs to the dictionary
-        for item in data['items']:
-            collection_items_dict[f"{collection} - {item['name']}"] = item['_id']
-
-        if data['count'] + data['offset'] < data['total']:
-            offset += 100
-            get_collection_items(collection, offset)
-
-        return collection_items_dict
-
-
-# This dictionary will store the names and Webflow Item IDs of every item in every collection (except Jobs & Organisations)
-collection_items_dict = {}
-
-get_webflow_collections()
-for collection in ['Sectors', 'Accreditations', 'Business or charities', 'Available roles']:
-    get_collection_items(collection, offset=0)
-
-# Transform psql attributes into webflow attributes for each organisation
+# Transform PSQL attributes into webflow attributes for each organisation
 for org in psql_orgs:
     org['sectors'] = [collection_items_dict[f"Sectors - {sector}"] for sector in org['sectors']] if org['sectors'] is not None else ""
     org['available_roles'] = [collection_items_dict[f"Available roles - {role}"]
@@ -153,10 +88,9 @@ for org in psql_orgs:
 
 
 
-
-""" First check if any webflow orgs are no longer in the psql database - these should be deleted from webflow
-    Then check if any psql orgs are not in webflow - these should be added to webflow
-    Then check that the other psql orgs have the same attributes as those in webflow - any that don't should be patched in webflow """
+""" First check if any webflow orgs are no longer in the PSQL database - these should be deleted from webflow
+    Then check if any PSQL orgs are not in webflow - these should be added to webflow
+    Then check that the other PSQL orgs have the same attributes as those in webflow - any that don't should be patched in webflow """
 
 def add_new_org_to_webflow(name, website, careers_page, mission, accreditations, available_roles, hiring, bizorchar, sectors):
     """ Create a new item in the Organisations collection, and return its Webflow item ID """

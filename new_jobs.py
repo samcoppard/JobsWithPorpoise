@@ -19,9 +19,6 @@ conn, cursor = psql_functions.connect_to_psql_database()
 # Create an empty list to contain details of all the new jobs we're going to add to the database
 new_jobs = []
 
-# Get today's date (so we can add it to the date_added field in SQL for new jobs
-tdy = date.today()
-
 # We need a list of jobs in the database to compare with, so let's pull all the live jobs
 cursor.execute("SELECT * FROM jobs_for_webflow \
                WHERE date_removed IS NULL \
@@ -39,7 +36,7 @@ for ind in scraped_jobs.index:
             "concat_name": scraped_jobs['concat'][ind],
             "title": scraped_jobs['Job Title'][ind],  # This doesn't need to be unique
             "link_to_apply": scraped_jobs['Job URL'][ind],
-            "date_added_string": f"🗓  Posted {tdy.strftime('%d/%m/%y')}",
+            "date_added_string": f"🗓  Posted {date.today().strftime('%d/%m/%y')}",
             "location": scraped_jobs['mapped_location'][ind].split(', '),
             "seniority": scraped_jobs['seniority'][ind].split(', '),
             "job_type": scraped_jobs['job_types'][ind].split(', '),
@@ -50,86 +47,23 @@ for ind in scraped_jobs.index:
 for job in new_jobs:
     cursor.execute("INSERT INTO jobs(concat_name, title, link_to_apply, organisation, job_type, seniority, location, date_added, date_added_string, date_removed) \
                 VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, NULL);",
-                (job['concat_name'][:255], job['title'][:255], job['link_to_apply'][:255], job['organisation'], job['job_type'], job['seniority'], job['location'], tdy, job['date_added_string']))
+                (job['concat_name'][:255], job['title'][:255], job['link_to_apply'][:255], job['organisation'], job['job_type'], job['seniority'], job['location'], date.today(), job['date_added_string']))
 
 
 """ WEBFLOW TIME """
 
 #We need to get the item IDs for job types, sectors, locations, etc before we can add the jobs to Webflow
 
-# Get your Webflow authorisation token and site ID
-site_id = keyring.get_password("login", "Webflow Site ID")
-webflow_token = keyring.get_password("login", "Webflow Token")
+# Get your Webflow authorisation token
+webflow_token = webflow_functions.get_webflow_api_key()
 
-def get_webflow_collections():
-    """Return a dictionary of all Webflow collection names and IDs"""
-    url = f"https://api.webflow.com/sites/{site_id}/collections"
-
-    headers = {
-        "accept": "application/json",
-        "authorization": f"Bearer {webflow_token}"
-    }
-
-    response = requests.get(url, headers=headers)
-
-    json_string = response.text
-    data = json.loads(json_string)
-
-    collection_dict = {collection["name"]: collection["_id"] for collection in data}
-
-    return collection_dict
-
-
-def get_collection_items(collection, offset):
-    """Return a dictionary of all item names and IDs for a particular collection"""
-
-    if collection not in ["Organisations", "Jobs", "Sectors", "Accreditations", "Business or charities", "Available roles", "Locations", "Seniorities"]:
-        print("Please use a valid collection name")
-
-    else:
-        url = f"https://api.webflow.com/collections/{get_webflow_collections()[collection]}/items?limit=100&offset={offset}"
-
-        headers = {
-            "accept": "application/json",
-            "authorization": f"Bearer {webflow_token}"
-        }
-
-        response = requests.get(url, headers=headers)
-
-        # Parse the text part of the response into JSON
-        json_string = response.text
-        data = json.loads(json_string)
-
-        # Add returned collection items and their item IDs to the dictionary
-        for item in data['items']:
-            collection_items_dict[f"{collection} - {item['name']}"] = item['_id']
-
-        if data['count'] + data['offset'] < data['total']:
-            offset += 100
-            get_collection_items(collection, offset)
-
-        return collection_items_dict
-
-# This dictionary will store the names and Webflow Item IDs of every item in every collection (except Jobs & Organisations)
-collection_items_dict = {}
-
-get_webflow_collections()
-for collection in ['Sectors', 'Accreditations', 'Business or charities', 'Available roles', 'Locations', 'Seniorities']:
-    get_collection_items(collection, offset=0)
-
-# Add the extra IDs you need that aren't stored in collections (these are dropdown options in Webflow)
-collection_items_dict["Multiple locations - true"] = "455ae768ed4cb346f4a0e6a28621f8bf"
-collection_items_dict["Multiple locations - false"] = "27ac7f940152cdfc8a8368aa282da9e3"
-collection_items_dict["Rewilding - true"] = "dacaf901d0aeed0c3359f1447380ada3"
-collection_items_dict["Rewilding - false"] = "4c1341378df85b075fe19ae70c0c9b96"
-collection_items_dict["BizOrChar - Business"] = "7f61f4cb6e6c23177283916a85bf40db"
-collection_items_dict["BizOrChar - Charity"] = "6396a5d85efc020870e39f39ac2758d8"
-
+# Store the names and Webflow item IDs of every item in every collection (except Jobs & Organisations), plus the IDs for important dropdown options in Webflow
+collection_items_dict = webflow_functions.get_static_collection_items()
 
 # Pull a list of all the jobs we've just created in the database
 cursor.execute("SELECT * FROM jobs_for_webflow \
                WHERE date_added = %s;",
-               (tdy,))
+               (date.today(),))
 
 # Get the results
 jobs_created_today = cursor.fetchall()
