@@ -1,8 +1,7 @@
 import pandas as pd
 from datetime import date
-import requests
-import keyring
 import psql_functions
+import webflow_functions
 
 # Pull in the csv of categorised jobs
 scraped_csv = pd.read_csv('categorised_jobs.csv')
@@ -45,23 +44,4 @@ for row in rows:
 psql_functions.close_psql_connection(conn, cursor)
 
 # Now delete these expired jobs from Webflow
-
-# Get your Webflow authorisation token
-webflow_token = keyring.get_password("login", "Webflow Token")
-
-def delete_webflow_jobs(list):
-    url = "https://api.webflow.com/collections/6347d24d945dd61cc70ba3de/items"
-
-    payload = {"itemIds": list}
-
-    headers = {
-        "accept": "application/json",
-        "content-type": "application/json",
-        "authorization": f"Bearer {webflow_token}"
-    }
-
-    response = requests.delete(url, json=payload, headers=headers)
-
-    print(response.text)
-
-delete_webflow_jobs(records_to_delete)
+webflow_functions.delete_webflow_items('Jobs', records_to_delete)

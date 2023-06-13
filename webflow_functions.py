@@ -2,12 +2,30 @@ import requests
 import json
 import keyring
 
+def get_webflow_site_id():
+    """ Fetch Webflow site ID, stored locally in MacOS Keychain """
+
+    webflow_site_id = keyring.get_password(
+        "login", "Webflow Site ID")
+
+    return webflow_site_id
+
+
+def get_webflow_api_key():
+    """ Fetch Webflow API key, stored locally in MacOS Keychain """
+
+    webflow_api_key = keyring.get_password(
+        "login", "Webflow Token")
+
+    return webflow_api_key
+
+
 def get_webflow_collections():
     """Return a dictionary of all Webflow collection names and IDs"""
     
-    # Get your Webflow authorisation token and site ID
-    site_id = keyring.get_password("login", "Webflow Site ID")
-    webflow_token = keyring.get_password("login", "Webflow Token")
+    # Get your Webflow API key and site ID
+    site_id = get_webflow_site_id()
+    webflow_token = get_webflow_api_key()
 
     url = f"https://api.webflow.com/sites/{site_id}/collections"
 
@@ -29,8 +47,8 @@ def get_webflow_collections():
 def get_collection_items(collection, offset, collection_items_dict={}):
     """Return a dictionary of all item names and IDs for a particular collection"""
 
-    # Get your Webflow authorisation token
-    webflow_token = keyring.get_password("login", "Webflow Token")
+    # Get your Webflow API key
+    webflow_token = get_webflow_api_key()
 
     if collection not in ["Organisations", "Jobs", "Sectors", "Accreditations", "Business or charities", "Available roles", "Locations", "Seniorities"]:
         print("Please use a valid collection name")
@@ -61,13 +79,13 @@ def get_collection_items(collection, offset, collection_items_dict={}):
 
 
 
-def delete_webflow_jobs(list_of_item_ids):
-    """ Delete all Webflow item IDs provided in a list, provided they're all in the Jobs collection """
+def delete_webflow_items(collection, list_of_item_ids):
+    """ Delete multiple items in a single Webflow collection """
 
-    # Get your Webflow authorisation token
-    webflow_token = keyring.get_password("login", "Webflow Token")
+    # Get your Webflow API key
+    webflow_token = get_webflow_api_key()
 
-    url = "https://api.webflow.com/collections/6347d24d945dd61cc70ba3de/items"
+    url = f"https://api.webflow.com/collections/{get_webflow_collections()[collection]}/items"
 
     payload = {"itemIds": list_of_item_ids}
 
@@ -86,8 +104,8 @@ def delete_webflow_jobs(list_of_item_ids):
 def create_webflow_job(job_name, job_title, job_link, job_date, job_date_str, job_location, job_multiple_locations, job_seniority, job_type, job_rewilding, org, org_name, org_website, org_careers_page, org_mission, org_accreditations, org_bizorchar, org_sectors):
     """ Create a new item in the Jobs collection, and return its Webflow item ID """
 
-    # Get your Webflow authorisation token
-    webflow_token = keyring.get_password("login", "Webflow Token")
+    # Get your Webflow API key
+    webflow_token = get_webflow_api_key()
 
     url = "https://api.webflow.com/collections/6347d24d945dd61cc70ba3de/items"
 
@@ -132,8 +150,8 @@ def create_webflow_job(job_name, job_title, job_link, job_date, job_date_str, jo
 def create_webflow_org(name, website, careers_page, mission, accreditations, available_roles, hiring, bizorchar, sectors):
     """ Create a new item in the Organisations collection, and return its Webflow item ID """
 
-    # Get your Webflow authorisation token
-    webflow_token = keyring.get_password("login", "Webflow Token")
+    # Get your Webflow API key
+    webflow_token = get_webflow_api_key()
 
     url = "https://api.webflow.com/collections/62e3ab17f169f84e746dc54e/items"
 
@@ -170,8 +188,8 @@ def create_webflow_org(name, website, careers_page, mission, accreditations, ava
 def patch_webflow_org(org_webflow_id, org_slug, org_name, hiring, available_roles):
     """ Patch an item in the Organisations collection. We only ever need to change the 'currently hiring' and 'available roles' fields, so that's all this function does """
 
-    # Get your Webflow authorisation token
-    webflow_token = keyring.get_password("login", "Webflow Token")
+    # Get your Webflow API key
+    webflow_token = get_webflow_api_key()
     
     url = f"https://api.webflow.com/collections/62e3ab17f169f84e746dc54e/items/{org_webflow_id}"
 
@@ -196,11 +214,11 @@ def patch_webflow_org(org_webflow_id, org_slug, org_name, hiring, available_role
 
 
 
-def publish_items(collection, list_of_item_ids):
+def publish_webflow_items(collection, list_of_item_ids):
     """ Publish multiple items in a single Webflow collection """
 
-    # Get your Webflow authorisation token
-    webflow_token = keyring.get_password("login", "Webflow Token")
+    # Get your Webflow API key
+    webflow_token = get_webflow_api_key()
 
     url = f"https://api.webflow.com/collections/{get_webflow_collections()[collection]}/items/publish"
 

@@ -5,6 +5,7 @@ import requests
 import json
 import time
 import psql_functions
+import webflow_functions
 
 """ Pull all attributes for all orgs in PSQL database """
 
@@ -157,27 +158,6 @@ for org in psql_orgs:
     Then check if any psql orgs are not in webflow - these should be added to webflow
     Then check that the other psql orgs have the same attributes as those in webflow - any that don't should be patched in webflow """
 
-def delete_orgs_from_webflow(list_of_item_ids):
-    """ Delete all Webflow item IDs provided in a list, provided they're all in the Organisations collection """
-
-    # Get your Webflow authorisation token
-    webflow_token = keyring.get_password("login", "Webflow Token")
-
-    url = "https://api.webflow.com/collections/62e3ab17f169f84e746dc54e/items"
-
-    payload = {"itemIds": list_of_item_ids}
-
-    headers = {
-        "accept": "application/json",
-        "content-type": "application/json",
-        "authorization": f"Bearer {webflow_token}"
-    }
-
-    response = requests.delete(url, json=payload, headers=headers)
-
-    print(response.text)
-
-
 def add_new_org_to_webflow(name, website, careers_page, mission, accreditations, available_roles, hiring, bizorchar, sectors):
     """ Create a new item in the Organisations collection, and return its Webflow item ID """
 
@@ -270,10 +250,11 @@ def patch_org_in_webflow(webflow_item_id, webflow_slug, org_name, website, caree
     # Simplest way to get around rate limiting issues
     time.sleep(1)
 
-
+# Create a list containing the names of all organisations in Webflow, and the same for PSQL
 webflow_orgs_names = [org['name'] for org in webflow_orgs]
 psql_orgs_names = [org['name'] for org in psql_orgs]
 
+# Check for any orgs that are in Webflow but not in PSQL, and delete any you find
 org_ids_to_delete = []
 
 for org in webflow_orgs:
@@ -281,18 +262,21 @@ for org in webflow_orgs:
         org_ids_to_delete.append(org['webflow_item_id'])
 
 if org_ids_to_delete != []:
-    delete_orgs_from_webflow(org_ids_to_delete)
+    webflow_functions.delete_webflow_items('Organisations', org_ids_to_delete)
 
+# Now check orgs in PSQL against those in Webflow
 org_ids_to_publish = []
 
+# If any are in PSQL but not Webflow, add them to Webflow
 for org in psql_orgs:
     if org['name'] not in webflow_orgs_names:
         add_new_org_to_webflow(name=org['name'], website=org['website'], careers_page=org['careers_page'],
                                mission=org['mission'], accreditations=org['accreditations'],
                                available_roles=org['available_roles'], hiring=org['currently_hiring'],
                                bizorchar=org['biz_or_char'], sectors=org['sectors'])
+    # Patch any orgs in Webflow that have different attributes in PSQL
     else:
-        if org not in webflow_orgs: # i.e. if the org's attributes are different in psql vs webflow
+        if org not in webflow_orgs: # i.e. if the org's attributes are different in PSQL vs Webflow
             patch_org_in_webflow(webflow_item_id=org['webflow_item_id'], webflow_slug=org['webflow_slug'],
                                  org_name=org['name'], website=org['website'], careers_page=org['careers_page'],
                                  mission=org['mission'], accreditations=org['accreditations'],
@@ -301,29 +285,8 @@ for org in psql_orgs:
 
 
 # Publish the new / patched orgs in Webflow
-def publish_items(collection, list_of_item_ids):
-    """ Publish multiple items in a single Webflow collection """
-
-    # Get your Webflow authorisation token
-    webflow_token = keyring.get_password("login", "Webflow Token")
-
-    url = f"https://api.webflow.com/collections/{get_webflow_collections()[collection]}/items/publish"
-
-    payload = {"itemIds": list_of_item_ids}
-
-    headers = {
-        "accept": "application/json",
-        "content-type": "application/json",
-        "authorization": f"Bearer {webflow_token}"
-    }
-
-    response = requests.put(url, json=payload, headers=headers)
-
-    print(response.text)
-
-
 if org_ids_to_publish != []:
-    publish_items('Organisations', org_ids_to_publish)
+    webflow_functions.publish_webflow_items('Organisations', org_ids_to_publish)
 
 # Commit changes and close the PSQL connection
 psql_functions.close_psql_connection(conn, cursor)
