@@ -8,6 +8,7 @@ import psql_functions
 
 """ Pull all attributes for all orgs in PSQL database """
 
+# Connect to the PSQL database and create a cursor object
 conn, cursor = psql_functions.connect_to_psql_database()
 
 # Pull all attributes for all organisations in PSQL database
@@ -324,4 +325,5 @@ def publish_items(collection, list_of_item_ids):
 if org_ids_to_publish != []:
     publish_items('Organisations', org_ids_to_publish)
 
+# Commit changes and close the PSQL connection
 psql_functions.close_psql_connection(conn, cursor)

@@ -12,6 +12,7 @@ scraped_csv = pd.read_csv('categorised_jobs.csv')
 # Turn this into a dataframe
 scraped_jobs = pd.DataFrame(scraped_csv)
 
+# Connect to the PSQL database and create a cursor object 
 conn, cursor = psql_functions.connect_to_psql_database()
 
 # Create an empty list to contain details of all the new jobs we're going to add to the database
@@ -203,6 +204,7 @@ for job in jobs_created_today:
     time.sleep(1)
 
 
+# Commit changes and close the PSQL connection
 psql_functions.close_psql_connection(conn, cursor)
 
 

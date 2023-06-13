@@ -13,6 +13,7 @@ scraped_jobs = pd.DataFrame(scraped_csv)
 # Restrict the 'concat' column to 255 characters, so the format matches that in Postgres (otherwise you delete and recreate jobs with long concat names every day)
 scraped_jobs['concat'] = [i[:255] for i in scraped_jobs['concat']]
 
+# Connect to the PSQL database and create a cursor object
 conn, cursor = psql_functions.connect_to_psql_database()
 
 # Create an empty list to populate with Webflow item IDs of the jobs that we're going to remove
@@ -40,6 +41,7 @@ for row in rows:
                       WHERE concat_name = %s \
                       AND date_removed IS NULL;", (str(tdy), row[0]))
 
+# Commit changes and close the PSQL connection
 psql_functions.close_psql_connection(conn, cursor)
 
 # Now delete these expired jobs from Webflow
