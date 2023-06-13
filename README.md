@@ -1,6 +1,6 @@
 # Jobs With Porpoise
 
-This is the code that powers the back end of [Jobs With Porpoise](https://www.jobswithporpoise.com), which now has 3x more jobs than any other green job board in the UK.
+This is the code that powers the back end of [Jobs With Porpoise](https://www.jobswithporpoise.com), which now has 3x more jobs than any other known green job board in the UK.
 
 A daily cron job runs the file __synchronise.py__, which runs the following files in turn:
 - __scraping.py__
@@ -22,6 +22,12 @@ A daily cron job runs the file __synchronise.py__, which runs the following file
 - __new_jobs.py__
     * Checks all the scraped jobs to see which ones are new today i.e. not already in the PostgreSQL database
     * Any new jobs are added to the database
-    * They're also added to the Webflow CMS (with many interlinked records to make things fun) and published to the live site 
+    * They're also added to the Webflow CMS (with many interlinked records to make things fun) and published to the live site
+
+- __psql_org_update.py__
+    * Updates the PostgreSQL database with the job categories each organisation is currently hiring for
+
+- __org_sync.py__
+    * Syncs any changes made to organisations in the PostgreSQL database across to the Webflow CMS
    
 _N.B. This is a new repo that replaces an earlier private repo, which would have exposed sensitive information if I made it public._
