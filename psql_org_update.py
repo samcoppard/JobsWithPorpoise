@@ -30,6 +30,7 @@ scraped_orgs['no dupes'] = scraped_orgs['no dupes'].apply(
 # Create an empty list to store all the orgs and their available job types that we need to update in PostgreSQL / Webflow
 orgs_with_job_types_to_add = []
 
+# Connect to the PSQL database and create a cursor object
 conn, cursor = psql_functions.connect_to_psql_database()
 
 for ind in scraped_orgs.index:
@@ -57,4 +58,5 @@ cursor.execute("WITH scraped_orgs_not_hiring AS( \
     WHERE name IN(SELECT * FROM scraped_orgs_not_hiring)")
 # The second part of the SQL above is simply setting available_roles = NULL for all the organisations pulled in the CTE
 
+# Commit changes and close the PSQL connection
 psql_functions.close_psql_connection(conn, cursor)
