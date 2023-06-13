@@ -1,6 +1,5 @@
-import keyring
 import pandas as pd
-import psycopg2
+import psql_functions
 
 """ Update all organisations, in the PostgreSQL database and the Webflow CMS, to show which job roles (if any) they're currently hiring for.
     Note that the currently_hiring field in the organisations table in the database is automatically generated, so we don't need to touch it here. """
@@ -31,20 +30,7 @@ scraped_orgs['no dupes'] = scraped_orgs['no dupes'].apply(
 # Create an empty list to store all the orgs and their available job types that we need to update in PostgreSQL / Webflow
 orgs_with_job_types_to_add = []
 
-# Fetch your personal access token, stored in MacOS Keychain
-postgres_password = keyring.get_password(
-    "login", "postgres_password")
-
-# Connect to PostgreSQL database
-conn = psycopg2.connect(
-    database="jobs_with_porpoise",
-    user="postgres",
-    password=postgres_password,
-    host="localhost"
-)
-
-# Create a cursor object (necessary to execute SQL queries and fetch results from the database)
-cursor = conn.cursor()
+conn, cursor = psql_functions.connect_to_psql_database()
 
 for ind in scraped_orgs.index:
   cursor.execute("UPDATE organisations \
@@ -71,9 +57,4 @@ cursor.execute("WITH scraped_orgs_not_hiring AS( \
     WHERE name IN(SELECT * FROM scraped_orgs_not_hiring)")
 # The second part of the SQL above is simply setting available_roles = NULL for all the organisations pulled in the CTE
 
-# Commit the changes so that they persist after closing the connection
-conn.commit()
-
-# Close the database connection
-cursor.close()
-conn.close()
+psql_functions.close_psql_connection(conn, cursor)

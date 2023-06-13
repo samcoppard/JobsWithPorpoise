@@ -1,11 +1,10 @@
 import keyring
 import pandas as pd
-import psycopg2
-from psycopg2.extras import DictCursor
 from datetime import date
 import requests
 import json
 import time
+import psql_functions
 
 # Pull in the csv of categorised jobs
 scraped_csv = pd.read_csv('categorised_jobs.csv')
@@ -13,21 +12,7 @@ scraped_csv = pd.read_csv('categorised_jobs.csv')
 # Turn this into a dataframe
 scraped_jobs = pd.DataFrame(scraped_csv)
 
-# Fetch your personal access token, stored in MacOS Keychain
-postgres_password = keyring.get_password(
-    "login", "postgres_password")
-
-
-# Connect to PostgreSQL database
-conn = psycopg2.connect(
-    database="jobs_with_porpoise",
-    user="postgres",
-    password=postgres_password,
-    host="localhost"
-)
-
-# Create a cursor object (necessary to execute SQL queries and fetch results from the database)
-cursor = conn.cursor(cursor_factory=DictCursor)
+conn, cursor = psql_functions.connect_to_psql_database()
 
 # Create an empty list to contain details of all the new jobs we're going to add to the database
 new_jobs = []
@@ -218,12 +203,7 @@ for job in jobs_created_today:
     time.sleep(1)
 
 
-# Commit the changes
-conn.commit()
-
-# Close the database connection
-cursor.close()
-conn.close()
+psql_functions.close_psql_connection(conn, cursor)
 
 
 """ Publishing time """

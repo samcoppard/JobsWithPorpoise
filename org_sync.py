@@ -1,29 +1,14 @@
 """ Update orgs in Webflow CMS to match orgs in PSQL database """
 
 import keyring
-import psycopg2
-from psycopg2 import extras
 import requests
 import json
 import time
+import psql_functions
 
 """ Pull all attributes for all orgs in PSQL database """
 
-# Fetch your personal access token, stored in MacOS Keychain
-postgres_password = keyring.get_password(
-    "login", "postgres_password")
-
-# Connect to PostgreSQL database
-conn = psycopg2.connect(
-    database="jobs_with_porpoise",
-    user="postgres",
-    password=postgres_password,
-    host="localhost"
-)
-
-# Create a cursor object (necessary to execute SQL queries and fetch results from the database)
-# Using the DictCursor cursor allows us to pull data from the database as a list of dictionaries, rather than as a list of tuples, so we can extract individual attributes more easily / readably
-cursor = conn.cursor(cursor_factory=extras.DictCursor)
+conn, cursor = psql_functions.connect_to_psql_database()
 
 # Pull all attributes for all organisations in PSQL database
 cursor.execute("SELECT name, mission, website, careers_page, sectors, available_roles, biz_or_char, accreditations, currently_hiring, webflow_item_id, webflow_slug \
@@ -339,9 +324,4 @@ def publish_items(collection, list_of_item_ids):
 if org_ids_to_publish != []:
     publish_items('Organisations', org_ids_to_publish)
 
-# Commit the changes
-conn.commit()
-
-# Close the database connection
-cursor.close()
-conn.close()
+psql_functions.close_psql_connection(conn, cursor)
