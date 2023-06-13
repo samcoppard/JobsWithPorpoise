@@ -1,8 +1,8 @@
 import pandas as pd
-import psycopg2
 from datetime import date
 import requests
 import keyring
+import psql_functions
 
 # Pull in the csv of categorised jobs
 scraped_csv = pd.read_csv('categorised_jobs.csv')
@@ -13,22 +13,7 @@ scraped_jobs = pd.DataFrame(scraped_csv)
 # Restrict the 'concat' column to 255 characters, so the format matches that in Postgres (otherwise you delete and recreate jobs with long concat names every day)
 scraped_jobs['concat'] = [i[:255] for i in scraped_jobs['concat']]
 
-# Fetch your personal access token, stored in MacOS Keychain
-import keyring
-postgres_password = keyring.get_password(
-    "login", "postgres_password")
-
-
-# Connect to PostgreSQL database
-conn = psycopg2.connect(
-    database = "jobs_with_porpoise",
-    user = "postgres",
-    password = postgres_password,
-    host = "localhost"
-)
-
-# Create a cursor object (necessary to execute SQL queries and fetch results from the database)
-cursor = conn.cursor()
+conn, cursor = psql_functions.connect_to_psql_database()
 
 # Create an empty list to populate with Webflow item IDs of the jobs that we're going to remove
 records_to_delete = []
@@ -55,12 +40,7 @@ for row in rows:
                       WHERE concat_name = %s \
                       AND date_removed IS NULL;", (str(tdy), row[0]))
 
-# Commit the changes so that they persist after closing the connection
-conn.commit()
-
-# Close the database connection
-cursor.close()
-conn.close()
+psql_functions.close_psql_connection(conn, cursor)
 
 # Now delete these expired jobs from Webflow
 
