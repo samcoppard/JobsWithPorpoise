@@ -5,6 +5,7 @@ import requests
 import json
 import time
 import psql_functions
+import webflow_functions
 
 # Pull in the csv of categorised jobs
 scraped_csv = pd.read_csv('categorised_jobs.csv')
@@ -109,14 +110,14 @@ def get_collection_items(collection, offset):
 
         return collection_items_dict
 
-#This dictionary will store the names and Webflow Item IDs of every item in every collection (except Jobs & Organisations)
+# This dictionary will store the names and Webflow Item IDs of every item in every collection (except Jobs & Organisations)
 collection_items_dict = {}
 
 get_webflow_collections()
 for collection in ['Sectors', 'Accreditations', 'Business or charities', 'Available roles', 'Locations', 'Seniorities']:
     get_collection_items(collection, offset=0)
 
-#Add the extra IDs you need that aren't stored in collections (these are dropdown options in Webflow)
+# Add the extra IDs you need that aren't stored in collections (these are dropdown options in Webflow)
 collection_items_dict["Multiple locations - true"] = "455ae768ed4cb346f4a0e6a28621f8bf"
 collection_items_dict["Multiple locations - false"] = "27ac7f940152cdfc8a8368aa282da9e3"
 collection_items_dict["Rewilding - true"] = "dacaf901d0aeed0c3359f1447380ada3"
@@ -208,22 +209,5 @@ for job in jobs_created_today:
 psql_functions.close_psql_connection(conn, cursor)
 
 
-""" Publishing time """
-
-def publish_items(collection, item_ids):
-    url = f"https://api.webflow.com/collections/{get_webflow_collections()[collection]}/items/publish"
-
-    payload = {"itemIds": item_ids}
-
-    headers = {
-        "accept": "application/json",
-        "content-type": "application/json",
-        "authorization": f"Bearer {webflow_token}"
-    }
-
-    response = requests.put(url, json=payload, headers=headers)
-
-    print(response.text)
-
-
-publish_items("Jobs", item_ids_to_publish)
+# Publish all the new jobs in Webflow
+webflow_functions.publish_webflow_items("Jobs", item_ids_to_publish)
