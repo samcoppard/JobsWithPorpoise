@@ -98,6 +98,20 @@ def get_static_collection_items():
 
 
 
+def split_list_decorator(func):
+    def wrapper(collection, list_of_item_ids):
+        if len(list_of_item_ids) <= 100:
+            return func(collection, list_of_item_ids)
+        else:
+            num_sublists = (len(list_of_item_ids) + 99) // 100
+            for i in range(num_sublists):
+                sublist = list_of_item_ids[i*100:(i+1)*100]
+                func(collection, sublist)
+    return wrapper
+
+
+
+@split_list_decorator
 def delete_webflow_items(collection, list_of_item_ids):
     """ Delete multiple items in a single Webflow collection """
 
@@ -232,7 +246,7 @@ def patch_webflow_org(org_webflow_id, org_slug, org_name, hiring, available_role
     print(response.text)
 
 
-
+@split_list_decorator
 def publish_webflow_items(collection, list_of_item_ids):
     """ Publish multiple items in a single Webflow collection """
 
