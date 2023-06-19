@@ -35,12 +35,12 @@ remote = [
     'Home Based - With Extensive Travel', 'Home-Based - With Significant Travel',
     'Home-Based With Some Travel', 'Home Working , All, Various',
     'Home Working (Office Facilities Available)', 'Remote, Eu',
-    'Home Based - Some National Travel Expected', 'Emea', 'Remote, Uk', 'Flexible Home Working', 'Remote Based With The Ability To Travel Throughout England', 'Remote (Europe', 'Remote (US, UK', 'Remote (UK', 'Remote (US, Europe'
+    'Home Based - Some National Travel Expected', 'Emea', 'Remote, Uk', 'Flexible Home Working', 'Remote Based With The Ability To Travel Throughout England', 'Remote (Europe', 'Remote (US, UK', 'Remote (UK', 'Remote (US, Europe', 'Home Based With Occasional Travel'
 ]
 london = [
     'London', 'Southwark', 'Bermondsey', 'Brixton', 'Camberwell', 'Hackney Wick', 'Chelsea', 'Fulham',
     'Wimbledon', 'Shoreditch', 'Westminster', 'Kensington', 'Londres', 'Clerkenwell', 'Putney', 'Ealing',
-    'John Street Office', 'Streatham', 'Stratford', 'Tottenham', 'Camden', 'Battersea', 'Clapham',
+    'John Street Office', 'Streatham', 'Stratford', 'Tottenham', 'Camden', 'Battersea', 'Clapham', 'Harrow',
     'Wembley', 'Whitechapel', 'Chiswick', 'Fulham', 'Wandsworth', 'Acton', 'Hammersmith', 'Hanwell',
     'Twickenham', 'North Woolwich', 'Roehampton', 'Deptford', 'Enfield', 'Park Royal', 'Poplar', 'Fruit Towers', 'Lambeth', 'Sutton', 'Croydon'
 ]
@@ -50,7 +50,7 @@ scotland = [
     'Glasgow', 'Highlands', 'Shetland', 'Orkney', 'Aviemore', 'Inverness',
     'North Berwick', 'Stirling', 'Ayr', 'Moffat', 'Falls Of Clyde', 'Lanark',
     'Loch Of The Lowes', 'Dunkeld', 'Grangemouth', 'Falkirk', 'East Lothian',
-    'Lothian', 'Kinneil', "Bo'Ness", 'Borrowstounness'
+    'Lothian', 'Kinneil', "Bo'Ness", 'Borrowstounness', 'Cumbernauld'
 ]
 wales = [
     'Wales', 'Cardiff', 'Machynlleth', 'Powys', 'Snowdonia', 'Pembrokeshire',
@@ -58,7 +58,7 @@ wales = [
     'Newport', 'Swansea', 'Barry'
 ]
 southeast = [
-    'Andover', 'Oxford', 'Brighton', 'Guildford', 'Kent', 'Southampton',
+    'Andover', 'Oxford', 'Brighton', 'Guildford', 'Kent', 'Southampton', 'Gravesham',
     'Reading', 'Abingdon', 'Milton', 'Bbowt', 'Hampshire', 'Isle Of Wight',
     'Middlesex', 'Solent', 'Totton', 'Surrey', 'Sussex', 'Henfield', 'New Forest',
     'South East England', 'Banbury', 'Upper Heyford', 'Bicester', 'Leatherhead',
@@ -109,7 +109,7 @@ eastengland = [
     'Billericay', 'Mildenhall', 'Alconbury', 'Stevenage', 'St Albans',
     'Hertford', 'Marston Vale', 'Midlands And East', 'Welwyn Garden City',
     'Colchester', 'Ely', 'Norwich', "King's Lynn", 'Great Yarmouth', 'St. Neots',
-    'Huntingdon', "King'S Lynn", 'Southend'
+    'Huntingdon', "King'S Lynn", 'Southend', 'Harlow'
 ]
 yorks = [
     'Doncaster', 'Leeds', 'York', 'Sheffield', 'Humber', 'Yorkshire',
@@ -118,7 +118,7 @@ yorks = [
     'Tadcaster', 'Northern England', 'Wakefield', 'Halifax', 'Bradford', 'Harrogate'
 ]
 abroad = [
-    'Alderney', 'Ulster', 'Munich', 'Singapore', 'Utrecht', 'Belfast', 'Oregon',
+    'Alderney', 'Ulster', 'Munich', 'Singapore', 'Utrecht', 'Utretch', 'Belfast', 'Oregon',
     'Düsseldorf', 'Duisburg', 'Berlin', 'Sydney', 'New South Wales', 'Australia',
     'Belgium', 'Auckland', 'New Zealand', 'Boston', 'New York', 'Nyc', 'Cluj',
     'Romania', 'Chicago', 'North America', 'Paris', 'Amsterdam', 'San Francisco',
@@ -641,7 +641,7 @@ other = [
     'Chartered Surveyor', 'Store Manager', 'Cambridge Assistant Manager',
     'Warehouse Recycling Operative', 'Driver', 'Proforest Graduate', 'Beverage Assistant',
     'Graduate Scheme 2023', 'Domestic Surveyor', 'Project Delivery Assistant',
-    'Kitchen', 'Water Resource', 'Environment Incident', 'Camp Manager',
+    'Kitchen', 'Water Resource', 'Environment Incident', 'Camp Manager', 'Dryliner',
     'Lecturer', 'Bike Mechanic', 'Bicycle Mechanic', 'Bike Builder', 'Sports',
     'Office Manager', 'Office Coordinator', 'Private Client Work', 'Waterways Business',
     'Resources From Waste', 'Active Travel Officer', 'Schools Streets Officer',
@@ -803,7 +803,7 @@ weird_other_ignore = [
     'Inheritance Tax Exemption Heritage Senior Adviser', 'Open Application',
     'Internal Applicants Only', 'Insert Your Future Role Here',
     'Arborist & Team Leader Opportunities', 'Join Us',
-    'General Interest', 'Internal Only', 'Tender',
+    'General Interest', 'Internal Only', 'Tender', "If You Don'T See the Role You'Re Looking for",
     'There Are Currently No Vacancies', 'Spontaneous Application',
     'No Jobs Openings', 'Future Positions', 'Future Opportunities',
     'Member of Technical Staff', 'Consultancy Opportunity', 'Call for',
