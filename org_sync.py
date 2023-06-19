@@ -24,17 +24,18 @@ psql_orgs = [dict(row) for row in rows]
 
 """ Pull all fields for all orgs in Webflow CMS """
 
-def get_webflow_orgs(offset, orgs_list=[]):
+# Get your Webflow site ID and API key
+site_id = webflow_functions.get_webflow_site_id()
+api_key = webflow_functions.get_webflow_api_key()
+
+def get_webflow_orgs(webflow_site_id, webflow_api_key, offset, orgs_list=[]):
     """Return a dictionary of all item names and IDs for a particular collection"""
 
-    # Get your Webflow authorisation token
-    webflow_token = keyring.get_password("login", "Webflow Token")
-
-    url = f"https://api.webflow.com/collections/{webflow_functions.get_webflow_collections()['Organisations']}/items?limit=100&offset={offset}"
+    url = f"https://api.webflow.com/collections/{webflow_functions.get_webflow_collections(webflow_site_id, webflow_api_key)['Organisations']}/items?limit=100&offset={offset}"
 
     headers = {
         "accept": "application/json",
-        "authorization": f"Bearer {webflow_token}"
+        "authorization": f"Bearer {webflow_api_key}"
     }
 
     response = requests.get(url, headers=headers)
@@ -61,12 +62,12 @@ def get_webflow_orgs(offset, orgs_list=[]):
 
     if data['count'] + data['offset'] < data['total']:
         offset += 100
-        get_webflow_orgs(offset, orgs_list)
+        get_webflow_orgs(webflow_site_id, webflow_api_key, offset, orgs_list)
 
     return orgs_list
     
 
-webflow_orgs = get_webflow_orgs(0)
+webflow_orgs = get_webflow_orgs(site_id, api_key, 0)
 
 
 """ Compare webflow orgs with PSQL orgs """
@@ -92,11 +93,9 @@ for org in psql_orgs:
     Then check if any PSQL orgs are not in webflow - these should be added to webflow
     Then check that the other PSQL orgs have the same attributes as those in webflow - any that don't should be patched in webflow """
 
-def add_new_org_to_webflow(name, website, careers_page, mission, accreditations, available_roles, hiring, bizorchar, sectors):
-    """ Create a new item in the Organisations collection, and return its Webflow item ID """
 
-    # Get your Webflow authorisation token
-    webflow_token = keyring.get_password("login", "Webflow Token")
+def add_new_org_to_webflow(webflow_api_key, name, website, careers_page, mission, accreditations, available_roles, hiring, bizorchar, sectors):
+    """ Create a new item in the Organisations collection, and return its Webflow item ID """
 
     url = "https://api.webflow.com/collections/62e3ab17f169f84e746dc54e/items"
 
@@ -120,7 +119,7 @@ def add_new_org_to_webflow(name, website, careers_page, mission, accreditations,
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "authorization": f"Bearer {webflow_token}"
+        "authorization": f"Bearer {webflow_api_key}"
     }
 
     response = requests.post(url, json=payload, headers=headers)
@@ -142,11 +141,8 @@ def add_new_org_to_webflow(name, website, careers_page, mission, accreditations,
     time.sleep(1)
 
 
-def patch_org_in_webflow(webflow_item_id, webflow_slug, org_name, website, careers_page, mission, accreditations, available_roles, hiring, bizorchar, sectors):
+def patch_org_in_webflow(webflow_api_key, webflow_item_id, webflow_slug, org_name, website, careers_page, mission, accreditations, available_roles, hiring, bizorchar, sectors):
     """ Patch an item in the Organisations collection """
-
-    # Get your Webflow authorisation token
-    webflow_token = keyring.get_password("login", "Webflow Token")
 
     url = f"https://api.webflow.com/collections/62e3ab17f169f84e746dc54e/items/{webflow_item_id}"
 
@@ -168,7 +164,7 @@ def patch_org_in_webflow(webflow_item_id, webflow_slug, org_name, website, caree
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "authorization": f"Bearer {webflow_token}"
+        "authorization": f"Bearer {webflow_api_key}"
     }
 
     response = requests.patch(url, json=payload, headers=headers)
@@ -204,14 +200,14 @@ org_ids_to_publish = []
 # If any are in PSQL but not Webflow, add them to Webflow
 for org in psql_orgs:
     if org['name'] not in webflow_orgs_names:
-        add_new_org_to_webflow(name=org['name'], website=org['website'], careers_page=org['careers_page'],
+        add_new_org_to_webflow(webflow_api_key=api_key, name=org['name'], website=org['website'], careers_page=org['careers_page'],
                                mission=org['mission'], accreditations=org['accreditations'],
                                available_roles=org['available_roles'], hiring=org['currently_hiring'],
                                bizorchar=org['biz_or_char'], sectors=org['sectors'])
     # Patch any orgs in Webflow that have different attributes in PSQL
     else:
         if org not in webflow_orgs: # i.e. if the org's attributes are different in PSQL vs Webflow
-            patch_org_in_webflow(webflow_item_id=org['webflow_item_id'], webflow_slug=org['webflow_slug'],
+            patch_org_in_webflow(webflow_api_key=api_key, webflow_item_id=org['webflow_item_id'], webflow_slug=org['webflow_slug'],
                                  org_name=org['name'], website=org['website'], careers_page=org['careers_page'],
                                  mission=org['mission'], accreditations=org['accreditations'],
                                  available_roles=org['available_roles'], hiring=org['currently_hiring'],

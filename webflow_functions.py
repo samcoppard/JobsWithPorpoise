@@ -19,19 +19,17 @@ def get_webflow_api_key():
 
     return webflow_api_key
 
+site_id = get_webflow_site_id()
+api_key = get_webflow_api_key()
 
 def get_webflow_collections():
     """ Return a dictionary of all Webflow collection names and IDs """
-    
-    # Get your Webflow API key and site ID
-    site_id = get_webflow_site_id()
-    webflow_token = get_webflow_api_key()
 
     url = f"https://api.webflow.com/sites/{site_id}/collections"
 
     headers = {
         "accept": "application/json",
-        "authorization": f"Bearer {webflow_token}"
+        "authorization": f"Bearer {api_key}"
     }
 
     response = requests.get(url, headers=headers)
@@ -47,9 +45,6 @@ def get_webflow_collections():
 def get_collection_items(collection, offset, dict={}):
     """ Return a dictionary of all item names and IDs for a particular collection """
 
-    # Get your Webflow API key
-    webflow_token = get_webflow_api_key()
-
     if collection not in ["Organisations", "Jobs", "Sectors", "Accreditations", "Business or charities", "Available roles", "Locations", "Seniorities"]:
         print("Please use a valid collection name")
 
@@ -58,7 +53,7 @@ def get_collection_items(collection, offset, dict={}):
 
         headers = {
             "accept": "application/json",
-            "authorization": f"Bearer {webflow_token}"
+            "authorization": f"Bearer {api_key}"
         }
 
         response = requests.get(url, headers=headers)
@@ -115,9 +110,6 @@ def split_list_decorator(func):
 def delete_webflow_items(collection, list_of_item_ids):
     """ Delete multiple items in a single Webflow collection """
 
-    # Get your Webflow API key
-    webflow_token = get_webflow_api_key()
-
     url = f"https://api.webflow.com/collections/{get_webflow_collections()[collection]}/items"
 
     payload = {"itemIds": list_of_item_ids}
@@ -125,7 +117,7 @@ def delete_webflow_items(collection, list_of_item_ids):
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "authorization": f"Bearer {webflow_token}"
+        "authorization": f"Bearer {api_key}"
     }
 
     response = requests.delete(url, json=payload, headers=headers)
@@ -136,9 +128,6 @@ def delete_webflow_items(collection, list_of_item_ids):
 
 def create_webflow_job(prepped_dict_of_job_attributes):
     """ Create a new item in the Jobs collection, and return its Webflow item ID """
-
-    # Get your Webflow API key
-    webflow_token = get_webflow_api_key()
 
     url = "https://api.webflow.com/collections/6347d24d945dd61cc70ba3de/items"
 
@@ -169,7 +158,7 @@ def create_webflow_job(prepped_dict_of_job_attributes):
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "authorization": f"Bearer {webflow_token}"
+        "authorization": f"Bearer {api_key}"
     }
 
     response = requests.post(url, json=payload, headers=headers)
@@ -182,9 +171,6 @@ def create_webflow_job(prepped_dict_of_job_attributes):
 
 def create_webflow_org(name, website, careers_page, mission, accreditations, available_roles, hiring, bizorchar, sectors):
     """ Create a new item in the Organisations collection, and return its Webflow item ID """
-
-    # Get your Webflow API key
-    webflow_token = get_webflow_api_key()
 
     url = "https://api.webflow.com/collections/62e3ab17f169f84e746dc54e/items"
 
@@ -206,7 +192,7 @@ def create_webflow_org(name, website, careers_page, mission, accreditations, ava
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "authorization": f"Bearer {webflow_token}"
+        "authorization": f"Bearer {api_key}"
     }
 
     response = requests.post(url, json=payload, headers=headers)
@@ -217,12 +203,8 @@ def create_webflow_org(name, website, careers_page, mission, accreditations, ava
     return data["_id"]
 
 
-
 def patch_webflow_org(org_webflow_id, org_slug, org_name, hiring, available_roles):
     """ Patch an item in the Organisations collection. We only ever need to change the 'currently hiring' and 'available roles' fields, so that's all this function does """
-
-    # Get your Webflow API key
-    webflow_token = get_webflow_api_key()
     
     url = f"https://api.webflow.com/collections/62e3ab17f169f84e746dc54e/items/{org_webflow_id}"
 
@@ -238,7 +220,7 @@ def patch_webflow_org(org_webflow_id, org_slug, org_name, hiring, available_role
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "authorization": f"Bearer {webflow_token}"
+        "authorization": f"Bearer {api_key}"
     }
 
     response = requests.patch(url, json=payload, headers=headers)
@@ -250,9 +232,6 @@ def patch_webflow_org(org_webflow_id, org_slug, org_name, hiring, available_role
 def publish_webflow_items(collection, list_of_item_ids):
     """ Publish multiple items in a single Webflow collection """
 
-    # Get your Webflow API key
-    webflow_token = get_webflow_api_key()
-
     url = f"https://api.webflow.com/collections/{get_webflow_collections()[collection]}/items/publish"
 
     payload = {"itemIds": list_of_item_ids}
@@ -260,7 +239,7 @@ def publish_webflow_items(collection, list_of_item_ids):
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "authorization": f"Bearer {webflow_token}"
+        "authorization": f"Bearer {api_key}"
     }
 
     response = requests.put(url, json=payload, headers=headers)

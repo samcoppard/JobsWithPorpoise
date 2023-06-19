@@ -51,9 +51,6 @@ for job in new_jobs:
 
 #We need to get the item IDs for job types, sectors, locations, etc before we can add the jobs to Webflow
 
-# Get your Webflow authorisation token
-webflow_token = webflow_functions.get_webflow_api_key()
-
 # Store the names and Webflow item IDs of every item in every collection (except Jobs & Organisations), plus the IDs for important dropdown options in Webflow
 collection_items_dict = webflow_functions.get_static_collection_items()
 
