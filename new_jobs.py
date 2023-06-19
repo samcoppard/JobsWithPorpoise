@@ -1,8 +1,5 @@
-import keyring
 import pandas as pd
 from datetime import date
-import requests
-import json
 import time
 import psql_functions
 import webflow_functions
@@ -71,69 +68,41 @@ jobs_created_today = cursor.fetchall()
 # And make another list to hold the Webflow item IDs of all these new jobs so that we can publish them after this next bit
 item_ids_to_publish = []
 
+def prep_job_for_webflow(dict_of_job_attributes):
+    prepped_dict_of_job_attributes = {
+                                      "job_name": dict_of_job_attributes['concat_name'],
+                                      "job_title": dict_of_job_attributes['title'],
+                                      "job_link": dict_of_job_attributes['link_to_apply'],
+                                      "job_date": str(dict_of_job_attributes['date_added']),
+                                      "job_date_str": dict_of_job_attributes['date_added_string'],
+                                      "job_location": [collection_items_dict[f"Locations - {location}"] for location in dict_of_job_attributes['location']] if dict_of_job_attributes['location'] is not None else "",
+                                      "job_multiple_locations": collection_items_dict["Multiple locations - true"] if dict_of_job_attributes['multiple_locations'] == True else collection_items_dict["Multiple locations - false"],
+                                      "job_seniority": [collection_items_dict[f"Seniorities - {seniority}"] for seniority in dict_of_job_attributes['seniority']] if dict_of_job_attributes['seniority'] is not None else "",
+                                      "job_type": [collection_items_dict[f"Available roles - {role_type}"] for role_type in dict_of_job_attributes['job_type']] if dict_of_job_attributes['job_type'] is not None else "",
+                                      "job_rewilding": collection_items_dict["Rewilding - true"] if dict_of_job_attributes['rewilding'] == True else collection_items_dict["Rewilding - false"],
+                                      "org": dict_of_job_attributes['org_webflow_id'],
+                                      "org_name": dict_of_job_attributes['org_name'],
+                                      "org_website": dict_of_job_attributes['website'],
+                                      "org_careers_page": dict_of_job_attributes['careers_page'],
+                                      "org_mission": dict_of_job_attributes['mission'],
+                                      "org_accreditations": [collection_items_dict[f"Accreditations - {accreditation}"] for accreditation in dict_of_job_attributes['accreditations']] if dict_of_job_attributes['accreditations'] is not None else "",
+                                      "org_bizorchar": collection_items_dict["BizOrChar - Business"] if dict_of_job_attributes['borch'] == 'Business' else collection_items_dict["BizOrChar - Charity"],
+                                      "org_sectors": [collection_items_dict[f"Sectors - {sector}"] for sector in dict_of_job_attributes['sectors']] if dict_of_job_attributes['sectors'] is not None else ""
+                                      }
+    return prepped_dict_of_job_attributes
+
+
 # Create a new item in the Webflow Jobs collection for each new job, and print its Webflow item ID at the end
 for job in jobs_created_today:
-    job_sectors = [collection_items_dict[f"Sectors - {sector}"]
-                for sector in job['sectors']] if job['sectors'] is not None else ""
-    job_accreditations = [collection_items_dict[f"Accreditations - {accreditation}"]
-                        for accreditation in job['accreditations']] if job['accreditations'] is not None else ""
-    job_types = [collection_items_dict[f"Available roles - {role_type}"]
-                for role_type in job['job_type']] if job['job_type'] is not None else ""
-    job_locations = [collection_items_dict[f"Locations - {location}"]
-                    for location in job['location']] if job['location'] is not None else ""
-    job_seniorities = [collection_items_dict[f"Seniorities - {seniority}"]
-                    for seniority in job['seniority']] if job['seniority'] is not None else ""
-    job_multiple_locations = collection_items_dict["Multiple locations - true"] if job['multiple_locations'] == True else collection_items_dict["Multiple locations - false"]
-    job_rewilding = collection_items_dict["Rewilding - true"] if job['rewilding'] == True else collection_items_dict["Rewilding - false"]
-    job_bizorchar = collection_items_dict["BizOrChar - Business"] if job['borch'] == 'Business' else collection_items_dict["BizOrChar - Charity"]
-
-
-    url = "https://api.webflow.com/collections/6347d24d945dd61cc70ba3de/items"
-
-    payload = {"fields": {
-        "slug": "",  # If you leave this blank, Webflow generates a slug for you, so you don't have to worry about accidentally providing a duplicate
-        "name": job['concat_name'],
-        "title": job['title'],  # This doesn't need to be unique
-        "link-to-apply": job['link_to_apply'],
-        "date-added": str(job['date_added']),  # Needs to be a string in YYYY-MM-DD format
-        "date-added-text": job['date_added_string'],
-        "location-3": job_locations,
-        "multiple-locations": job_multiple_locations,
-        "seniority": job_seniorities,
-        "type-of-job": job_types,
-        "rewilding": job_rewilding,
-        "_archived": False,
-        "_draft": False,  # It might look like this publishes the item, but it doesn't
-        "organisation": job['org_webflow_id'],
-        "organisation-name": job['org_name'],
-        "website": job['website'],
-        "careers-page": job['careers_page'],
-        "mission": job['mission'],
-        "accreditations": job_accreditations,
-        "bizorchar": job_bizorchar,
-        "sectors": job_sectors
-    }}
-
-    headers = {
-        "accept": "application/json",
-        "content-type": "application/json",
-        "authorization": f"Bearer {webflow_token}"
-    }
-
-    response = requests.post(url, json=payload, headers=headers)
-
-    # Parse the text part of the response into JSON, then extract the collection item ID
-    json_string = response.text
-    data = json.loads(json_string)
+    webflow_job_id = webflow_functions.create_webflow_job(prep_job_for_webflow(job))
     
-    # Add the job's Webflow item ID into the list of item IDs to publish
-    if "_id" in data:
-        item_ids_to_publish.append(data["_id"])
+    # Add the job's new Webflow item ID into the list of item IDs to publish
+    item_ids_to_publish.append(webflow_job_id)
 
-        # Add the job's Webflow item ID into the postgres database (so we can use it to delete the job from Webflow when it's no longer live)
-        cursor.execute("UPDATE jobs \
-                    SET webflow_item_id = %s \
-                    WHERE concat_name = %s AND date_removed IS NULL;", (data["_id"], job['concat_name']))
+    # Add the job's Webflow item ID into the postgres database (so we can use it to delete the job from Webflow when it's no longer live)
+    cursor.execute("UPDATE jobs \
+                SET webflow_item_id = %s \
+                WHERE concat_name = %s AND date_removed IS NULL;", (webflow_job_id, job['concat_name']))
 
     #Simplest way to get around rate limiting issues (should do this in a better way in future)    
     time.sleep(1)

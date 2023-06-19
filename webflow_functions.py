@@ -134,7 +134,7 @@ def delete_webflow_items(collection, list_of_item_ids):
 
 
 
-def create_webflow_job(job_name, job_title, job_link, job_date, job_date_str, job_location, job_multiple_locations, job_seniority, job_type, job_rewilding, org, org_name, org_website, org_careers_page, org_mission, org_accreditations, org_bizorchar, org_sectors):
+def create_webflow_job(prepped_dict_of_job_attributes):
     """ Create a new item in the Jobs collection, and return its Webflow item ID """
 
     # Get your Webflow API key
@@ -146,24 +146,24 @@ def create_webflow_job(job_name, job_title, job_link, job_date, job_date_str, jo
         "slug": "",  # Webflow will auto-generate the slug if this is left blank, avoiding duplication issues
         "_archived": False,
         "_draft": False,  # It might look like this publishes the item, but it doesn't
-        "name": job_name,
-        "title": job_title,  # This doesn't need to be unique
-        "link-to-apply": job_link,
-        "date-added": job_date,  # YYYY-MM-DD format
-        "date-added-text": job_date_str,
-        "location-3": job_location, # List of Webflow item IDs
-        "multiple-locations": job_multiple_locations,
-        "seniority": job_seniority,  # List of Webflow item IDs
-        "type-of-job": job_type,  # List of Webflow item IDs
-        "rewilding": job_rewilding,  # Single Webflow ID (this is a dropdown in Webflow)
-        "organisation": org,  # Single Webflow ID for the organisation
-        "organisation-name": org_name,
-        "website": org_website,
-        "careers-page": org_careers_page,
-        "mission": org_mission,
-        "accreditations": org_accreditations,  # List of Webflow item IDs (or an empty string)
-        "bizorchar": org_bizorchar,  # Single Webflow ID (this is a dropdown in Webflow)
-        "sectors": org_sectors  # List of Webflow item IDs
+        "name": prepped_dict_of_job_attributes['job_name'],
+        "title": prepped_dict_of_job_attributes['job_title'],  # This doesn't need to be unique
+        "link-to-apply": prepped_dict_of_job_attributes['job_link'],
+        "date-added": prepped_dict_of_job_attributes['job_date'],  # YYYY-MM-DD format
+        "date-added-text": prepped_dict_of_job_attributes['job_date_str'],
+        "location-3": prepped_dict_of_job_attributes['job_location'], # List of Webflow item IDs
+        "multiple-locations": prepped_dict_of_job_attributes['job_multiple_locations'],
+        "seniority": prepped_dict_of_job_attributes['job_seniority'],  # List of Webflow item IDs
+        "type-of-job": prepped_dict_of_job_attributes['job_type'],  # List of Webflow item IDs
+        "rewilding": prepped_dict_of_job_attributes['job_rewilding'],  # Single Webflow ID (this is a dropdown in Webflow)
+        "organisation": prepped_dict_of_job_attributes['org'],  # Single Webflow ID for the organisation
+        "organisation-name": prepped_dict_of_job_attributes['org_name'],
+        "website": prepped_dict_of_job_attributes['org_website'],
+        "careers-page": prepped_dict_of_job_attributes['org_careers_page'],
+        "mission": prepped_dict_of_job_attributes['org_mission'],
+        "accreditations": prepped_dict_of_job_attributes['org_accreditations'],  # List of Webflow item IDs (or an empty string)
+        "bizorchar": prepped_dict_of_job_attributes['org_bizorchar'],  # Single Webflow ID (this is a dropdown in Webflow)
+        "sectors": prepped_dict_of_job_attributes['org_sectors']  # List of Webflow item IDs
     }}
 
     headers = {
