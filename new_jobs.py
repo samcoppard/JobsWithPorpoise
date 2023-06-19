@@ -27,7 +27,7 @@ rows = cursor.fetchall()
 live_jobs_concat = [row["concat_name"] for row in rows]
 
 for ind in scraped_jobs.index:
-    if scraped_jobs['concat'][ind][:255] not in live_jobs_concat:
+    if scraped_jobs['concat'][ind] not in live_jobs_concat:
         #Add all the role's details to the new_jobs list, formatted ready to go straight into the Postgres database
         new_jobs.append({
             "concat_name": scraped_jobs['concat'][ind],
@@ -44,7 +44,7 @@ for ind in scraped_jobs.index:
 for job in new_jobs:
     cursor.execute("INSERT INTO jobs(concat_name, title, link_to_apply, organisation, job_type, seniority, location, date_added, date_added_string, date_removed) \
                 VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, NULL);",
-                (job['concat_name'][:255], job['title'][:255], job['link_to_apply'][:255], job['organisation'], job['job_type'], job['seniority'], job['location'], date.today(), job['date_added_string']))
+                (job['concat_name'], job['title'], job['link_to_apply'], job['organisation'], job['job_type'], job['seniority'], job['location'], date.today(), job['date_added_string']))
 
 
 """ WEBFLOW TIME """
