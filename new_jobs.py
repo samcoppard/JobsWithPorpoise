@@ -4,47 +4,43 @@ import time
 import psql_functions
 import webflow_functions
 
-# Pull in the csv of categorised jobs
-scraped_csv = pd.read_csv('categorised_jobs.csv')
-
-# Turn this into a dataframe
-scraped_jobs = pd.DataFrame(scraped_csv)
+# Pull in the scraped and categorised jobs as a dataframe
+categorised_jobs_csv = pd.read_csv('categorised_jobs.csv')
+scraped_jobs = pd.DataFrame(categorised_jobs_csv)
 
 # Connect to the PSQL database and create a cursor object 
 conn, cursor = psql_functions.connect_to_psql_database()
 
-# Create an empty list to contain details of all the new jobs we're going to add to the database
-new_jobs = []
-
-# We need a list of jobs in the database to compare with, so let's pull all the live jobs
+# Pull all the live jobs (that were scraped) from the PSQL database, and create a list of all their long concatenated names
 cursor.execute("SELECT * FROM jobs_for_webflow \
                WHERE date_removed IS NULL \
                AND job_scraped IS TRUE;")
 
-# Fetch the results, create a list of all the live jobs (using the concatenated field), then check if each scraped job is in this list
-# If it is, we don't need to do anything. If it's not, then we need to add that job to the database
-rows = cursor.fetchall()
-live_jobs_concat = [row["concat_name"] for row in rows]
+live_jobs_from_psql = cursor.fetchall()
 
+psql_live_jobs_concats = [job["concat_name"] for job in live_jobs_from_psql]
+
+# Write the query that will add a new job to the jobs table in the PSQL database
+query_to_add_job_to_psql = """
+    INSERT INTO jobs (
+        concat_name, title, link_to_apply, organisation, job_type, seniority, location, date_added, date_added_string, date_removed
+        )
+    VALUES (
+        %s, %s, %s, %s, %s, %s, %s, %s, %s, NULL
+        )
+    """
+
+# Using the concat field, check if each scraped job is in the list of live jobs from PSQL
+# Then add any scraped jobs that aren't already in the database to the database, using the query above
 for ind in scraped_jobs.index:
-    if scraped_jobs['concat'][ind] not in live_jobs_concat:
-        #Add all the role's details to the new_jobs list, formatted ready to go straight into the Postgres database
-        new_jobs.append({
-            "concat_name": scraped_jobs['concat'][ind],
-            "title": scraped_jobs['Job Title'][ind],  # This doesn't need to be unique
-            "link_to_apply": scraped_jobs['Job URL'][ind],
-            "date_added_string": f"🗓  Posted {date.today().strftime('%d/%m/%y')}",
-            "location": scraped_jobs['mapped_location'][ind].split(', '),
-            "seniority": scraped_jobs['seniority'][ind].split(', '),
-            "job_type": scraped_jobs['job_types'][ind].split(', '),
-            "organisation": scraped_jobs['Company'][ind],
-        })
+    if scraped_jobs['concat'][ind] not in psql_live_jobs_concats:
+        job_attributes = (
+            scraped_jobs['concat'][ind], scraped_jobs['Job Title'][ind], scraped_jobs['Job URL'][ind], scraped_jobs['Company'][ind],
+            scraped_jobs['job_types'][ind].split(', '), scraped_jobs['seniority'][ind].split(', '),
+            scraped_jobs['mapped_location'][ind].split(', '), date.today(), f"🗓  Posted {date.today().strftime('%d/%m/%y')}"
+            )
 
-# Now we need to actually add each of these jobs to the postgres database
-for job in new_jobs:
-    cursor.execute("INSERT INTO jobs(concat_name, title, link_to_apply, organisation, job_type, seniority, location, date_added, date_added_string, date_removed) \
-                VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, NULL);",
-                (job['concat_name'], job['title'], job['link_to_apply'], job['organisation'], job['job_type'], job['seniority'], job['location'], date.today(), job['date_added_string']))
+        cursor.execute(query_to_add_job_to_psql, job_attributes)
 
 
 """ WEBFLOW TIME """
