@@ -10,21 +10,6 @@ import psql_functions
 scraped_orgs_import = pd.read_csv('orgs_job_types.csv')
 scraped_orgs = pd.DataFrame(scraped_orgs_import)
 
-# Remove any rows where the 'no dupes' column is empty (i.e. none of that organisation's open roles were successfully mapped to a job type)
-scraped_orgs = scraped_orgs.dropna(subset=['no dupes']).reset_index(drop=True)
-
-# Now we need to clean up the 'no dupes' field before the rest is going to work. Issues are caused by jobs that aren't matched to a job type, which either end up as ", " at the start of the 'no dupes' field, or as "," at the end, or as ", , " in the middle
-
-# Fix the middle first
-scraped_orgs['no dupes'] = scraped_orgs['no dupes'].apply(
-    lambda x: x.replace(", , ", ", "))
-# Now the start
-scraped_orgs['no dupes'] = scraped_orgs['no dupes'].apply(
-    lambda x: x[2:] if x[0] == "," else x)
-# Now the end
-scraped_orgs['no dupes'] = scraped_orgs['no dupes'].apply(
-    lambda x: x[:-1] if x[-1] == "," else x)
-
 # Connect to the PSQL database and create a cursor object
 conn, cursor = psql_functions.connect_to_psql_database()
 
@@ -33,7 +18,7 @@ for ind in scraped_orgs.index:
   cursor.execute("UPDATE organisations \
                  SET available_roles = %s \
                  WHERE name = %s;",
-                 (scraped_orgs['no dupes'][ind].split(', '), scraped_orgs['Company'][ind]))
+                 (scraped_orgs['unique_job_types'][ind].split(', '), scraped_orgs['Company'][ind]))
 
 
 """ Now we deal with all the other scraped orgs i.e. the ones that are not currently hiring """
