@@ -1,3 +1,6 @@
+""" Pull all the live jobs from the PSQL database, and check if they're in the most recent scrape.
+    Any jobs that haven't been scraped again are no longer live, so we update the jobs in PSQL and delete them from Webflow """
+
 import pandas as pd
 from datetime import date
 import psql_functions
