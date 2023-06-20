@@ -129,6 +129,11 @@ def delete_webflow_items(collection, list_of_item_ids):
 def create_webflow_job(prepped_dict_of_job_attributes):
     """ Create a new item in the Jobs collection, and return its Webflow item ID """
 
+    # Check for valid HTML first
+    if prepped_dict_of_job_attributes['job_link'][:4] != "http":
+        raise ValueError('Link to apply contains invalid HTML')
+    
+    # If HTML is valid, go ahead and add the job to Webflow
     url = "https://api.webflow.com/collections/6347d24d945dd61cc70ba3de/items"
 
     payload = {"fields": {
@@ -136,23 +141,33 @@ def create_webflow_job(prepped_dict_of_job_attributes):
         "_archived": False,
         "_draft": False,  # It might look like this publishes the item, but it doesn't
         "name": prepped_dict_of_job_attributes['job_name'],
-        "title": prepped_dict_of_job_attributes['job_title'],  # This doesn't need to be unique
+        # This doesn't need to be unique
+        "title": prepped_dict_of_job_attributes['job_title'],
         "link-to-apply": prepped_dict_of_job_attributes['job_link'],
-        "date-added": prepped_dict_of_job_attributes['job_date'],  # YYYY-MM-DD format
+        # YYYY-MM-DD format
+        "date-added": prepped_dict_of_job_attributes['job_date'],
         "date-added-text": prepped_dict_of_job_attributes['job_date_str'],
-        "location-3": prepped_dict_of_job_attributes['job_location'], # List of Webflow item IDs
+        # List of Webflow item IDs
+        "location-3": prepped_dict_of_job_attributes['job_location'],
         "multiple-locations": prepped_dict_of_job_attributes['job_multiple_locations'],
-        "seniority": prepped_dict_of_job_attributes['job_seniority'],  # List of Webflow item IDs
-        "type-of-job": prepped_dict_of_job_attributes['job_type'],  # List of Webflow item IDs
-        "rewilding": prepped_dict_of_job_attributes['job_rewilding'],  # Single Webflow ID (this is a dropdown in Webflow)
-        "organisation": prepped_dict_of_job_attributes['org'],  # Single Webflow ID for the organisation
+        # List of Webflow item IDs
+        "seniority": prepped_dict_of_job_attributes['job_seniority'],
+        # List of Webflow item IDs
+        "type-of-job": prepped_dict_of_job_attributes['job_type'],
+        # Single Webflow ID (this is a dropdown in Webflow)
+        "rewilding": prepped_dict_of_job_attributes['job_rewilding'],
+        # Single Webflow ID for the organisation
+        "organisation": prepped_dict_of_job_attributes['org'],
         "organisation-name": prepped_dict_of_job_attributes['org_name'],
         "website": prepped_dict_of_job_attributes['org_website'],
         "careers-page": prepped_dict_of_job_attributes['org_careers_page'],
         "mission": prepped_dict_of_job_attributes['org_mission'],
-        "accreditations": prepped_dict_of_job_attributes['org_accreditations'],  # List of Webflow item IDs (or an empty string)
-        "bizorchar": prepped_dict_of_job_attributes['org_bizorchar'],  # Single Webflow ID (this is a dropdown in Webflow)
-        "sectors": prepped_dict_of_job_attributes['org_sectors']  # List of Webflow item IDs
+        # List of Webflow item IDs (or an empty string)
+        "accreditations": prepped_dict_of_job_attributes['org_accreditations'],
+        # Single Webflow ID (this is a dropdown in Webflow)
+        "bizorchar": prepped_dict_of_job_attributes['org_bizorchar'],
+        # List of Webflow item IDs
+        "sectors": prepped_dict_of_job_attributes['org_sectors']
     }}
 
     headers = {
@@ -167,6 +182,7 @@ def create_webflow_job(prepped_dict_of_job_attributes):
     json_string = response.text
     data = json.loads(json_string)
     return data["_id"]
+
 
 
 def create_webflow_org(name, website, careers_page, mission, accreditations, available_roles, hiring, bizorchar, sectors):

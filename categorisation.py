@@ -308,12 +308,15 @@ scraped_jobs['Job Title'] = [
 scraped_jobs['Job Title'] = [
     i.replace("'S", "'s").replace("Nextjs", "Next.js") for i in scraped_jobs['Job Title']]
 
+# Limit the 'Job Title' column to 255 characters (the maximum allowed in the jobs PSQL table)
+scraped_jobs['Job Title'] = scraped_jobs['Job Title'].str[:255]
+
 
 # Create a new column for concatenating org-role-location
 scraped_jobs['concat'] = scraped_jobs['Company'] + " - " + scraped_jobs[
     'Job Title'] + " - " + scraped_jobs['Title Location']
-# Limit this column to 256 characters (the maximum allowed in Webflow CMS)
-scraped_jobs['concat'] = scraped_jobs['concat'].str[:256]
+# Limit this column to 255 characters (the maximum allowed in the jobs PSQL table)
+scraped_jobs['concat'] = scraped_jobs['concat'].str[:255]
 
 # Create a new column for the kind of job each job is, with a placeholder to start
 scraped_jobs['job_types'] = "not mapped"
