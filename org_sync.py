@@ -7,26 +7,24 @@ import time
 import psql_functions
 import webflow_functions
 
-""" Pull all attributes for all orgs in PSQL database """
+""" Pull all the attributes we're going to need for every org in the PSQL database """
 
 # Connect to the PSQL database and create a cursor object
 conn, cursor = psql_functions.connect_to_psql_database()
 
-# Pull all attributes for all organisations in PSQL database
+# Pull attributes for all organisations in PSQL database
 cursor.execute(
     "SELECT name, mission, website, careers_page, sectors, available_roles, biz_or_char, \
         accreditations, currently_hiring, webflow_item_id, webflow_slug \
                FROM organisations;"
 )
-rows = cursor.fetchall()
+pulled_psql_orgs = cursor.fetchall()
 
-# DictCursor returns rows as psycopg2.extras.DictRow objects, which behave like
-# dictionaries but aren't quite dictionaries
-# So we need to convert the DictRow objects to regular python dictionaries
-psql_orgs = [dict(row) for row in rows]
+# Convert these DictRow objects into regular python dictionaries
+psql_orgs = [dict(org) for org in pulled_psql_orgs]
 
 
-""" Pull all fields for all orgs in Webflow CMS """
+""" Pull all fields for all orgs in the Webflow CMS """
 
 # Get your Webflow site ID and API key
 site_id = webflow_functions.get_webflow_site_id()
@@ -82,14 +80,12 @@ webflow_orgs = get_webflow_orgs(site_id, api_key, 0)
 
 
 """ Compare webflow orgs with PSQL orgs """
-# To compare like for like, we need to convert PSQL strings e.g. 'Software' into Webflow
-# item IDs e.g. '6425b9336545cb72069357c7'
 
-# Store the names and Webflow item IDs of every item in every collection (except Jobs &
-# Organisations), plus the IDs for important dropdown options in Webflow
+# Get the names and Webflow item IDs we'll need to map PSQL strings e.g. 'Software' to
+# Webflow item IDs e.g. '6425b9336545cb72069357c7'
 collection_items_dict = webflow_functions.get_static_collection_items()
 
-# Transform PSQL attributes into webflow attributes for each organisation
+# Transform PSQL attributes into Webflow attributes for each organisation
 for org in psql_orgs:
     org["sectors"] = (
         [collection_items_dict[f"Sectors - {sector}"] for sector in org["sectors"]]
@@ -123,13 +119,9 @@ for org in psql_orgs:
     org["currently_hiring"] = "Yes" if org["currently_hiring"] == True else "No"
 
 
-""" First check if any Webflow orgs are no longer in the PSQL database -
-    these should be deleted from Webflow.
-    Then check if any PSQL orgs are not in Webflow -
-    these should be added to Webflow
-    Then check that the other PSQL orgs have the same attributes as those in Webflow -
-    any that don't should be patched in Webflow """
-
+""" Delete from Webflow any orgs that are no longer in the PSQL database
+    Add to Webflow any orgs that are in the PSQL database but not in Webflow
+    Patch in Webflow any orgs whose attributes are different in the PSQL database """
 
 def add_new_org_to_webflow(
     webflow_api_key,
@@ -262,6 +254,7 @@ for org in webflow_orgs:
 
 if org_ids_to_delete != []:
     webflow_functions.delete_webflow_items("Organisations", org_ids_to_delete)
+
 
 # Now check orgs in PSQL against those in Webflow
 org_ids_to_publish = []
