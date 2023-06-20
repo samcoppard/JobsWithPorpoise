@@ -31,7 +31,7 @@ for job in live_webflow_jobs_from_psql:
     if job['concat_name'] not in scraped_jobs['concat'].tolist():
        
        # If a job hasn't been scraped again, add its item ID to the list of item IDs to delete
-       records_to_delete.append(job['webflow_item_id'])
+       records_to_delete.append(job['job_webflow_id'])
        
        # And update the PSQL database to say the job was removed today
        cursor.execute("UPDATE jobs \
