@@ -86,7 +86,10 @@ item_ids_to_publish = []
 
 for job in psql_jobs_created_today:
     # The create_webflow_job function creates the job and returns its new item ID
-    webflow_job_id = webflow_functions.create_webflow_job(prep_job_for_webflow(job))
+    try:
+        webflow_job_id = webflow_functions.create_webflow_job(prep_job_for_webflow(job))
+    except ValueError:
+        continue
     
     item_ids_to_publish.append(webflow_job_id)
 
