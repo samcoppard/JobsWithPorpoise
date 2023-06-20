@@ -1,6 +1,6 @@
-""" Update orgs in Webflow CMS to match orgs in PSQL database """
+""" Update organisations in the Webflow CMS so that they match the details in
+the PSQL database """
 
-import keyring
 import requests
 import json
 import time
@@ -14,13 +14,16 @@ conn, cursor = psql_functions.connect_to_psql_database()
 
 # Pull all attributes for all organisations in PSQL database
 cursor.execute(
-    "SELECT name, mission, website, careers_page, sectors, available_roles, biz_or_char, accreditations, currently_hiring, webflow_item_id, webflow_slug \
+    "SELECT name, mission, website, careers_page, sectors, available_roles, \
+        biz_or_char, accreditations, currently_hiring, webflow_item_id, \
+            webflow_slug \
                FROM organisations;"
 )
 rows = cursor.fetchall()
 
-# DictCursor returns rows as psycopg2.extras.DictRow objects, which behave like dictionaries but aren't quite dictionaries
-# So we need to conver the DictRow objects to regular python dictionaries
+# DictCursor returns rows as psycopg2.extras.DictRow objects, which behave like
+# dictionaries but aren't quite dictionaries
+# So we need to convert the DictRow objects to regular python dictionaries
 psql_orgs = [dict(row) for row in rows]
 
 
@@ -32,7 +35,7 @@ api_key = webflow_functions.get_webflow_api_key()
 
 
 def get_webflow_orgs(webflow_site_id, webflow_api_key, offset, orgs_list=[]):
-    """Return a dictionary of all item names and IDs for a particular collection"""
+    """Return a dictionary of all item names and IDs for a given collection"""
 
     url = f"https://api.webflow.com/collections/{webflow_functions.get_webflow_collections(webflow_site_id, webflow_api_key)['Organisations']}/items?limit=100&offset={offset}"
 
@@ -80,9 +83,11 @@ webflow_orgs = get_webflow_orgs(site_id, api_key, 0)
 
 
 """ Compare webflow orgs with PSQL orgs """
-# To compare like for like, we need to convert PSQL strings e.g. 'Software' into Webflow item IDs e.g. '6425b9336545cb72069357c7'
+# To compare like for like, we need to convert PSQL strings e.g. 'Software'
+# into Webflow item IDs e.g. '6425b9336545cb72069357c7'
 
-# Store the names and Webflow item IDs of every item in every collection (except Jobs & Organisations), plus the IDs for important dropdown options in Webflow
+# Store the names and Webflow item IDs of every item in every collection (except
+# Jobs & Organisations), plus the IDs for important dropdown options in Webflow
 collection_items_dict = webflow_functions.get_static_collection_items()
 
 # Transform PSQL attributes into webflow attributes for each organisation
@@ -119,9 +124,12 @@ for org in psql_orgs:
     org["currently_hiring"] = "Yes" if org["currently_hiring"] == True else "No"
 
 
-""" First check if any webflow orgs are no longer in the PSQL database - these should be deleted from webflow
-    Then check if any PSQL orgs are not in webflow - these should be added to webflow
-    Then check that the other PSQL orgs have the same attributes as those in webflow - any that don't should be patched in webflow """
+""" First check if any Webflow orgs are no longer in the PSQL database -
+    these should be deleted from Webflow.
+    Then check if any PSQL orgs are not in Webflow -
+    these should be added to Webflow
+    Then check that the other PSQL orgs have the same attributes as those in Webflow -
+    any that don't should be patched in Webflow """
 
 
 def add_new_org_to_webflow(
@@ -142,9 +150,9 @@ def add_new_org_to_webflow(
 
     payload = {
         "fields": {
-            "slug": "",  # Webflow will auto-generate the slug if this is left blank, avoiding duplication issues
+            "slug": "",  # Webflow will auto-generate the slug if this is left blank
             "_archived": False,
-            "_draft": False,  # It might look like this publishes the item, but it doesn't
+            "_draft": False,  # Leaving this False doesn't publish the item
             "name": name,  # This doesn't need to be unique
             "org-website": website,
             "careers-page": careers_page,
@@ -210,7 +218,7 @@ def patch_org_in_webflow(
             "slug": webflow_slug,  # required
             "name": org_name,  # required
             "_archived": False,
-            "_draft": False,  # It might look like this publishes the item, but it doesn't
+            "_draft": False,  # Leaving this False doesn't publish the item
             "org-website": website,
             "careers-page": careers_page,
             "mission": mission,
