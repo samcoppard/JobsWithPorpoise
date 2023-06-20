@@ -46,4 +46,5 @@ for job in live_webflow_jobs_from_psql:
 psql_functions.close_psql_connection(conn, cursor)
 
 # Now delete these expired jobs from Webflow
-webflow_functions.delete_webflow_items("Jobs", records_to_delete)
+if records_to_delete != []:
+    webflow_functions.delete_webflow_items("Jobs", records_to_delete)

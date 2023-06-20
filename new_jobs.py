@@ -158,4 +158,5 @@ for job in psql_jobs_created_today:
 psql_functions.close_psql_connection(conn, cursor)
 
 # Publish all the new jobs in Webflow
-webflow_functions.publish_webflow_items("Jobs", item_ids_to_publish)
+if item_ids_to_publish != []:
+    webflow_functions.publish_webflow_items("Jobs", item_ids_to_publish)
