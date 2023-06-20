@@ -1,3 +1,6 @@
+""" Check all the scraped and categorised jobs, see if any are new i.e. not in the PSQL database yet.
+    Add all the new jobs to PSQL, then add them to Webflow, add their Webflow item IDs to PSQL, and publish them all to the live site. """
+
 import pandas as pd
 from datetime import date
 import time
