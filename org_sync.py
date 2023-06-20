@@ -1,5 +1,5 @@
 """ Update organisations in the Webflow CMS so that they match the details in
-the PSQL database """
+    the PSQL database """
 
 import requests
 import json
@@ -14,9 +14,8 @@ conn, cursor = psql_functions.connect_to_psql_database()
 
 # Pull all attributes for all organisations in PSQL database
 cursor.execute(
-    "SELECT name, mission, website, careers_page, sectors, available_roles, \
-        biz_or_char, accreditations, currently_hiring, webflow_item_id, \
-            webflow_slug \
+    "SELECT name, mission, website, careers_page, sectors, available_roles, biz_or_char, \
+        accreditations, currently_hiring, webflow_item_id, webflow_slug \
                FROM organisations;"
 )
 rows = cursor.fetchall()
@@ -83,11 +82,11 @@ webflow_orgs = get_webflow_orgs(site_id, api_key, 0)
 
 
 """ Compare webflow orgs with PSQL orgs """
-# To compare like for like, we need to convert PSQL strings e.g. 'Software'
-# into Webflow item IDs e.g. '6425b9336545cb72069357c7'
+# To compare like for like, we need to convert PSQL strings e.g. 'Software' into Webflow
+# item IDs e.g. '6425b9336545cb72069357c7'
 
-# Store the names and Webflow item IDs of every item in every collection (except
-# Jobs & Organisations), plus the IDs for important dropdown options in Webflow
+# Store the names and Webflow item IDs of every item in every collection (except Jobs &
+# Organisations), plus the IDs for important dropdown options in Webflow
 collection_items_dict = webflow_functions.get_static_collection_items()
 
 # Transform PSQL attributes into webflow attributes for each organisation
