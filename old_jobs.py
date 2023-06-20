@@ -19,8 +19,6 @@ cursor.execute("SELECT * FROM jobs_for_webflow \
                AND job_scraped IS TRUE \
                AND job_webflow_id IS NOT null;")
 
-# If a job hasn't been scraped, that means it's no longer live, so we add its Webflow item ID to the list of item IDs to delete
-# And then we update the SQL database with the date the job was removed
 live_webflow_jobs_from_psql = cursor.fetchall()
 
 # Create a list to store the Webflow item IDs of the jobs we're going to delete
