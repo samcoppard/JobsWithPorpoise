@@ -978,7 +978,7 @@ orgs = scraped_jobs.groupby('Company')['job_types'].apply(list).reset_index(
 for i in range(len(orgs)):
   orgs.iloc[:, 1].iloc[i] = [y for x in orgs.iloc[i, 1] for y in x.split(", ")]
 
-orgs['no dupes'] = 'still got dupes'
+orgs['unique_job_types'] = 'not unique yet'
 
 for i in range(len(orgs)):
   orgs.iloc[:, 2].iloc[i] = list(dict.fromkeys(orgs.iloc[i, 1]))
@@ -987,4 +987,16 @@ for i in range(len(orgs)):
   orgs.iloc[:, 2].iloc[i] = ", ".join(orgs.iloc[:, 2].iloc[i]).replace(
       "not mapped", "").strip()
 
+# Remove any rows where the 'unique_job_types' column is "" (i.e. none of that organisation's open roles were mapped to a job type)
+# This works by creating a boolean mask, which is then negated using ~ (so that rows with unique_job_types == "" are False, and then used to subset the original dataframe)
+orgs = orgs[~orgs['unique_job_types'].apply(lambda x: x == "")]
+
+# Clean up the 'unique_job_types' field by removing excess commas in the middle, beginning or end of a value.
+# These issues are caused by jobs that aren't matched to a job type
+orgs['unique_job_types'] = orgs['unique_job_types'].str.replace(", , ", ", ").str.strip(", ")
+
+# There's no need to keep the non-unique job_types column, and it just takes up memory later, so let's remove that now
+orgs = orgs.drop('job_types', axis=1)
+
+# Export dataframe to csv
 orgs.to_csv('orgs_job_types.csv', index=False)
