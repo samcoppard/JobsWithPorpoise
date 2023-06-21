@@ -7,7 +7,12 @@ import time
 import psql_functions
 import webflow_functions
 
-""" Pull all the attributes we're going to need for every org in the PSQL database """
+""" Pull all the key attributes for every org in Webflow, and every org in PSQL """
+
+# Pull attributes for Webflow orgs first
+webflow_orgs = webflow_functions.get_webflow_orgs_all_attributes()
+
+# Then pull the PSQL orgs, and map the fields to Webflow fields so we can easily compare
 
 # Connect to the PSQL database and create a cursor object
 conn, cursor = psql_functions.connect_to_psql_database()
@@ -23,50 +28,53 @@ pulled_psql_orgs = cursor.fetchall()
 # Convert these DictRow objects into regular python dictionaries
 psql_orgs = [dict(org) for org in pulled_psql_orgs]
 
-
-""" Pull all the same attributes for all orgs in the Webflow CMS """
-
-webflow_orgs = webflow_functions.get_webflow_orgs_all_attributes()
-
-
-""" Compare webflow orgs with PSQL orgs """
-
-# Get the names and Webflow item IDs we'll need to map PSQL strings e.g. 'Software' to
-# Webflow item IDs e.g. '6425b9336545cb72069357c7'
+# Map PSQL strings e.g. 'Software' to Webflow item IDs e.g. '6425b9336545cb72069357c7'
 collection_items_dict = webflow_functions.get_static_collection_items()
 
-# Transform PSQL attributes into Webflow attributes for each organisation
-for org in psql_orgs:
-    org["sectors"] = (
-        [collection_items_dict[f"Sectors - {sector}"] for sector in org["sectors"]]
-        if org["sectors"] is not None
+
+def prep_org_for_webflow(dict_of_org_attributes):
+    """Map the PSQL fields of an org to the correctly formatted Webflow fields"""
+    dict_of_org_attributes["sectors"] = (
+        [
+            collection_items_dict[f"Sectors - {sector}"]
+            for sector in dict_of_org_attributes["sectors"]
+        ]
+        if dict_of_org_attributes["sectors"] is not None
         else ""
     )
-    org["available_roles"] = (
+    dict_of_org_attributes["available_roles"] = (
         [
             collection_items_dict[f"Available roles - {role}"]
-            for role in org["available_roles"]
+            for role in dict_of_org_attributes["available_roles"]
         ]
-        if org["available_roles"] is not None
+        if dict_of_org_attributes["available_roles"] is not None
         else ""
     )
-    org["biz_or_char"] = (
+    dict_of_org_attributes["biz_or_char"] = (
         [
             collection_items_dict[f"Business or charities - {biz_type}"]
-            for biz_type in org["biz_or_char"]
+            for biz_type in dict_of_org_attributes["biz_or_char"]
         ]
-        if org["biz_or_char"] is not None
+        if dict_of_org_attributes["biz_or_char"] is not None
         else ""
     )
-    org["accreditations"] = (
+    dict_of_org_attributes["accreditations"] = (
         [
             collection_items_dict[f"Accreditations - {accreditation}"]
-            for accreditation in org["accreditations"]
+            for accreditation in dict_of_org_attributes["accreditations"]
         ]
-        if org["accreditations"] is not None
+        if dict_of_org_attributes["accreditations"] is not None
         else ""
     )
-    org["currently_hiring"] = "Yes" if org["currently_hiring"] == True else "No"
+    dict_of_org_attributes["currently_hiring"] = (
+        "Yes" if dict_of_org_attributes["currently_hiring"] == True else "No"
+    )
+
+    webflow_ready_org_attributes = dict_of_org_attributes
+    return webflow_ready_org_attributes
+
+
+psql_orgs = [prep_org_for_webflow(org_dict) for org_dict in psql_orgs]
 
 
 """ Delete from Webflow any orgs that are no longer in the PSQL database
