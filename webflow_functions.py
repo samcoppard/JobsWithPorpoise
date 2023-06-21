@@ -185,6 +185,52 @@ def create_webflow_job(prepped_dict_of_job_attributes):
 
 
 
+def get_webflow_orgs_all_attributes(offset=0, orgs_list=[]):
+    """ Return a dictionary of all orgs in Webflow with all their key attributes """
+    
+    url = f"https://api.webflow.com/collections/{get_webflow_collections()['Organisations']}/items?limit=100&offset={offset}"
+
+    headers = {
+        "accept": "application/json",
+        "authorization": f"Bearer {api_key}",
+    }
+
+    response = requests.get(url, headers=headers)
+
+    # Parse the text part of the response into JSON
+    json_string = response.text
+    data = json.loads(json_string)
+
+    # Add returned collection items and their item IDs to the dictionary
+    for item in data["items"]:
+        orgs_list.append(
+            {
+                "name": item["name"],
+                "mission": item["mission"],
+                "website": item["org-website"],
+                "careers_page": item["careers-page"],
+                "sectors": item["sectors"],
+                "available_roles": item["available-roles"]
+                if "available-roles" in item and item["available-roles"] is not None
+                else "",
+                "biz_or_char": item["biz"],
+                "accreditations": item["accreditations-2"]
+                if "accreditations-2" in item and item["accreditations-2"] is not None
+                else "",
+                "currently_hiring": item["currently-hiring-2"],
+                "webflow_item_id": item["_id"],
+                "webflow_slug": item["slug"],
+            }
+        )
+
+    if data["count"] + data["offset"] < data["total"]:
+        offset += 100
+        get_webflow_orgs_all_attributes(offset, orgs_list)
+
+    return orgs_list
+
+
+
 def create_webflow_org(name, website, careers_page, mission, accreditations, available_roles, hiring, bizorchar, sectors):
     """ Create a new item in the Organisations collection, and return its Webflow item ID """
 

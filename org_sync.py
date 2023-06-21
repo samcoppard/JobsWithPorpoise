@@ -24,59 +24,9 @@ pulled_psql_orgs = cursor.fetchall()
 psql_orgs = [dict(org) for org in pulled_psql_orgs]
 
 
-""" Pull all fields for all orgs in the Webflow CMS """
+""" Pull all the same attributes for all orgs in the Webflow CMS """
 
-# Get your Webflow site ID and API key
-site_id = webflow_functions.get_webflow_site_id()
-api_key = webflow_functions.get_webflow_api_key()
-
-
-def get_webflow_orgs(webflow_site_id, webflow_api_key, offset, orgs_list=[]):
-    """Return a dictionary of all item names and IDs for a given collection"""
-
-    url = f"https://api.webflow.com/collections/{webflow_functions.get_webflow_collections(webflow_site_id, webflow_api_key)['Organisations']}/items?limit=100&offset={offset}"
-
-    headers = {
-        "accept": "application/json",
-        "authorization": f"Bearer {webflow_api_key}",
-    }
-
-    response = requests.get(url, headers=headers)
-
-    # Parse the text part of the response into JSON
-    json_string = response.text
-    data = json.loads(json_string)
-
-    # Add returned collection items and their item IDs to the dictionary
-    for item in data["items"]:
-        orgs_list.append(
-            {
-                "name": item["name"],
-                "mission": item["mission"],
-                "website": item["org-website"],
-                "careers_page": item["careers-page"],
-                "sectors": item["sectors"],
-                "available_roles": item["available-roles"]
-                if "available-roles" in item and item["available-roles"] is not None
-                else "",
-                "biz_or_char": item["biz"],
-                "accreditations": item["accreditations-2"]
-                if "accreditations-2" in item and item["accreditations-2"] is not None
-                else "",
-                "currently_hiring": item["currently-hiring-2"],
-                "webflow_item_id": item["_id"],
-                "webflow_slug": item["slug"],
-            }
-        )
-
-    if data["count"] + data["offset"] < data["total"]:
-        offset += 100
-        get_webflow_orgs(webflow_site_id, webflow_api_key, offset, orgs_list)
-
-    return orgs_list
-
-
-webflow_orgs = get_webflow_orgs(site_id, api_key, 0)
+webflow_orgs = webflow_functions.get_webflow_orgs_all_attributes()
 
 
 """ Compare webflow orgs with PSQL orgs """
@@ -122,6 +72,12 @@ for org in psql_orgs:
 """ Delete from Webflow any orgs that are no longer in the PSQL database
     Add to Webflow any orgs that are in the PSQL database but not in Webflow
     Patch in Webflow any orgs whose attributes are different in the PSQL database """
+
+
+# Get your Webflow site ID and API key
+site_id = webflow_functions.get_webflow_site_id()
+api_key = webflow_functions.get_webflow_api_key()
+
 
 def add_new_org_to_webflow(
     webflow_api_key,
@@ -182,7 +138,7 @@ def add_new_org_to_webflow(
             (data["_id"], data["slug"], name),
         )
 
-    # Simplest way to get around rate limiting issues
+    # Deal with rate limiting issues (will do something more sophisticated in future)
     time.sleep(1)
 
 
@@ -237,7 +193,7 @@ def patch_org_in_webflow(
     if "_id" in data:
         org_ids_to_publish.append(data["_id"])
 
-    # Simplest way to get around rate limiting issues
+    # Deal with rate limiting issues (will do something more sophisticated in future)
     time.sleep(1)
 
 
