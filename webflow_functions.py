@@ -4,7 +4,7 @@ import keyring
 import time
 
 
-def get_webflow_site_id():
+def get_site_id():
     """Fetch Webflow site ID, stored locally in MacOS Keychain"""
 
     webflow_site_id = keyring.get_password("login", "Webflow Site ID")
@@ -12,7 +12,7 @@ def get_webflow_site_id():
     return webflow_site_id
 
 
-def get_webflow_api_key():
+def get_api_key():
     """Fetch Webflow API key, stored locally in MacOS Keychain"""
 
     webflow_api_key = keyring.get_password("login", "Webflow Token")
@@ -20,11 +20,11 @@ def get_webflow_api_key():
     return webflow_api_key
 
 
-site_id = get_webflow_site_id()
-api_key = get_webflow_api_key()
+site_id = get_site_id()
+api_key = get_api_key()
 
 
-def get_webflow_collections():
+def get_collections():
     """Return a dictionary of all Webflow collection names and IDs"""
 
     url = f"https://api.webflow.com/sites/{site_id}/collections"
@@ -57,7 +57,7 @@ def get_collection_items(collection, offset, dict={}):
         print("Please use a valid collection name")
 
     else:
-        url = f"https://api.webflow.com/collections/{get_webflow_collections()[collection]}/items?limit=100&offset={offset}"
+        url = f"https://api.webflow.com/collections/{get_collections()[collection]}/items?limit=100&offset={offset}"
 
         headers = {"accept": "application/json", "authorization": f"Bearer {api_key}"}
 
@@ -129,10 +129,10 @@ def split_list_decorator(func):
 
 
 @split_list_decorator
-def delete_webflow_items(collection, list_of_item_ids):
+def delete_items(collection, list_of_item_ids):
     """Delete multiple items in a single Webflow collection"""
 
-    url = f"https://api.webflow.com/collections/{get_webflow_collections()[collection]}/items"
+    url = f"https://api.webflow.com/collections/{get_collections()[collection]}/items"
 
     payload = {"itemIds": list_of_item_ids}
 
@@ -147,7 +147,7 @@ def delete_webflow_items(collection, list_of_item_ids):
     print(response.text)
 
 
-def create_webflow_job(prepped_dict_of_job_attributes):
+def create_job(prepped_dict_of_job_attributes):
     """Create a new item in the Jobs collection, and return its Webflow item ID"""
 
     # Check for valid HTML first
@@ -209,10 +209,10 @@ def create_webflow_job(prepped_dict_of_job_attributes):
     return data["_id"]
 
 
-def get_webflow_orgs_all_attributes(offset=0, orgs_list=[]):
+def get_orgs_with_all_attributes(offset=0, orgs_list=[]):
     """Return a dictionary of all orgs in Webflow with all their key attributes"""
 
-    url = f"https://api.webflow.com/collections/{get_webflow_collections()['Organisations']}/items?limit=100&offset={offset}"
+    url = f"https://api.webflow.com/collections/{get_collections()['Organisations']}/items?limit=100&offset={offset}"
 
     headers = {
         "accept": "application/json",
@@ -249,12 +249,12 @@ def get_webflow_orgs_all_attributes(offset=0, orgs_list=[]):
 
     if data["count"] + data["offset"] < data["total"]:
         offset += 100
-        get_webflow_orgs_all_attributes(offset, orgs_list)
+        get_orgs_with_all_attributes(offset, orgs_list)
 
     return orgs_list
 
 
-def create_or_patch_webflow_org(create_or_patch, prepped_dict_of_org_attributes):
+def create_or_patch_org(create_or_patch, prepped_dict_of_org_attributes):
     """Create a new item in the Organisations collection, and return its Webflow item ID"""
 
     payload = {
@@ -303,10 +303,10 @@ def create_or_patch_webflow_org(create_or_patch, prepped_dict_of_org_attributes)
 
 
 @split_list_decorator
-def publish_webflow_items(collection, list_of_item_ids):
+def publish_items(collection, list_of_item_ids):
     """Publish multiple items in a single Webflow collection"""
 
-    url = f"https://api.webflow.com/collections/{get_webflow_collections()[collection]}/items/publish"
+    url = f"https://api.webflow.com/collections/{get_collections()[collection]}/items/publish"
 
     payload = {"itemIds": list_of_item_ids}
 
@@ -319,3 +319,107 @@ def publish_webflow_items(collection, list_of_item_ids):
     response = requests.put(url, json=payload, headers=headers)
 
     print(response.text)
+
+
+def prep_job_for_webflow(dict_of_job_attributes):
+    """Map the PSQL fields of a job to the correctly formatted Webflow fields"""
+
+    collection_items_dict = get_static_collection_items()
+
+    webflow_ready_job_attributes = {
+        "job_name": dict_of_job_attributes["concat_name"],
+        "job_title": dict_of_job_attributes["title"],
+        "job_link": dict_of_job_attributes["link_to_apply"],
+        "job_date": str(dict_of_job_attributes["date_added"]),
+        "job_date_str": dict_of_job_attributes["date_added_string"],
+        "job_location": [
+            collection_items_dict[f"Locations - {location}"]
+            for location in dict_of_job_attributes["location"]
+        ]
+        if dict_of_job_attributes["location"] is not None
+        else "",
+        "job_multiple_locations": collection_items_dict["Multiple locations - true"]
+        if dict_of_job_attributes["multiple_locations"] == True
+        else collection_items_dict["Multiple locations - false"],
+        "job_seniority": [
+            collection_items_dict[f"Seniorities - {seniority}"]
+            for seniority in dict_of_job_attributes["seniority"]
+        ]
+        if dict_of_job_attributes["seniority"] is not None
+        else "",
+        "job_type": [
+            collection_items_dict[f"Available roles - {role_type}"]
+            for role_type in dict_of_job_attributes["job_type"]
+        ]
+        if dict_of_job_attributes["job_type"] is not None
+        else "",
+        "job_rewilding": collection_items_dict["Rewilding - true"]
+        if dict_of_job_attributes["rewilding"] == True
+        else collection_items_dict["Rewilding - false"],
+        "org": dict_of_job_attributes["org_webflow_id"],
+        "org_name": dict_of_job_attributes["org_name"],
+        "org_website": dict_of_job_attributes["website"],
+        "org_careers_page": dict_of_job_attributes["careers_page"],
+        "org_mission": dict_of_job_attributes["mission"],
+        "org_accreditations": [
+            collection_items_dict[f"Accreditations - {accreditation}"]
+            for accreditation in dict_of_job_attributes["accreditations"]
+        ]
+        if dict_of_job_attributes["accreditations"] is not None
+        else "",
+        "org_bizorchar": collection_items_dict["BizOrChar - Business"]
+        if dict_of_job_attributes["borch"] == "Business"
+        else collection_items_dict["BizOrChar - Charity"],
+        "org_sectors": [
+            collection_items_dict[f"Sectors - {sector}"]
+            for sector in dict_of_job_attributes["sectors"]
+        ]
+        if dict_of_job_attributes["sectors"] is not None
+        else "",
+    }
+    return webflow_ready_job_attributes
+
+
+def prep_org_for_webflow(dict_of_org_attributes):
+    """Map the PSQL fields of an org to the correctly formatted Webflow fields"""
+
+    collection_items_dict = get_static_collection_items()
+
+    dict_of_org_attributes["sectors"] = (
+        [
+            collection_items_dict[f"Sectors - {sector}"]
+            for sector in dict_of_org_attributes["sectors"]
+        ]
+        if dict_of_org_attributes["sectors"] is not None
+        else ""
+    )
+    dict_of_org_attributes["available_roles"] = (
+        [
+            collection_items_dict[f"Available roles - {role}"]
+            for role in dict_of_org_attributes["available_roles"]
+        ]
+        if dict_of_org_attributes["available_roles"] is not None
+        else ""
+    )
+    dict_of_org_attributes["biz_or_char"] = (
+        [
+            collection_items_dict[f"Business or charities - {biz_type}"]
+            for biz_type in dict_of_org_attributes["biz_or_char"]
+        ]
+        if dict_of_org_attributes["biz_or_char"] is not None
+        else ""
+    )
+    dict_of_org_attributes["accreditations"] = (
+        [
+            collection_items_dict[f"Accreditations - {accreditation}"]
+            for accreditation in dict_of_org_attributes["accreditations"]
+        ]
+        if dict_of_org_attributes["accreditations"] is not None
+        else ""
+    )
+    dict_of_org_attributes["currently_hiring"] = (
+        "Yes" if dict_of_org_attributes["currently_hiring"] == True else "No"
+    )
+
+    webflow_ready_org_attributes = dict_of_org_attributes
+    return webflow_ready_org_attributes

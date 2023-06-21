@@ -6,7 +6,7 @@ import pandas as pd
 from datetime import date
 import time
 import psql_functions
-import webflow_functions
+import webflow_functions as webflow
 
 """ PSQL UPDATES """
 
@@ -60,67 +60,6 @@ for ind in scraped_jobs.index:
 
 """ WEBFLOW TIME """
 
-# Get the names and Webflow item IDs we'll need to map PSQL strings e.g. 'Software' to
-# Webflow item IDs e.g. '6425b9336545cb72069357c7'
-collection_items_dict = webflow_functions.get_static_collection_items()
-
-
-def prep_job_for_webflow(dict_of_job_attributes):
-    """Map the PSQL fields of a job to the correctly formatted Webflow fields"""
-    webflow_ready_job_attributes = {
-        "job_name": dict_of_job_attributes["concat_name"],
-        "job_title": dict_of_job_attributes["title"],
-        "job_link": dict_of_job_attributes["link_to_apply"],
-        "job_date": str(dict_of_job_attributes["date_added"]),
-        "job_date_str": dict_of_job_attributes["date_added_string"],
-        "job_location": [
-            collection_items_dict[f"Locations - {location}"]
-            for location in dict_of_job_attributes["location"]
-        ]
-        if dict_of_job_attributes["location"] is not None
-        else "",
-        "job_multiple_locations": collection_items_dict["Multiple locations - true"]
-        if dict_of_job_attributes["multiple_locations"] == True
-        else collection_items_dict["Multiple locations - false"],
-        "job_seniority": [
-            collection_items_dict[f"Seniorities - {seniority}"]
-            for seniority in dict_of_job_attributes["seniority"]
-        ]
-        if dict_of_job_attributes["seniority"] is not None
-        else "",
-        "job_type": [
-            collection_items_dict[f"Available roles - {role_type}"]
-            for role_type in dict_of_job_attributes["job_type"]
-        ]
-        if dict_of_job_attributes["job_type"] is not None
-        else "",
-        "job_rewilding": collection_items_dict["Rewilding - true"]
-        if dict_of_job_attributes["rewilding"] == True
-        else collection_items_dict["Rewilding - false"],
-        "org": dict_of_job_attributes["org_webflow_id"],
-        "org_name": dict_of_job_attributes["org_name"],
-        "org_website": dict_of_job_attributes["website"],
-        "org_careers_page": dict_of_job_attributes["careers_page"],
-        "org_mission": dict_of_job_attributes["mission"],
-        "org_accreditations": [
-            collection_items_dict[f"Accreditations - {accreditation}"]
-            for accreditation in dict_of_job_attributes["accreditations"]
-        ]
-        if dict_of_job_attributes["accreditations"] is not None
-        else "",
-        "org_bizorchar": collection_items_dict["BizOrChar - Business"]
-        if dict_of_job_attributes["borch"] == "Business"
-        else collection_items_dict["BizOrChar - Charity"],
-        "org_sectors": [
-            collection_items_dict[f"Sectors - {sector}"]
-            for sector in dict_of_job_attributes["sectors"]
-        ]
-        if dict_of_job_attributes["sectors"] is not None
-        else "",
-    }
-    return webflow_ready_job_attributes
-
-
 # Pull a list of all the jobs we've just created in the database today
 cursor.execute(
     "SELECT * FROM jobs_for_webflow \
@@ -130,14 +69,14 @@ cursor.execute(
 
 psql_jobs_created_today = cursor.fetchall()
 
-# For each new job in PSQL, create a new item in the Webflow Jobs collection, and store
-# its item ID so that we can publish them all en masse later on
+# Store the Webflow item IDs of all the new jobs so we can publish them en masse later
 item_ids_to_publish = []
 
 for job in psql_jobs_created_today:
-    # The create_webflow_job function creates the job and returns its new item ID
+    # Map the PSQL fields of each new job to the correctly formatted Webflow fields
+    # And then create a new item in the Webflow Jobs collection
     try:
-        webflow_job_id = webflow_functions.create_webflow_job(prep_job_for_webflow(job))
+        webflow_job_id = webflow.create_job(webflow.prep_job_for_webflow(job))
     except ValueError:
         continue
 
@@ -159,4 +98,4 @@ psql_functions.close_psql_connection(conn, cursor)
 
 # Publish all the new jobs in Webflow
 if item_ids_to_publish != []:
-    webflow_functions.publish_webflow_items("Jobs", item_ids_to_publish)
+    webflow.publish_items("Jobs", item_ids_to_publish)

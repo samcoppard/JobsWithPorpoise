@@ -5,7 +5,7 @@
 import pandas as pd
 from datetime import date
 import psql_functions
-import webflow_functions
+import webflow_functions as webflow
 
 # Pull in the scraped and categorised jobs as a dataframe
 categorised_jobs_csv = pd.read_csv("categorised_jobs.csv")
@@ -47,4 +47,4 @@ psql_functions.close_psql_connection(conn, cursor)
 
 # Now delete these expired jobs from Webflow
 if records_to_delete != []:
-    webflow_functions.delete_webflow_items("Jobs", records_to_delete)
+    webflow.delete_items("Jobs", records_to_delete)
