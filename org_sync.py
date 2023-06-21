@@ -1,9 +1,6 @@
 """ Update organisations in the Webflow CMS so that they match the details in
     the PSQL database """
 
-import requests
-import json
-import time
 import psql_functions
 import webflow_functions
 
@@ -74,69 +71,12 @@ def prep_org_for_webflow(dict_of_org_attributes):
     return webflow_ready_org_attributes
 
 
+# Map the PSQL fields of each org to the correctly formatted Webflow fields
+psql_orgs = [prep_org_for_webflow(org) for org in psql_orgs]
+
 """ Delete from Webflow any orgs that are no longer in the PSQL database.
     Then add to Webflow any orgs that are in the PSQL database but not in Webflow.
     And patch in Webflow any orgs whose attributes are different in the PSQL database. """
-
-
-# Get your Webflow site ID and API key
-site_id = webflow_functions.get_webflow_site_id()
-api_key = webflow_functions.get_webflow_api_key()
-
-
-def patch_org_in_webflow(
-    webflow_api_key,
-    webflow_item_id,
-    webflow_slug,
-    org_name,
-    website,
-    careers_page,
-    mission,
-    accreditations,
-    available_roles,
-    hiring,
-    bizorchar,
-    sectors,
-):
-    """Patch an item in the Organisations collection"""
-
-    url = f"https://api.webflow.com/collections/62e3ab17f169f84e746dc54e/items/{webflow_item_id}"
-
-    payload = {
-        "fields": {
-            "slug": webflow_slug,  # required
-            "name": org_name,  # required
-            "_archived": False,
-            "_draft": False,  # Leaving this False doesn't publish the item
-            "org-website": website,
-            "careers-page": careers_page,
-            "mission": mission,
-            "accreditations-2": accreditations,
-            "available-roles": available_roles,
-            "currently-hiring-2": hiring,
-            "biz": bizorchar,
-            "sectors": sectors,
-        }
-    }
-
-    headers = {
-        "accept": "application/json",
-        "content-type": "application/json",
-        "authorization": f"Bearer {webflow_api_key}",
-    }
-
-    response = requests.patch(url, json=payload, headers=headers)
-
-    # Parse the text part of the response into JSON, then extract the collection item ID
-    json_string = response.text
-    data = json.loads(json_string)
-
-    # Add the org's new Webflow item ID into the list of item IDs to publish
-    if "_id" in data:
-        org_ids_to_publish.append(data["_id"])
-
-    # Deal with rate limiting issues (will do something more sophisticated in future)
-    time.sleep(1)
 
 
 # Create a list containing the names of all organisations in Webflow, and the same for PSQL
@@ -160,9 +100,10 @@ org_ids_to_publish = []
 # If any are in PSQL but not Webflow, add them to Webflow
 for org in psql_orgs:
     if org["name"] not in webflow_orgs_names:
-        webflow_org_id, webflow_org_slug = webflow_functions.create_webflow_org(
-            prep_org_for_webflow(org)
-        )
+        (
+            webflow_org_id,
+            webflow_org_slug,
+        ) = webflow_functions.create_or_patch_webflow_org("create", org)
 
         org_ids_to_publish.append(webflow_org_id)
 
@@ -174,10 +115,12 @@ for org in psql_orgs:
             (webflow_org_id, webflow_org_slug, org["name"]),
         )
 
-        # Deal with rate limiting issues (will do something more sophisticated in future)
-        time.sleep(1)
+    # Check if the org's attributes are different in PSQL vs Webflow; patch any that are
+    elif org not in webflow_orgs:
+        webflow_functions.create_or_patch_webflow_org("patch", org)
 
-    
+        org_ids_to_publish.append(org["webflow_item_id"])
+
 
 # Publish the new / patched orgs in Webflow
 if org_ids_to_publish != []:

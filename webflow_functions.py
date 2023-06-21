@@ -1,6 +1,7 @@
 import requests
 import json
 import keyring
+import time
 
 
 def get_webflow_site_id():
@@ -253,14 +254,14 @@ def get_webflow_orgs_all_attributes(offset=0, orgs_list=[]):
     return orgs_list
 
 
-def create_webflow_org(prepped_dict_of_org_attributes):
+def create_or_patch_webflow_org(create_or_patch, prepped_dict_of_org_attributes):
     """Create a new item in the Organisations collection, and return its Webflow item ID"""
-
-    url = "https://api.webflow.com/collections/62e3ab17f169f84e746dc54e/items"
 
     payload = {
         "fields": {
-            "slug": "",  # Webflow will auto-generate the slug if this is left blank
+            "slug": ""
+            if create_or_patch == "create"
+            else prepped_dict_of_org_attributes["webflow_slug"],
             "_archived": False,
             "_draft": False,  # Setting this to False leaves the item in draft
             "name": prepped_dict_of_org_attributes["name"],
@@ -281,39 +282,24 @@ def create_webflow_org(prepped_dict_of_org_attributes):
         "authorization": f"Bearer {api_key}",
     }
 
-    response = requests.post(url, json=payload, headers=headers)
+    if create_or_patch == "create":
+        url = "https://api.webflow.com/collections/62e3ab17f169f84e746dc54e/items"
+        response = requests.post(url, json=payload, headers=headers)
+    else:
+        url = f"https://api.webflow.com/collections/62e3ab17f169f84e746dc54e/items/{prepped_dict_of_org_attributes['webflow_item_id']}"
+        response = requests.patch(url, json=payload, headers=headers)
 
     # Parse the text part of the response into JSON, then extract the collection item ID
     json_string = response.text
     data = json.loads(json_string)
-    return data["_id"], data["slug"]
 
+    if create_or_patch == "create":
+        return data["_id"], data["slug"]
+    else:
+        pass
 
-def patch_webflow_org(org_webflow_id, org_slug, org_name, hiring, available_roles):
-    """Patch an item in the Organisations collection. We only ever need to change the 'currently hiring' and 'available roles' fields, so that's all this function does"""
-
-    url = f"https://api.webflow.com/collections/62e3ab17f169f84e746dc54e/items/{org_webflow_id}"
-
-    payload = {
-        "fields": {
-            "slug": org_slug,  # required
-            "name": org_name,  # required
-            "_archived": False,
-            "_draft": False,  # Setting this to False leaves the item in draft
-            "currently-hiring-2": hiring,  # "Yes" or "No"
-            "available-roles": available_roles,  # List of Webflow item IDs (or an empty string)
-        }
-    }
-
-    headers = {
-        "accept": "application/json",
-        "content-type": "application/json",
-        "authorization": f"Bearer {api_key}",
-    }
-
-    response = requests.patch(url, json=payload, headers=headers)
-
-    print(response.text)
+    # Deal with rate limiting issues (will do something more sophisticated in future)
+    time.sleep(1)
 
 
 @split_list_decorator
