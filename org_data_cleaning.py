@@ -13,6 +13,14 @@ orgs = (
 )
 
 
+def test_func(lst):
+    new_list = [item for element in lst for item in element.split(", ")]
+    return new_list
+
+
+orgs["job_types"] = orgs["job_types"].apply(lambda lst: test_func(lst))
+
+
 def clean_job_types(lst):
     """Remove duplicate strings from a list, and remove the string 'not mapped' too"""
     unique_list = list(set(lst))
@@ -20,21 +28,9 @@ def clean_job_types(lst):
     return mapped_list
 
 
-# Create a new column to store unique job types
+# Create a new column to hold the unique job types each org is hiring for
 orgs["unique_job_types"] = orgs["job_types"].apply(lambda lst: clean_job_types(lst))
 
-# Remove any rows where the 'unique_job_types' column is "" (i.e. none of that organisation's open roles were mapped to a job type)
-# This works by creating a boolean mask, which is then negated using ~ (so that rows with unique_job_types == "" are False, and then used to subset the original dataframe)
-orgs = orgs[~orgs["unique_job_types"].apply(lambda x: x == "")]
-
-# Clean up the 'unique_job_types' field by removing excess commas in the middle, beginning or end of a value.
-# These issues are caused by jobs that aren't matched to a job type
-orgs["unique_job_types"] = (
-    orgs["unique_job_types"].str.replace(", , ", ", ").str.strip(", ")
-)
-
-# There's no need to keep the non-unique job_types column, and it just takes up memory later, so let's remove that now
-orgs = orgs.drop("job_types", axis=1)
 
 # Export dataframe to csv
 orgs.to_csv("orgs_job_types.csv", index=False)
