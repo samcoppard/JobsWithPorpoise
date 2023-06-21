@@ -158,9 +158,9 @@ def create_webflow_job(prepped_dict_of_job_attributes):
 
     payload = {
         "fields": {
-            "slug": "",  # Webflow will auto-generate the slug if this is left blank, avoiding duplication issues
+            "slug": "",  # Webflow will auto-generate the slug if this is left blank
             "_archived": False,
-            "_draft": False,  # It might look like this publishes the item, but it doesn't
+            "_draft": False,  # Setting this to False leaves the item in draft
             "name": prepped_dict_of_job_attributes["job_name"],
             # This doesn't need to be unique
             "title": prepped_dict_of_job_attributes["job_title"],
@@ -253,35 +253,25 @@ def get_webflow_orgs_all_attributes(offset=0, orgs_list=[]):
     return orgs_list
 
 
-def create_webflow_org(
-    name,
-    website,
-    careers_page,
-    mission,
-    accreditations,
-    available_roles,
-    hiring,
-    bizorchar,
-    sectors,
-):
+def create_webflow_org(prepped_dict_of_org_attributes):
     """Create a new item in the Organisations collection, and return its Webflow item ID"""
 
     url = "https://api.webflow.com/collections/62e3ab17f169f84e746dc54e/items"
 
     payload = {
         "fields": {
-            "slug": "",  # Webflow will auto-generate the slug if this is left blank, avoiding duplication issues
+            "slug": "",  # Webflow will auto-generate the slug if this is left blank
             "_archived": False,
-            "_draft": False,  # It might look like this publishes the item, but it doesn't
-            "name": name,  # This doesn't need to be unique
-            "org-website": website,
-            "careers-page": careers_page,
-            "mission": mission,
-            "accreditations-2": accreditations,  # List of Webflow item IDs (or an empty string)
-            "available-roles": available_roles,  # List of Webflow item IDs (or an empty string)
-            "currently-hiring-2": hiring,  # "Yes" or "No"
-            "biz": bizorchar,  # List containing a single Webflow item ID
-            "sectors": sectors,  # List of Webflow item IDs (or an empty string)
+            "_draft": False,  # Setting this to False leaves the item in draft
+            "name": prepped_dict_of_org_attributes["name"],
+            "org-website": prepped_dict_of_org_attributes["website"],
+            "careers-page": prepped_dict_of_org_attributes["careers_page"],
+            "mission": prepped_dict_of_org_attributes["mission"],
+            "accreditations-2": prepped_dict_of_org_attributes["accreditations"],
+            "available-roles": prepped_dict_of_org_attributes["available_roles"],
+            "currently-hiring-2": prepped_dict_of_org_attributes["currently_hiring"],
+            "biz": prepped_dict_of_org_attributes["biz_or_char"],
+            "sectors": prepped_dict_of_org_attributes["sectors"],
         }
     }
 
@@ -296,7 +286,7 @@ def create_webflow_org(
     # Parse the text part of the response into JSON, then extract the collection item ID
     json_string = response.text
     data = json.loads(json_string)
-    return data["_id"]
+    return data["_id"], data["slug"]
 
 
 def patch_webflow_org(org_webflow_id, org_slug, org_name, hiring, available_roles):
@@ -309,7 +299,7 @@ def patch_webflow_org(org_webflow_id, org_slug, org_name, hiring, available_role
             "slug": org_slug,  # required
             "name": org_name,  # required
             "_archived": False,
-            "_draft": False,
+            "_draft": False,  # Setting this to False leaves the item in draft
             "currently-hiring-2": hiring,  # "Yes" or "No"
             "available-roles": available_roles,  # List of Webflow item IDs (or an empty string)
         }

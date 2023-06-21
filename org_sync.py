@@ -74,80 +74,14 @@ def prep_org_for_webflow(dict_of_org_attributes):
     return webflow_ready_org_attributes
 
 
-psql_orgs = [prep_org_for_webflow(org_dict) for org_dict in psql_orgs]
-
-
-""" Delete from Webflow any orgs that are no longer in the PSQL database
-    Add to Webflow any orgs that are in the PSQL database but not in Webflow
-    Patch in Webflow any orgs whose attributes are different in the PSQL database """
+""" Delete from Webflow any orgs that are no longer in the PSQL database.
+    Then add to Webflow any orgs that are in the PSQL database but not in Webflow.
+    And patch in Webflow any orgs whose attributes are different in the PSQL database. """
 
 
 # Get your Webflow site ID and API key
 site_id = webflow_functions.get_webflow_site_id()
 api_key = webflow_functions.get_webflow_api_key()
-
-
-def add_new_org_to_webflow(
-    webflow_api_key,
-    name,
-    website,
-    careers_page,
-    mission,
-    accreditations,
-    available_roles,
-    hiring,
-    bizorchar,
-    sectors,
-):
-    """Create a new item in the Organisations collection, and return its Webflow item ID"""
-
-    url = "https://api.webflow.com/collections/62e3ab17f169f84e746dc54e/items"
-
-    payload = {
-        "fields": {
-            "slug": "",  # Webflow will auto-generate the slug if this is left blank
-            "_archived": False,
-            "_draft": False,  # Leaving this False doesn't publish the item
-            "name": name,  # This doesn't need to be unique
-            "org-website": website,
-            "careers-page": careers_page,
-            "mission": mission,
-            # List of Webflow item IDs (or an empty string)
-            "accreditations-2": accreditations,
-            # List of Webflow item IDs (or an empty string)
-            "available-roles": available_roles,
-            "currently-hiring-2": hiring,  # "Yes" or "No"
-            "biz": bizorchar,  # List containing a single Webflow item ID
-            "sectors": sectors,  # List of Webflow item IDs (or an empty string)
-        }
-    }
-
-    headers = {
-        "accept": "application/json",
-        "content-type": "application/json",
-        "authorization": f"Bearer {webflow_api_key}",
-    }
-
-    response = requests.post(url, json=payload, headers=headers)
-
-    # Parse the text part of the response into JSON, then extract the collection item ID
-    json_string = response.text
-    data = json.loads(json_string)
-
-    # Add the org's new Webflow item ID into the list of item IDs to publish
-    if "_id" in data:
-        org_ids_to_publish.append(data["_id"])
-
-        # Add the job's Webflow item ID into the postgres database
-        cursor.execute(
-            "UPDATE organisations \
-                    SET webflow_item_id = %s,  webflow_slug = %s\
-                    WHERE name = %s;",
-            (data["_id"], data["slug"], name),
-        )
-
-    # Deal with rate limiting issues (will do something more sophisticated in future)
-    time.sleep(1)
 
 
 def patch_org_in_webflow(
@@ -226,38 +160,24 @@ org_ids_to_publish = []
 # If any are in PSQL but not Webflow, add them to Webflow
 for org in psql_orgs:
     if org["name"] not in webflow_orgs_names:
-        add_new_org_to_webflow(
-            webflow_api_key=api_key,
-            name=org["name"],
-            website=org["website"],
-            careers_page=org["careers_page"],
-            mission=org["mission"],
-            accreditations=org["accreditations"],
-            available_roles=org["available_roles"],
-            hiring=org["currently_hiring"],
-            bizorchar=org["biz_or_char"],
-            sectors=org["sectors"],
+        webflow_org_id, webflow_org_slug = webflow_functions.create_webflow_org(
+            prep_org_for_webflow(org)
         )
-    # Patch any orgs in Webflow that have different attributes in PSQL
-    else:
-        if (
-            org not in webflow_orgs
-        ):  # i.e. if the org's attributes are different in PSQL vs Webflow
-            patch_org_in_webflow(
-                webflow_api_key=api_key,
-                webflow_item_id=org["webflow_item_id"],
-                webflow_slug=org["webflow_slug"],
-                org_name=org["name"],
-                website=org["website"],
-                careers_page=org["careers_page"],
-                mission=org["mission"],
-                accreditations=org["accreditations"],
-                available_roles=org["available_roles"],
-                hiring=org["currently_hiring"],
-                bizorchar=org["biz_or_char"],
-                sectors=org["sectors"],
-            )
 
+        org_ids_to_publish.append(webflow_org_id)
+
+        # Add the job's Webflow item ID into the postgres database
+        cursor.execute(
+            "UPDATE organisations \
+                    SET webflow_item_id = %s,  webflow_slug = %s\
+                    WHERE name = %s;",
+            (webflow_org_id, webflow_org_slug, org["name"]),
+        )
+
+        # Deal with rate limiting issues (will do something more sophisticated in future)
+        time.sleep(1)
+
+    
 
 # Publish the new / patched orgs in Webflow
 if org_ids_to_publish != []:
