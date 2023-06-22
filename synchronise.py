@@ -24,6 +24,10 @@ def scrape_to_postgres_to_webflow():
     runpy("new_jobs.py")
 
     # Run the file that updates organisations in Postgres
+    print("Cleaning org data...")
+    runpy("org_data_cleaning.py")
+
+    # Run the file that updates organisations in Postgres
     print("Updating orgs in PSQL...")
     runpy("psql_org_update.py")
 
