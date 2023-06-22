@@ -32,5 +32,5 @@ orgs = orgs[orgs["unique_job_types"].apply(lambda x: x != [])]
 # Remove the non-unique job_types column as it just needlessly takes up memory later
 orgs = orgs.drop("job_types", axis=1)
 
-# Export dataframe to csv
-orgs.to_csv("orgs_job_types.csv", index=False)
+# Export dataframe to JSON
+orgs.to_json("orgs_job_types.json", orient="records")

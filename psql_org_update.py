@@ -10,7 +10,7 @@ import psql_functions
 
 # Pull in the scraped orgs that are currently hiring (and the job types they're
 # hiring for) as a dataframe
-scraped_orgs_import = pd.read_csv("orgs_job_types.csv")
+scraped_orgs_import = pd.read_json("orgs_job_types.json")
 scraped_orgs = pd.DataFrame(scraped_orgs_import)
 
 # Connect to the PSQL database and create a cursor object
@@ -23,7 +23,7 @@ for ind in scraped_orgs.index:
                  SET available_roles = %s \
                  WHERE name = %s;",
         (
-            scraped_orgs["unique_job_types"][ind].split(", "),
+            scraped_orgs["unique_job_types"][ind],
             scraped_orgs["Company"][ind],
         ),
     )
