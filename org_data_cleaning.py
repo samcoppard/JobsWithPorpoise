@@ -1,3 +1,6 @@
+""" Create a dataframe with two columns - one for the name of each organisation,
+    and one for a list of the unique job categories that organisation is hiring for """
+
 import pandas as pd
 
 # Pull in the scraped and categorised jobs as a dataframe
