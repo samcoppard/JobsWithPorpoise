@@ -436,7 +436,7 @@ customer_service = [
     'Experience Assistant', 'Software Support Executive', 'Visitor Engagement',
     'Customer Technical Support', 'Customer and Engagement Specialist',
     'Engagement Lead', 'Customer Contact', 'Customer Operations', 'Energy Helper',
-    'Credit Specialist', 'Energy Specialist', 'Solution Analyst',
+    'Credit Specialist', 'Energy Specialist', 'Solution Analyst', 'Engagement Placement',
     'Solution Engineer', 'Solutions Engineer', 'Client Onboarding', 'Supporter Care Officer',
     'Customer Advisor', 'Driver Support', 'Technical Support Engineer',
     'Customer Satisfaction', 'Installation Coordinator', 'Customer Excellence',
@@ -624,7 +624,7 @@ other = [
     'Nature Nursery', 'HGV Technician', 'HGV Truck Technician', 'Test Driver',
     'Service Support', 'Historic Environment', 'Social Science', 'Bike Rider',
     'Synthesis and Learning', 'Veterinary', 'Maintenance Officer', 'Warehouse Staff',
-    'Sustainable Development Programme - Senior Adviser', 'Strategist',
+    'Sustainable Development Programme - Senior Adviser', 'Strategist', 'Engagement Placement',
     'Healthy Travel Officer', 'Schools Officer', 'Retail Manager', 'Cargobike Rider',
     'Site Manager', 'Senior Adviser – Business & Capability', 'Event', 'E-Cyclist',
     'Learning Designer', 'Digital Learning', 'Chef', 'Strategic Solution',
@@ -671,7 +671,7 @@ outdoorsy = [
     'Waterways Workforce', 'Landscaper', 'Gardener', 'Reserve Trainee',
     'Species and Recording Officer', 'Field Worker', 'Field Surveyor',
     'Camp Manager', 'Habitat Survey', 'Arboricultural Surveyor', 'Environmental Practitioner',
-    'Habitats Officer', 'Reserves Assistant', 'Woodland Assistant',
+    'Habitats Officer', 'Reserves Assistant', 'Woodland Assistant', 'Engagement Placement',
     'Land Manage', 'Field Technician', 'Wildlife Boat Guide', 'Reserve Manager',
     'Field Team', 'Outdoor Learning', 'Ringer', 'Horticulture', 'Botanical Surveyor', 'Acorn Farm', 'UK Habs Surveyor', 'Grounds Maintenance', 'Grounds Person', 'Landscape Officer', 'Woodland Creation Officer', 'Estate Officer', 'HabiMap', 'Amenity Maintenance', 'Survey Contractor'
 ]
@@ -884,7 +884,7 @@ entry_level = [
     'Junior', 'Assistant', 'Intern', 'Trainee', 'Apprentice', 'Student',
     'Water Engineer', 'intern', 'Graduate', 'Industrial Placement', 'Jr',
     'New to Nature', 'New To Nature', 'Summer Placement', 'Youth Ambassador',
-    'Industrial Placement', 'Energy Adviser', 'Energy Advisor',
+    'Industrial Placement', 'Energy Adviser', 'Energy Advisor', 'Placement',
     'Home Tech Advisor', 'Complaints Advisor', 'Customer Care Advisor',
     'Part Qualified', 'Part-Qualified', 'Customer Service Team Member',
     'Gas Operations Specialist', 'Customer Support Executive', 'Tour Guide', 'Brand Ambassador', 'Packing Operator'
