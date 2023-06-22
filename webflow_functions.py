@@ -383,11 +383,14 @@ def prep_job_for_webflow(dict_of_job_attributes):
 def prep_org_for_webflow(dict_of_org_attributes):
     """Map the PSQL fields of an org to the correctly formatted Webflow fields"""
 
-    collection_items_dict = get_static_collection_items()
+    # Cache the results of get_static_collection_items() so we don't end up calling that
+    # function hundreds of times when this function is called in a loop
+    if not hasattr(prep_org_for_webflow, "collection_items_dict"):
+        prep_org_for_webflow.collection_items_dict = get_static_collection_items()
 
     dict_of_org_attributes["sectors"] = (
         [
-            collection_items_dict[f"Sectors - {sector}"]
+            prep_org_for_webflow.collection_items_dict[f"Sectors - {sector}"]
             for sector in dict_of_org_attributes["sectors"]
         ]
         if dict_of_org_attributes["sectors"] is not None
@@ -395,7 +398,7 @@ def prep_org_for_webflow(dict_of_org_attributes):
     )
     dict_of_org_attributes["available_roles"] = (
         [
-            collection_items_dict[f"Available roles - {role}"]
+            prep_org_for_webflow.collection_items_dict[f"Available roles - {role}"]
             for role in dict_of_org_attributes["available_roles"]
         ]
         if dict_of_org_attributes["available_roles"] is not None
@@ -403,7 +406,9 @@ def prep_org_for_webflow(dict_of_org_attributes):
     )
     dict_of_org_attributes["biz_or_char"] = (
         [
-            collection_items_dict[f"Business or charities - {biz_type}"]
+            prep_org_for_webflow.collection_items_dict[
+                f"Business or charities - {biz_type}"
+            ]
             for biz_type in dict_of_org_attributes["biz_or_char"]
         ]
         if dict_of_org_attributes["biz_or_char"] is not None
@@ -411,7 +416,9 @@ def prep_org_for_webflow(dict_of_org_attributes):
     )
     dict_of_org_attributes["accreditations"] = (
         [
-            collection_items_dict[f"Accreditations - {accreditation}"]
+            prep_org_for_webflow.collection_items_dict[
+                f"Accreditations - {accreditation}"
+            ]
             for accreditation in dict_of_org_attributes["accreditations"]
         ]
         if dict_of_org_attributes["accreditations"] is not None
