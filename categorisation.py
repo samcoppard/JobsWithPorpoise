@@ -806,7 +806,7 @@ weird_other_ignore = [
     'Arborist & Team Leader Opportunities', 'Join Us',
     'General Interest', 'Internal Only', 'Tender', "If You Don'T See the Role You'Re Looking for",
     'There Are Currently No Vacancies', 'Spontaneous Application',
-    'No Jobs Openings', 'Future Positions', 'Future Opportunities',
+    'No Jobs Openings', 'Future Positions', 'Future Opportunities', 'Have Any Vacancies',
     'Member of Technical Staff', 'Consultancy Opportunity', 'Call for',
     'Internal Applicants Only', 'All Departments', 'No Internal Positions', 'We Do Not Have Any Vacancies', 'Follow Us',
     'Us Director', 'US Director', 'CV Database', 'Copy of', 'All Advert Template', 'Looking to Get the New Board Set up', 'Careeers', 'Chargé', 'Restauration'

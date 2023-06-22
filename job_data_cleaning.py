@@ -6,16 +6,9 @@ import pandas as pd
 scraped_csv = pd.read_csv('scraped_jobs.csv')
 scraped_jobs = pd.DataFrame(scraped_csv)
 
-# Remove all rows with a missing value (job title, location, etc)
-scraped_jobs = scraped_jobs.dropna(how='any', axis=0).reset_index(drop=True)
-
-# Now map locations and filter out non-UK roles. Doing this first gets rid of job titles in foreign languages that may include special characters, which mess with the code for tidying up job titles
-
-# Create a new column for the mapped locations of the jobs
-scraped_jobs['mapped_location'] = "not mapped"
-
-# If the location hasn't been scraped for any of the jobs, mark them 'not scraped'
-scraped_jobs['Location'].fillna('not scraped', inplace=True)
+# Remove all rows with a missing value (job title, location, etc), then reset the index
+scraped_jobs.dropna(how='any', axis=0, inplace=True)
+scraped_jobs.reset_index(drop=True, inplace=True)
 
 # Get all the locations in title case
 scraped_jobs['Title Location'] = scraped_jobs['Location'].str.title()
@@ -111,8 +104,7 @@ scraped_jobs['concat'] = scraped_jobs['Company'] + " - " + scraped_jobs[
 # Limit this column to 255 characters (the maximum allowed in the jobs PSQL table)
 scraped_jobs['concat'] = scraped_jobs['concat'].str[:255]
 
-# Create a new column for the kind of job each job is, with a placeholder to start
+# Create new columns for the jobs' mapped locations, job types, and seniorities
+scraped_jobs['mapped_location'] = "not mapped"
 scraped_jobs['job_types'] = "not mapped"
-
-# Create a new column for the kind of job each job is, with a placeholder to start
 scraped_jobs['seniority'] = "mid level"
