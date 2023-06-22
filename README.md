@@ -24,6 +24,9 @@ A daily cron job runs the file __synchronise.py__, which runs the following file
     * Any new jobs are added to the database
     * They're also added to the Webflow CMS (with many interlinked records to make things fun) and published to the live site
 
+- __org_data_cleaning.py__
+    * Computes the unique job categories each organisation is currently hiring for
+
 - __psql_org_update.py__
     * Updates the PostgreSQL database with the job categories each organisation is currently hiring for
 
