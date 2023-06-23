@@ -24,58 +24,44 @@ scraped_jobs.loc[mask, 'Title Location'] = "Manchester"
 
 # Tidy up the scraped job titles
 
-# Remove references included in job titles
-scraped_jobs['Job Title'] = [
-    i.split("Ref :")[0] for i in scraped_jobs['Job Title']
-]
 # Tidy up hyphens
-scraped_jobs['Job Title'] = [
-    i.replace("- ", " - ").replace("  ",
-                                   " ").replace(" -", " - ").replace("  ", " ")
-    for i in scraped_jobs['Job Title']
-]
+scraped_jobs['Job Title'] = scraped_jobs['Job Title'].str.replace("- ", " - ").str.replace(" -", " - ").str.replace("  ", " ")
+
 # Tidy up colons
-scraped_jobs['Job Title'] = [
-    i.replace(" :", ": ").replace("  ", " ") for i in scraped_jobs['Job Title']
-]
+scraped_jobs['Job Title'] = scraped_jobs['Job Title'].str.replace(" :", ": ").str.replace("  ", " ")
+
 # Get rid of punctuation that's never needed
-scraped_jobs['Job Title'] = [
-    i.replace(".", "").replace("!", "").replace(
-        "?", "").replace("→", "").replace("🌿", "")
-    for i in scraped_jobs['Job Title']
-]
+chars_to_remove = [".", "!", "?", "→", "🌿"]
+for char in chars_to_remove:
+   scraped_jobs['Job Title'] = scraped_jobs['Job Title'].str.replace(char, "")
+
 
 # Replace a weird apostrophe with a normal one
-scraped_jobs['Job Title'] = [
-    i.replace("’", "'") for i in scraped_jobs['Job Title']]
+scraped_jobs['Job Title'] = scraped_jobs['Job Title'].str.replace("’", "'")
 
 # Get rid of extra phrases that aren't needed
-scraped_jobs['Job Title'] = [
-    i.replace("(All Genders)", "").replace("(all genders)", "").replace("all genders", "").replace(" - Permanent (no closing date – apply now)",
-                                           "").replace("/ ANNUM ", "").replace("docx", "").replace("Job Description", "")
-    for i in scraped_jobs['Job Title']
-]
+phrases_to_remove = ["(All Genders)", "(all genders)", "all genders", " - Permanent (no closing date – apply now)", "/ ANNUM ", "docx", "Job Description"]
+for phrase in phrases_to_remove:
+    scraped_jobs['Job Title'] = scraped_jobs['Job Title'].str.replace(phrase, "")
 
-# Remove extra spaces at the end
-scraped_jobs['Job Title'] = [i.strip() for i in scraped_jobs['Job Title']]
+
+# Remove whitespace at the end
+scraped_jobs['Job Title'] = scraped_jobs['Job Title'].str.strip()
 # Get rid of trailing punctuation
 scraped_jobs['Job Title'] = [
     i[:-1] if i[-1] in ["-", ":"] else i for i in scraped_jobs['Job Title']
 ]
 # Remove extra spaces again (including mid-string this time)
-scraped_jobs['Job Title'] = [
-    i.strip().replace("  ", " ") for i in scraped_jobs['Job Title']
-]
+scraped_jobs['Job Title'] = scraped_jobs['Job Title'].str.strip().str.replace("  ", " ")
 
-# Now we need to tidy everything up with title case, but with exceptions for words that should stay capitalised
-# Define a list of words to exclude from being title cased
+# Convert job titles to title case, excluding certain words
 exclusions = ["PA", "EMEA", "APPG", "BizDev", "PSP", "BD", "MD", "CEO", "ESG", "GHG", "HS2", "REDD", "EHS", "EIA", "ELM", "DAS/PSS", "NCEA", "INNS", "GWCL", "MEL", "GIS", "BI", "BA", "EDA", "ETRM", "DNA", "UX", "UI", "UX/UI", "UI/UX", "NVH", "BIM", "CAD", "RF", "CAE", "EE", "EDS", "HV", "EC&I", "GDA", "BoP", "MEICA", "BMS", "PV", "FMEA", "ETF", "FP&A", "CFO", "HR", "EDI", "IT", "ICT", "NetOps", "TechOps", "CSIRT", "GRC", "EIR", "COMAH", "PR", "CRM", "SEO", "PPC", "CMO", "COO", "FOI", "FCRM", "HSE", "EHS", "SHE", "UAV", "HGV", "SA", "CPO", "CTO", "ML", "AI", "DevOps", "QA", "iOS", "SQA", "SW", "IT", "SRE", ".NET", "TypeScript", "NetOps", "BMS", "VP", "NED", "US", "QHSE", "LCA", "EPD", "CDR", "CI", "CD", "CI/CD", "LEF", "HSQE", "UK", "UK)", "NPP", "SG3", "MMO", "UX/", "/UI", "API", "USA)", "(NY", "(HR)", "MEICA)", "(MEICA", "(MEICA)", "FSGo", "SIG", "AIT", "OEM", "FTE", "DBRC", "HTS", "BES", "FCERM", ")FCERM", "(FCERM", "(FCERM)", "MBA", "(s)",
               "(UK", "(UK)", "(UK-)", "UK/EU", "UK/EU)", "(UK/EU", "(UK/EU)", "POS", "NNR", "FTC", "EU", "EMEA", "EMEA)", "(EMEA", "(EMEA)", "EV", "IoT", "NEAS", "CV", "GMT", "VCF", "UK/I", "SDR", ")SDR", "(SDR", "(SDR)", "FTC)", "(FTC", "(FTC)", "EV)", "(EV", "(HSE", "(EHS", "(SHE", "(QHSE", "HSE)", "EHS)", "SHE)", "QHSE)", "(HSE)", "(EHS)", "(SHE)", "(QHSE)", "(CI)", "(GMT", "GMT)", "HMNB", "RAF", "(AWS)", "AWS", "NRG", "(NRG)", "EPR", "(PM1)", "(PM2)", "PM", "(IEP)", "IEP", "(FCRM)", "BoP", "(UK&IE)", "UK&IE", "TCAF", "(TCAF)", "ZCL", "HQ", "ERP", "OPEX", "PMO", "PDME", "SQL", "ECO", "HabiMap", "FP&A", "DACH", "EAN", "LNA", "TaaS", "(TaaS)", "PSO", "NFM", "(NFM)", "DVP", "NE", "SE", "NW", "SW", "SWE", "PDM", "KAM", "BOM", "BoM", "CFD/MHD", "CFD", "MHD", "EAC", "UKPN", "or", "x", "x2", "x3", "x4", "'s", "s", "CSM)", "(CSM)", "(CSM", "DCO", "DCO/", "DCO/Planning", "VPP", "Co-ordinator", "Co-ordination", "the", "and", "of", "to", "for", "up"]
 
 
 # Make a function to convert strings to title case, excluding the words in the exclusions list above
-def convert_to_title_case(text):
-  words = text.split()  # Split the string into a list of words
+def convert_to_title_case(str):
+  words = str.split()  # Split the string into a list of words
   # List comprehension to convert each word to title case unless it's in the exclusions list
   title_words = [
       word.title() if word not in exclusions else word for word in words]
