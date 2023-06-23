@@ -13,15 +13,13 @@ scraped_jobs.reset_index(drop=True, inplace=True)
 # Get all the locations in title case
 scraped_jobs['Title Location'] = scraped_jobs['Location'].str.title()
 
-# Weird edge cases that could mess things up
-for ind in scraped_jobs.index:
-  if any(x == scraped_jobs['Title Location'][ind] for x in ["Sale", "Bury"]):
-    scraped_jobs['Title Location'][ind] = "Manchester"
+# Remove mentions of New York and New South Wales (they mess up location mapping)
+scraped_jobs['Title Location'] = scraped_jobs['Title Location'].str.replace("New York", "").str.replace("New South Wales", "")
 
-# Special case for removing jobs based in New York and New South Wales
-for ind in scraped_jobs.index:
-  if scraped_jobs['mapped_location'][ind] == 'Yorkshire / Humber, Abroad' or scraped_jobs['mapped_location'][ind] == 'Wales, Abroad':
-    scraped_jobs.drop(index=ind, inplace=True)
+# Change to "Manchester" if location is "Sale" or "Bury" (they mess up location mapping)
+# Create a boolean mask, then update the values for rows where the mask is True
+mask = scraped_jobs['Title Location'].isin(["Sale", "Bury"])
+scraped_jobs.loc[mask, 'Title Location'] = "Manchester"
 
 
 # Tidy up the scraped job titles
