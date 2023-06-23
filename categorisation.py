@@ -1,27 +1,10 @@
 import pandas as pd
 
 # Pull in the scraped jobs as a dataframe
-scraped_csv = pd.read_csv('scraped_jobs.csv')
+scraped_csv = pd.read_csv('cleaned_jobs.csv')
 scraped_jobs = pd.DataFrame(scraped_csv)
 
-# Remove all rows with a missing value (job title, location, etc)
-scraped_jobs = scraped_jobs.dropna(how='any', axis=0).reset_index(drop=True)
-
-# Now map locations and filter out non-UK roles. Doing this first gets rid of job titles in foreign languages that may include special characters, which mess with the code for tidying up job titles
-
-# Create a new column for the mapped locations of the jobs
-scraped_jobs['mapped_location'] = "not mapped"
-
-# If the location hasn't been scraped for any of the jobs, mark them 'not scraped'
-scraped_jobs['Location'].fillna('not scraped', inplace=True)
-
-# Get all the locations in title case
-scraped_jobs['Title Location'] = scraped_jobs['Location'].str.title()
-
-# Weird edge cases that could mess things up
-for ind in scraped_jobs.index:
-  if any(x == scraped_jobs['Title Location'][ind] for x in ["Sale", "Bury"]):
-    scraped_jobs['Title Location'][ind] = "Manchester"
+""" Map each job to its location(s) first """
 
 # Create a list of possible terms for each location
 remote = [
@@ -162,7 +145,7 @@ for ind in scraped_jobs.index:
   a = []
   # For each possible location, check if one of the defining terms for that location appears in the scraped location, then add it to the list if it does
   for area in locations_dict:
-    if any(ele in scraped_jobs['Title Location'][ind]
+    if any(ele in scraped_jobs['Location'][ind]
            for ele in locations_dict[area]):
       a.append(area)
     # Combine all the mapped locations in the dictionary into a single string
@@ -186,18 +169,18 @@ abroad_matches = ['Ireland', 'Northern Ireland']
 all_matches = ['Nearby Any Sustrans Office Hub Across The Uk']
 
 for ind in scraped_jobs.index:
-  if any(x == scraped_jobs['Title Location'][ind] for x in remote_matches):
+  if any(x == scraped_jobs['Location'][ind] for x in remote_matches):
     scraped_jobs['mapped_location'][ind] = "Fully Remote"
-  elif any(x == scraped_jobs['Title Location'][ind] for x in midlands_matches):
+  elif any(x == scraped_jobs['Location'][ind] for x in midlands_matches):
     scraped_jobs['mapped_location'][ind] = "East Midlands, West Midlands"
-  elif any(x == scraped_jobs['Title Location'][ind] for x in north_matches):
+  elif any(x == scraped_jobs['Location'][ind] for x in north_matches):
     scraped_jobs['mapped_location'][ind] = "North East, North West"
-  elif any(x == scraped_jobs['Title Location'][ind] for x in england_matches):
+  elif any(x == scraped_jobs['Location'][ind] for x in england_matches):
     scraped_jobs['mapped_location'][
         ind] = "London, South East, South West, North East, North West, East Midlands, West Midlands, East of England, Yorkshire / Humber"
-  elif any(x == scraped_jobs['Title Location'][ind] for x in abroad_matches):
+  elif any(x == scraped_jobs['Location'][ind] for x in abroad_matches):
     scraped_jobs['mapped_location'][ind] = "Abroad"
-  elif any(x in scraped_jobs['Title Location'][ind] for x in all_matches):
+  elif any(x in scraped_jobs['Location'][ind] for x in all_matches):
     scraped_jobs['mapped_location'][
         ind] = "Scotland, Wales, London, South East, South West, North East, North West, East Midlands, West Midlands, East of England, Yorkshire / Humber"
 
@@ -231,96 +214,9 @@ for ind in scraped_jobs.index:
   if scraped_jobs['mapped_location'][ind] == 'Abroad':
     scraped_jobs.drop(index=ind, inplace=True)
 
-# Special case for removing jobs based in New York and New South Wales
-for ind in scraped_jobs.index:
-  if scraped_jobs['mapped_location'][ind] == 'Yorkshire / Humber, Abroad' or scraped_jobs['mapped_location'][ind] == 'Wales, Abroad':
-    scraped_jobs.drop(index=ind, inplace=True)
 
-# Tidy up the scraped job titles
+""" Now map each job to its job type(s) """
 
-# Remove references included in job titles
-scraped_jobs['Job Title'] = [
-    i.split("Ref :")[0] for i in scraped_jobs['Job Title']
-]
-# Tidy up hyphens
-scraped_jobs['Job Title'] = [
-    i.replace("- ", " - ").replace("  ",
-                                   " ").replace(" -", " - ").replace("  ", " ")
-    for i in scraped_jobs['Job Title']
-]
-# Tidy up colons
-scraped_jobs['Job Title'] = [
-    i.replace(" :", ": ").replace("  ", " ") for i in scraped_jobs['Job Title']
-]
-# Get rid of punctuation that's never needed
-scraped_jobs['Job Title'] = [
-    i.replace(".", "").replace("!", "").replace(
-        "?", "").replace("→", "").replace("🌿", "")
-    for i in scraped_jobs['Job Title']
-]
-
-# Replace a weird apostrophe with a normal one
-scraped_jobs['Job Title'] = [
-    i.replace("’", "'") for i in scraped_jobs['Job Title']]
-
-# Get rid of extra phrases that aren't needed
-scraped_jobs['Job Title'] = [
-    i.replace("(All Genders)", "").replace("(all genders)", "").replace("all genders", "").replace(" - Permanent (no closing date – apply now)",
-                                           "").replace("/ ANNUM ", "").replace("docx", "").replace("Job Description", "")
-    for i in scraped_jobs['Job Title']
-]
-
-# Remove extra spaces at the end
-scraped_jobs['Job Title'] = [i.strip() for i in scraped_jobs['Job Title']]
-# Get rid of trailing punctuation
-scraped_jobs['Job Title'] = [
-    i[:-1] if i[-1] in ["-", ":"] else i for i in scraped_jobs['Job Title']
-]
-# Remove extra spaces again (including mid-string this time)
-scraped_jobs['Job Title'] = [
-    i.strip().replace("  ", " ") for i in scraped_jobs['Job Title']
-]
-
-# Now we need to tidy everything up with title case, but with exceptions for words that should stay capitalised
-# Define a list of words to exclude from being title cased
-exclusions = ["PA", "EMEA", "APPG", "BizDev", "PSP", "BD", "MD", "CEO", "ESG", "GHG", "HS2", "REDD", "EHS", "EIA", "ELM", "DAS/PSS", "NCEA", "INNS", "GWCL", "MEL", "GIS", "BI", "BA", "EDA", "ETRM", "DNA", "UX", "UI", "UX/UI", "UI/UX", "NVH", "BIM", "CAD", "RF", "CAE", "EE", "EDS", "HV", "EC&I", "GDA", "BoP", "MEICA", "BMS", "PV", "FMEA", "ETF", "FP&A", "CFO", "HR", "EDI", "IT", "ICT", "NetOps", "TechOps", "CSIRT", "GRC", "EIR", "COMAH", "PR", "CRM", "SEO", "PPC", "CMO", "COO", "FOI", "FCRM", "HSE", "EHS", "SHE", "UAV", "HGV", "SA", "CPO", "CTO", "ML", "AI", "DevOps", "QA", "iOS", "SQA", "SW", "IT", "SRE", ".NET", "TypeScript", "NetOps", "BMS", "VP", "NED", "US", "QHSE", "LCA", "EPD", "CDR", "CI", "CD", "CI/CD", "LEF", "HSQE", "UK", "UK)", "NPP", "SG3", "MMO", "UX/", "/UI", "API", "USA)", "(NY", "(HR)", "MEICA)", "(MEICA", "(MEICA)", "FSGo", "SIG", "AIT", "OEM", "FTE", "DBRC", "HTS", "BES", "FCERM", ")FCERM", "(FCERM", "(FCERM)", "MBA", "(s)",
-              "(UK", "(UK)", "(UK-)", "UK/EU", "UK/EU)", "(UK/EU", "(UK/EU)", "POS", "NNR", "FTC", "EU", "EMEA", "EMEA)", "(EMEA", "(EMEA)", "EV", "IoT", "NEAS", "CV", "GMT", "VCF", "UK/I", "SDR", ")SDR", "(SDR", "(SDR)", "FTC)", "(FTC", "(FTC)", "EV)", "(EV", "(HSE", "(EHS", "(SHE", "(QHSE", "HSE)", "EHS)", "SHE)", "QHSE)", "(HSE)", "(EHS)", "(SHE)", "(QHSE)", "(CI)", "(GMT", "GMT)", "HMNB", "RAF", "(AWS)", "AWS", "NRG", "(NRG)", "EPR", "(PM1)", "(PM2)", "PM", "(IEP)", "IEP", "(FCRM)", "BoP", "(UK&IE)", "UK&IE", "TCAF", "(TCAF)", "ZCL", "HQ", "ERP", "OPEX", "PMO", "PDME", "SQL", "ECO", "HabiMap", "FP&A", "DACH", "EAN", "LNA", "TaaS", "(TaaS)", "PSO", "NFM", "(NFM)", "DVP", "NE", "SE", "NW", "SW", "SWE", "PDM", "KAM", "BOM", "BoM", "CFD/MHD", "CFD", "MHD", "EAC", "UKPN", "or", "x", "x2", "x3", "x4", "'s", "s", "CSM)", "(CSM)", "(CSM", "DCO", "DCO/", "DCO/Planning", "VPP", "Co-ordinator", "Co-ordination", "the", "and", "of", "to", "for", "up"]
-
-
-# Make a function to convert strings to title case, excluding the words in the exclusions list above
-def convert_to_title_case(text):
-  words = text.split()  # Split the string into a list of words
-  # List comprehension to convert each word to title case unless it's in the exclusions list
-  title_words = [
-      word.title() if word not in exclusions else word for word in words]
-  # Combine the converted words back into a single string
-  return ' '.join(title_words)
-
-
-# Apply the new function to all job titles
-scraped_jobs['Job Title'] = [
-    convert_to_title_case(i) for i in scraped_jobs['Job Title']
-]
-
-# Fix a weird edge case with apostrophes, and another with Next.js
-scraped_jobs['Job Title'] = [
-    i.replace("'S", "'s").replace("Nextjs", "Next.js") for i in scraped_jobs['Job Title']]
-
-# Limit the 'Job Title' column to 255 characters (the maximum allowed in the jobs PSQL table)
-scraped_jobs['Job Title'] = scraped_jobs['Job Title'].str[:255]
-
-
-# Create a new column for concatenating org-role-location
-scraped_jobs['concat'] = scraped_jobs['Company'] + " - " + scraped_jobs[
-    'Job Title'] + " - " + scraped_jobs['Title Location']
-# Limit this column to 255 characters (the maximum allowed in the jobs PSQL table)
-scraped_jobs['concat'] = scraped_jobs['concat'].str[:255]
-
-# Create a new column for the kind of job each job is, with a placeholder to start
-scraped_jobs['job_types'] = "not mapped"
-
-# Create a new column for the kind of job each job is, with a placeholder to start
-scraped_jobs['seniority'] = "mid level"
 
 # Create a list of terms for each kind of job, which will be used to map jobs to the right kind of job
 admin = [
@@ -875,7 +771,7 @@ for ind in scraped_jobs.index:
          for x in ['Shit Jobs', 'Weird other', 'Volunteering']):
     scraped_jobs.drop(index=ind, inplace=True)
 
-# SENIORITY
+""" Now map each job to its seniority level """
 
 # Create a list of terms for each seniority level, which will be used to map jobs to the right seniority
 entry_level = [

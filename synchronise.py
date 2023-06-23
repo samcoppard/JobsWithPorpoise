@@ -12,18 +12,23 @@ def scrape_to_postgres_to_webflow():
     # Run the file that scrapes jobs
     runpy("scraping.py")
 
+    # Run the file that cleans job titles and locations
+    print("Cleaning job titles and locations...")
+    runpy("job_data_cleaning.py")
+
     # Run the file that categorises scraped jobs
+    print("Categorising jobs...")
     runpy("categorisation.py")
 
     # Run the file that updates Postgres and Webflow with removed jobs
-    print("Going through old jobs...")
+    print("Updating old jobs...")
     runpy("old_jobs.py")
 
     # Run the file that updates Postgres and Webflow with new jobs
-    print("Going through new jobs...")
+    print("Adding new jobs...")
     runpy("new_jobs.py")
 
-    # Run the file that updates organisations in Postgres
+    # Run the file that cleans the job types each organisation is hiring for
     print("Cleaning org data...")
     runpy("org_data_cleaning.py")
 
