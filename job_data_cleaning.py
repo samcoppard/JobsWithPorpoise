@@ -6,53 +6,60 @@ import pandas as pd
 scraped_csv = pd.read_csv('scraped_jobs.csv')
 scraped_jobs = pd.DataFrame(scraped_csv)
 
-# Remove all rows with a missing value (job title, location, etc), then reset the index
-scraped_jobs.dropna(how='any', axis=0, inplace=True)
-scraped_jobs.reset_index(drop=True, inplace=True)
+def remove_incomplete_rows(df):
+    """Remove all rows with a missing value anywhere, then reset the index"""
+    df.dropna(how='any', axis=0, inplace=True)
+    df.reset_index(drop=True, inplace=True)
 
-# Get all the locations in title case
-scraped_jobs['Title Location'] = scraped_jobs['Location'].str.title()
+remove_incomplete_rows(scraped_jobs)
 
-# Remove mentions of New York and New South Wales (they mess up location mapping)
-scraped_jobs['Title Location'] = scraped_jobs['Title Location'].str.replace("New York", "").str.replace("New South Wales", "")
+def clean_locations(df, column):
+    """Create a new column to store locations in title case, and deal with a couple
+        of edge cases that mess up location mapping"""
+    df[column] = (df[column].str.title()
+    # Remove mentions of New York and New South Wales
+    .str.replace("New York", "").str.replace("New South Wales", ""))
+    # Change "Sale" & "Bury" to "Manchester" (by using a boolean mask)
+    mask = df[column].isin(["Sale", "Bury"])
+    df.loc[mask, column] = "Manchester"
 
-# Change to "Manchester" if location is "Sale" or "Bury" (they mess up location mapping)
-# Create a boolean mask, then update the values for rows where the mask is True
-mask = scraped_jobs['Title Location'].isin(["Sale", "Bury"])
-scraped_jobs.loc[mask, 'Title Location'] = "Manchester"
-
-
-# Tidy up the scraped job titles
-
-# Tidy up hyphens
-scraped_jobs['Job Title'] = scraped_jobs['Job Title'].str.replace("- ", " - ").str.replace(" -", " - ").str.replace("  ", " ")
-
-# Tidy up colons
-scraped_jobs['Job Title'] = scraped_jobs['Job Title'].str.replace(" :", ": ").str.replace("  ", " ")
-
-# Get rid of punctuation that's never needed
-chars_to_remove = [".", "!", "?", "→", "🌿"]
-for char in chars_to_remove:
-   scraped_jobs['Job Title'] = scraped_jobs['Job Title'].str.replace(char, "")
+clean_locations(scraped_jobs, 'Location')
 
 
-# Replace a weird apostrophe with a normal one
-scraped_jobs['Job Title'] = scraped_jobs['Job Title'].str.replace("’", "'")
+def clean_job_titles(df, column):
+    """Tidy up punctuation, plus remove unnecessary characters and phrases"""
 
-# Get rid of extra phrases that aren't needed
-phrases_to_remove = ["(All Genders)", "(all genders)", "all genders", " - Permanent (no closing date – apply now)", "/ ANNUM ", "docx", "Job Description"]
-for phrase in phrases_to_remove:
-    scraped_jobs['Job Title'] = scraped_jobs['Job Title'].str.replace(phrase, "")
+    # Tidy up hyphens
+    df[column] = (df[column].str.replace("- ", " - ").str.replace(" -", " - ").str.replace("  ", " ")
+
+    # Tidy up colons
+    .str.replace(" :", ": ").str.replace("  ", " "))
+
+    # Get rid of punctuation that's never needed
+    chars_to_remove = [".", "!", "?", "→", "🌿"]
+    for char in chars_to_remove:
+        df[column] = df[column].str.replace(char, "")
+
+    # Replace a weird apostrophe with a normal one
+    df[column] = df[column].str.replace("’", "'")
+
+    # Get rid of extra phrases that aren't needed
+    phrases_to_remove = ["(All Genders)", "(all genders)", "all genders", " - Permanent (no closing date – apply now)", "/ ANNUM ", "docx", "Job Description"]
+    for phrase in phrases_to_remove:
+        df[column] = df[column].str.replace(phrase, "")
+
+    # Remove whitespace at the end
+    df[column] = (df[column].str.strip()
+
+    # Get rid of trailing punctuation
+    .str.replace(r'[:,(/-]+$', '', regex=True)
+    
+    # Remove extra spaces again (including mid-string this time)
+    .str.strip().str.replace("  ", " "))
+
+clean_job_titles(scraped_jobs, 'Job Title')
 
 
-# Remove whitespace at the end
-scraped_jobs['Job Title'] = scraped_jobs['Job Title'].str.strip()
-# Get rid of trailing punctuation
-scraped_jobs['Job Title'] = [
-    i[:-1] if i[-1] in ["-", ":"] else i for i in scraped_jobs['Job Title']
-]
-# Remove extra spaces again (including mid-string this time)
-scraped_jobs['Job Title'] = scraped_jobs['Job Title'].str.strip().str.replace("  ", " ")
 
 # Convert job titles to title case, excluding certain words
 exclusions = ["PA", "EMEA", "APPG", "BizDev", "PSP", "BD", "MD", "CEO", "ESG", "GHG", "HS2", "REDD", "EHS", "EIA", "ELM", "DAS/PSS", "NCEA", "INNS", "GWCL", "MEL", "GIS", "BI", "BA", "EDA", "ETRM", "DNA", "UX", "UI", "UX/UI", "UI/UX", "NVH", "BIM", "CAD", "RF", "CAE", "EE", "EDS", "HV", "EC&I", "GDA", "BoP", "MEICA", "BMS", "PV", "FMEA", "ETF", "FP&A", "CFO", "HR", "EDI", "IT", "ICT", "NetOps", "TechOps", "CSIRT", "GRC", "EIR", "COMAH", "PR", "CRM", "SEO", "PPC", "CMO", "COO", "FOI", "FCRM", "HSE", "EHS", "SHE", "UAV", "HGV", "SA", "CPO", "CTO", "ML", "AI", "DevOps", "QA", "iOS", "SQA", "SW", "IT", "SRE", ".NET", "TypeScript", "NetOps", "BMS", "VP", "NED", "US", "QHSE", "LCA", "EPD", "CDR", "CI", "CD", "CI/CD", "LEF", "HSQE", "UK", "UK)", "NPP", "SG3", "MMO", "UX/", "/UI", "API", "USA)", "(NY", "(HR)", "MEICA)", "(MEICA", "(MEICA)", "FSGo", "SIG", "AIT", "OEM", "FTE", "DBRC", "HTS", "BES", "FCERM", ")FCERM", "(FCERM", "(FCERM)", "MBA", "(s)",
