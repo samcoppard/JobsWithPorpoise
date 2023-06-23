@@ -1,6 +1,7 @@
 """ Clean up the scraped jobs so that you can effectively categorise them later """
 
 import pandas as pd
+import yaml
 
 # Pull in the scraped jobs as a dataframe
 scraped_csv = pd.read_csv('scraped_jobs.csv')
@@ -58,12 +59,14 @@ def clean_job_titles(df, column):
     .str.strip().str.replace("  ", " "))
 
 
-
+def load_exclusions():
+    """ Load the list of words to exclude from being capitalized from the YAML file """
+    with open('./JobsWithPorpoise/capital_exclusions.yaml', 'r') as file:
+        return yaml.safe_load(file)
 
 
 # Convert job titles to title case, excluding certain words
-exclusions = ["PA", "EMEA", "APPG", "BizDev", "PSP", "BD", "MD", "CEO", "ESG", "GHG", "HS2", "REDD", "EHS", "EIA", "ELM", "DAS/PSS", "NCEA", "INNS", "GWCL", "MEL", "GIS", "BI", "BA", "EDA", "ETRM", "DNA", "UX", "UI", "UX/UI", "UI/UX", "NVH", "BIM", "CAD", "RF", "CAE", "EE", "EDS", "HV", "EC&I", "GDA", "BoP", "MEICA", "BMS", "PV", "FMEA", "ETF", "FP&A", "CFO", "HR", "EDI", "IT", "ICT", "NetOps", "TechOps", "CSIRT", "GRC", "EIR", "COMAH", "PR", "CRM", "SEO", "PPC", "CMO", "COO", "FOI", "FCRM", "HSE", "EHS", "SHE", "UAV", "HGV", "SA", "CPO", "CTO", "ML", "AI", "DevOps", "QA", "iOS", "SQA", "SW", "IT", "SRE", ".NET", "TypeScript", "NetOps", "BMS", "VP", "NED", "US", "QHSE", "LCA", "EPD", "CDR", "CI", "CD", "CI/CD", "LEF", "HSQE", "UK", "UK)", "NPP", "SG3", "MMO", "UX/", "/UI", "API", "USA)", "(NY", "(HR)", "MEICA)", "(MEICA", "(MEICA)", "FSGo", "SIG", "AIT", "OEM", "FTE", "DBRC", "HTS", "BES", "FCERM", ")FCERM", "(FCERM", "(FCERM)", "MBA", "(s)",
-              "(UK", "(UK)", "(UK-)", "UK/EU", "UK/EU)", "(UK/EU", "(UK/EU)", "POS", "NNR", "FTC", "EU", "EMEA", "EMEA)", "(EMEA", "(EMEA)", "EV", "IoT", "NEAS", "CV", "GMT", "VCF", "UK/I", "SDR", ")SDR", "(SDR", "(SDR)", "FTC)", "(FTC", "(FTC)", "EV)", "(EV", "(HSE", "(EHS", "(SHE", "(QHSE", "HSE)", "EHS)", "SHE)", "QHSE)", "(HSE)", "(EHS)", "(SHE)", "(QHSE)", "(CI)", "(GMT", "GMT)", "HMNB", "RAF", "(AWS)", "AWS", "NRG", "(NRG)", "EPR", "(PM1)", "(PM2)", "PM", "(IEP)", "IEP", "(FCRM)", "BoP", "(UK&IE)", "UK&IE", "TCAF", "(TCAF)", "ZCL", "HQ", "ERP", "OPEX", "PMO", "PDME", "SQL", "ECO", "HabiMap", "FP&A", "DACH", "EAN", "LNA", "TaaS", "(TaaS)", "PSO", "NFM", "(NFM)", "DVP", "NE", "SE", "NW", "SW", "SWE", "PDM", "KAM", "BOM", "BoM", "CFD/MHD", "CFD", "MHD", "EAC", "UKPN", "or", "x", "x2", "x3", "x4", "s", "CSM)", "(CSM)", "(CSM", "DCO", "DCO/", "DCO/Planning", "VPP", "the", "and", "of", "to", "for", "up"]
+exclusions = load_exclusions()
 
 
 def convert_to_title_case(string):
@@ -79,7 +82,7 @@ def convert_to_title_case(string):
 
 def convert_df_column_to_title_case(df, column):
     """ Change a df column of string values to title case """
-    df[column] = df[column].str.apply(convert_to_title_case)
+    df[column] = df[column].apply(convert_to_title_case)
 
 remove_incomplete_rows(scraped_jobs)
 clean_locations(scraped_jobs, 'Location')
@@ -97,3 +100,6 @@ scraped_jobs['concat'] = (scraped_jobs['Company'] + " - " + scraped_jobs[
 scraped_jobs['mapped_location'] = "not mapped"
 scraped_jobs['job_types'] = "not mapped"
 scraped_jobs['seniority'] = "mid level"
+
+
+scraped_jobs.to_csv("cleaned_jobs.csv", index=False)
