@@ -22,7 +22,7 @@ def clean_locations(df, column):
         # Convert to title case
         .str.title()
         # Remove mentions of New York and New South Wales
-        .str.replace("New York", "").str.replace("New South Wales", "")
+        .str.replace("New York", "USA").str.replace("New South Wales", "Australia")
     )
     # Change "Sale" & "Bury" to "Manchester" (by using a boolean mask)
     mask = df[column].isin(["Sale", "Bury"])
@@ -75,12 +75,11 @@ def clean_job_titles(df, column):
 
 
 def load_exclusions():
-    """Load the list of words to exclude from being capitalized from the YAML file"""
+    """Load a list of words from a YAML file to exclude from being capitalized"""
     with open("./JobsWithPorpoise/capital_exclusions.yaml", "r") as file:
         return yaml.safe_load(file)
 
 
-# Convert job titles to title case, excluding certain words
 exclusions = load_exclusions()
 
 
@@ -123,4 +122,7 @@ def create_new_columns(df):
     scraped_jobs["seniority"] = "mid level"
 
 
-scraped_jobs.to_csv("categorised_jobs.csv", index=False)
+create_new_columns(scraped_jobs)
+
+# Export the cleaned jobs to csv
+scraped_jobs.to_csv("cleaned_jobs.csv", index=False)
