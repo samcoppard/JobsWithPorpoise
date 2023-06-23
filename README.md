@@ -6,13 +6,16 @@ A daily cron job runs the file __synchronise.py__, which runs the following file
 - __scraping.py__
     * 9000+ lines of code to scrape 1500+ jobs from the careers pages of 250+ green organisations
 
+- __job_data_cleaning.py__
+    * Removes any jobs with missing data
+    * Formats the remaining job titles and locations to match a consistent style
+    * Preps jobs for categorisation
+
 - __categorisation.py__
-    * Formats the job titles so everything's nice and uniform
     * Filters out non-UK jobs
     * Maps the remaining jobs to the correct area of the UK
     * Maps each role to the job categories it fits under e.g. Marketing or Software
     * Maps each role to its seniority level
-    * Creates a separate dataframe to store all the job categories each organisation is currently hiring for
 
 - __old_jobs.py__
     * Checks all the current live jobs to see if they've been scraped this time around
@@ -25,12 +28,10 @@ A daily cron job runs the file __synchronise.py__, which runs the following file
     * They're also added to the Webflow CMS (with many interlinked records to make things fun) and published to the live site
 
 - __org_data_cleaning.py__
-    * Computes the unique job categories each organisation is currently hiring for
+    * Maps the unique job categories each organisation is currently hiring for
 
 - __psql_org_update.py__
     * Updates the PostgreSQL database with the job categories each organisation is currently hiring for
 
 - __org_sync.py__
     * Syncs any changes made to organisations in the PostgreSQL database across to the Webflow CMS
-   
-_N.B. This is a new repo that replaces an earlier private repo, which would have exposed sensitive information if I made it public._
