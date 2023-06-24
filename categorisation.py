@@ -625,6 +625,19 @@ job_types_dict = {
     'Weird other': weird_other_ignore
 }
 
+# Create a dict to hold the regions of the UK and all the locations in that region
+job_types_dict = {}
+
+job_type_yamls_directory = './JobsWithPorpoise/job_type_yamls'
+
+# Loop over all the location YAML files and read the values in each file into a list
+for filename in os.listdir(job_type_yamls_directory):
+    filepath = os.path.join(job_type_yamls_directory, filename)
+    with open(filepath, 'r') as file:
+        list_of_job_type_terms = yaml.safe_load(file)
+        # Add the region and its locations to the dictionary
+        job_types_dict[list_of_job_type_terms[0]] = list_of_job_type_terms[1:]
+
 # Check each job / row in scraped_jobs
 for ind in scraped_jobs.index:
   # Start off with an empty list that we'll populate with the job types
