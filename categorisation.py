@@ -1,4 +1,6 @@
 import pandas as pd
+import os
+import yaml
 
 # Pull in the scraped jobs as a dataframe
 scraped_csv = pd.read_csv('cleaned_jobs.csv')
@@ -6,138 +8,21 @@ scraped_jobs = pd.DataFrame(scraped_csv)
 
 """ Map each job to its location(s) first """
 
-# Create a list of possible terms for each location
-remote = [
-    'Flexible Across England', 'Fully Remote', 'Global', 'Remote-Based',
-    '2H From Utc', 'Gmt +-2', 'Homebased', 'Anywhere In The Uk',
-    'Remote Working In Europe', 'Remote (Ireland, Uk Or Us Only)',
-    'Remote Working', 'Western Europe', 'Uk, With Home Working Possible',
-    'Remote (Ireland And Uk)', 'Home Based - Uk', 'Location: Remote',
-    'Home Based - With Extensive Travel', 'Home-Based - With Significant Travel',
-    'Home-Based With Some Travel', 'Home Working , All, Various',
-    'Home Working (Office Facilities Available)', 'Remote, Eu',
-    'Home Based - Some National Travel Expected', 'Emea', 'Remote, Uk', 'Flexible Home Working', 'Remote Based With The Ability To Travel Throughout England', 'Remote (Europe', 'Remote (US, UK', 'Remote (UK', 'Remote (US, Europe', 'Home Based With Occasional Travel'
-]
-london = [
-    'London', 'Southwark', 'Bermondsey', 'Brixton', 'Camberwell', 'Hackney Wick', 'Chelsea', 'Fulham',
-    'Wimbledon', 'Shoreditch', 'Westminster', 'Kensington', 'Londres', 'Clerkenwell', 'Putney', 'Ealing',
-    'John Street Office', 'Streatham', 'Stratford', 'Tottenham', 'Camden', 'Battersea', 'Clapham', 'Harrow',
-    'Wembley', 'Whitechapel', 'Chiswick', 'Fulham', 'Wandsworth', 'Acton', 'Hammersmith', 'Hanwell',
-    'Twickenham', 'North Woolwich', 'Roehampton', 'Deptford', 'Enfield', 'Park Royal', 'Poplar', 'Fruit Towers', 'Lambeth', 'Sutton', 'Croydon'
-]
-scotland = [
-    'Scotland', 'Solway', 'Argyll', 'Hebrides', 'Dundee', 'East Coast',
-    'Dumfries', 'Galloway', 'Perth', 'Kinross', 'Edinburgh', 'Aberdeen',
-    'Glasgow', 'Highlands', 'Shetland', 'Orkney', 'Aviemore', 'Inverness',
-    'North Berwick', 'Stirling', 'Ayr', 'Moffat', 'Falls Of Clyde', 'Lanark',
-    'Loch Of The Lowes', 'Dunkeld', 'Grangemouth', 'Falkirk', 'East Lothian',
-    'Lothian', 'Kinneil', "Bo'Ness", 'Borrowstounness', 'Cumbernauld'
-]
-wales = [
-    'Wales', 'Cardiff', 'Machynlleth', 'Powys', 'Snowdonia', 'Pembrokeshire',
-    'Radnorshire', 'Abertillery', 'Gwent', 'Radnorshire', 'Montgomeryshire',
-    'Newport', 'Swansea', 'Barry'
-]
-southeast = [
-    'Andover', 'Oxford', 'Brighton', 'Guildford', 'Kent', 'Southampton', 'Gravesham',
-    'Reading', 'Abingdon', 'Milton', 'Bbowt', 'Hampshire', 'Isle Of Wight',
-    'Middlesex', 'Solent', 'Totton', 'Surrey', 'Sussex', 'Henfield', 'New Forest',
-    'South East England', 'Banbury', 'Upper Heyford', 'Bicester', 'Leatherhead',
-    'Sevenoaks', 'Dartford', 'Maidstone', 'Tonbridge', 'South East', 'Slough',
-    'Berkshire', 'Woking', 'Winchester', 'Newbury', 'Wallingford', 'Egham',
-    'Aldershot', 'Chichester', 'West Malling', 'Farnham', 'Romsey', 'Worthing',
-    'Pevensey', 'Sevenoaks', 'Canterbury', 'Rye', 'Horsham', 'Weybridge', 'Winnersh',
-    'South East, Uk', 'Hastings', 'Eastbourne', 'Wokingham', 'Basingstoke',
-    'Aylesbury', 'Buckinghamshire', 'Reigate', 'Banstead', 'Maidenhead', 'Lewes',
-    'Eastleigh', 'Portsmouth', 'Dymchurch', 'Sittingbourne', 'Ramsdell', 'Hampstead Norreys', 'Smol Warehouse', 'Raf Welford', 'Crawley', 'Sunbury'
-]
-southwest = [
-    'Bristol', 'Barnstaple', 'Bath', 'Cornwall', 'Exeter', 'Plymouth', 'Avon',
-    'Somerset', 'Devon', 'Dorset', 'Devizes', 'Wiltshire', 'Gloucester', 'Radstock',
-    'Langford', 'Wilton', 'Bude', 'South West England', 'Weston-Super-Mare',
-    'Bridgwater', 'Cheltenham', 'Salisbury', 'Yeovil', 'Taunton', 'Poole', 'Midsomer Norton',
-    'Bournemouth', 'Bodmin', 'Launceston', 'Chippenham', 'Tewkesbury', 'Somer Valley',
-    'Blandford Forum', 'Swindon', 'Cricklade', 'Bruton', 'Redruth', 'Wadebridge', 'South West', 'Scilly', 'Lulworth', 'Tor Bay', 'Torbay', 'Torquay', 'Dorchester'
-]
-northeast = [
-    'Hartlepool', 'Durham', 'Tees Valley', 'Newcastle', 'Tyneside',
-    'Northumberland', 'North East England', 'Darlington', 'Northern England'
-]
-northwest = [
-    'Manchester', 'Liverpool', 'Penrith', 'Cumbria', 'Lake District',
-    'Isle Of Man', 'Lancashire', 'Wigan', 'North West England', 'Warrington',
-    'Cheshire', 'Chester', 'Merseyside', 'Preston', 'Kendal', 'Leigh', 'Leyland',
-    'Southport', 'Winsford', 'Workington', 'Abbeytown', 'Brampton',
-    'Trafford Park', 'Speke', 'Crewe', 'Carnforth', 'Rochdale', 'Stockport', 'Northern England'
-]
-eastmidlands = [
-    'Ashby', 'East Midlands', 'Derbyshire', 'Leicester', 'Lincoln', 'Nottingham',
-    'Northampton', 'Wildlifebcn', 'Silverstone', 'Grantham', 'Newark', 'Gainsborough',
-    'Midlands And East', 'Kettering', 'Spalding', 'Scunthorpe', 'Mablethorpe', 'Central England', 'Loughborough', 'Derby'
-]
-westmidlands = [
-    'Birmingham', 'Coventry', 'West Midlands', 'Shropshire', 'Staffordshire',
-    'Warwick', 'Worcester', 'Hereford', 'Nuneaton', 'Kenilworth', 'Rugby',
-    'Midlands And East', 'Telford', 'Fradley', 'Smethwick', 'Chorley',
-    'Henley-In-Arden', 'Kidderminster', 'Shrewsbury', 'Solihull', 'Stafford',
-    'Sutton Coldfield', 'Uttoxeter', 'West Bromwich', 'Mira, Gb', 'Wariwckshire',
-    'Stoke', 'Wolverhampton', 'Central England', 'Leamington'
-]
-eastengland = [
-    'Cambridge', 'Harpenden', 'Luton', 'Ongar', 'Peterborough', 'Essex',
-    'Norfolk', 'Suffolk', 'Herts', 'Hertfordshire', 'Bedford', 'Wildlifebcn',
-    'East Of England', 'Ipswich', 'Tilbury', 'Chelmsford', 'Lakenheath',
-    'Billericay', 'Mildenhall', 'Alconbury', 'Stevenage', 'St Albans',
-    'Hertford', 'Marston Vale', 'Midlands And East', 'Welwyn Garden City',
-    'Colchester', 'Ely', 'Norwich', "King's Lynn", 'Great Yarmouth', 'St. Neots',
-    'Huntingdon', "King'S Lynn", 'Southend', 'Harlow'
-]
-yorks = [
-    'Doncaster', 'Leeds', 'York', 'Sheffield', 'Humber', 'Yorkshire',
-    'Rotherham', 'Yorkshire And The Humber', 'Hull', 'Wetherby', 'Barnsley',
-    'Beverley', 'Ilkley', 'Redcar', 'Scarborough', 'The National Forest',
-    'Tadcaster', 'Northern England', 'Wakefield', 'Halifax', 'Bradford', 'Harrogate'
-]
-abroad = [
-    'Alderney', 'Ulster', 'Munich', 'Singapore', 'Utrecht', 'Utretch', 'Belfast', 'Oregon',
-    'Düsseldorf', 'Duisburg', 'Berlin', 'Sydney', 'New South Wales', 'Australia',
-    'Belgium', 'Auckland', 'New Zealand', 'Boston', 'New York', 'Nyc', 'Cluj',
-    'Romania', 'Chicago', 'North America', 'Paris', 'Amsterdam', 'San Francisco',
-    'California', 'Madagascar', 'Timor-Leste', 'Denmark', 'Remote - Us', 'Ouagadougou',
-    'Georgia', 'Belgrade', 'Serbia', 'Apeldoorn', 'Netherlands', 'Remote Usa',
-    'Ireland Only', 'Austria', 'France', 'Germany', 'Italy', 'Norway', 'Poland',
-    'Portugal', 'Spain', 'Sweden', 'Switzerland', 'Oslo', 'Madrid', 'Lisbon',
-    'Vienna', 'Brussels', 'Milan', 'Warsaw', 'Stockholm', 'Zurich', 'Montreal',
-    'Washington', 'Turin', 'United States', 'Bengaluru', 'Bangalore', 'India',
-    'Helsinki', 'Finland', 'Wellington', 'Mexico', 'Central America', 'Dubai',
-    'Asia Pacific', 'Malaysia', 'Salengor', 'Lusaka', 'Zambia', 'Nairobi',
-    'Kenya', 'Hanoi', 'Vietnam', 'Kazakhstan', 'Hawaii', 'Nijmegen', 'D.C.',
-    'Austin', 'Boulder', 'Raleigh', 'San Juan', 'La Paz', 'Jakarta', 'Nordic Region',
-    'New Orleans', 'Bavaria', 'Frankfurt', 'Valencia', 'Tokyo', 'Houston',
-    'Ascoli Piceno', 'Portadown', 'Melbourne', 'Gibraltar', 'Rawalpindi',
-    'Tando Allayar', 'Northeast Us', 'New England', 'Bayern', 'Tanzania', 'Cameroon',
-    'Usa / Remote', 'Japan', 'Ontario', 'Canada', 'Ghana', 'Remote, Us', 'Yaounde',
-    'Vilnius', 'Lithuania', 'Leira', 'Coimbra', 'Belize', 'U.S. Remote', 'Logistique',
-    'Dusseldorf', 'Alicante', 'Pacific Time Zone', 'Copenhagen', 'Shenzhen', 'Du Projet',
-    'Duisberg', 'Athens', 'Greece', 'Dublin', 'Andavadoaka', 'Coslada', 'Sindh', 'Pakistan', 'Detroit', 'Northern Ireland', 'Région', 'Lille', 'Indonesia', 'Tando Allahyar'
-]
+# Create a dict to hold the regions of the UK and all the locations in that region
+locations_dict = {}
 
-# Create a dictionary from all those lists so that we can scan them all at once
-locations_dict = {
-    'Fully Remote': remote,
-    'London': london,
-    'Scotland': scotland,
-    'Wales': wales,
-    'South East': southeast,
-    'South West': southwest,
-    'North East': northeast,
-    'North West': northwest,
-    'East Midlands': eastmidlands,
-    'West Midlands': westmidlands,
-    'East of England': eastengland,
-    'Yorkshire / Humber': yorks,
-    'Abroad': abroad
-}
+location_yamls_directory = './JobsWithPorpoise/location_yamls'
+
+# Loop over all the location YAML files and read the values in each file into a list
+for filename in os.listdir(location_yamls_directory):
+    filepath = os.path.join(location_yamls_directory, filename)
+    with open(filepath, 'r') as file:
+        list_of_loc_terms = yaml.safe_load(file)
+        # Format the filenames so that the dictionary keys will look good
+        prepped_filename = filename[:-5].replace("__", " / ").replace("_", " ").title().replace("Of", "of")
+        # Add the region and its locations to the dictionary
+        locations_dict[prepped_filename] = list_of_loc_terms
+
 
 # Check each job / row in scraped_jobs
 for ind in scraped_jobs.index:
