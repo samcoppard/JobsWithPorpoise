@@ -547,6 +547,12 @@ other = [
     'Recycling Advisor', 'Site Care Assistant', 'Planning Officer', 'Activity Support',
     'Landscape Architect', 'Solar Technical Executive', 'Flood Inciedent', 'Shop Assistant',
     'Food Industry Team Coordinator', 'Textiles', 'Publishing', 'Facilities Technician',
+    'Hospitality Assistant', 'Catering Assistant', 'Recycling Service Operative',
+    'HGV', 'Maintenance Technician', 'Warehouse Associate', 'Courier',
+    'Sortation Support', 'Retail Assistant',
+    'Retail Sales Associate', 'Retail Supervisor',
+    'Cafe', 'Café', 'Housekeeping', 'Cook', 'Mechanisation Arb',
+    'Mechanised Arb', 'Key Holder', 'Cleaning Technician',
     'Gas Industry Expert', 'Boston Barrier', 'Water Level', 'Flood Strategy', 'Deputy Manager At Weddings',
     'Outdoor Learning', 'Skomer Visitor Officer', 'Barista', 'Housekeeper', 'Plumber', 'Forest School', 'Construction Manager', 'Construction Supervisor', 'Appraisal Senior Advisor', 'Archivist', 'Reservoir', 'Knowledge Specialist', 'Gas Shipper Expert', 'Area Director', 'Area Manager', 'Fens 2100+', 'Depot Assistant', 'Sweeper Driver', 'Flood Warning Officer', 'Technical Officer', 'Technical Advisor', 'Laundry Assistant', 'Laundry Supervisor', 'Tour Guide', 'Machine Operator', 'Contract Senior Advisor', 'Health Specialist', 'Waste Treatment', 'Waste Storage', 'Catering', 'Packing Assistant', 'Tactical Drought', 'Organisational Resilience', 'Information Management', 'Corporate Strategy', 'Incident Officer', 'Journalist', 'Plasterer', 'Amenity Maintenance', 'Associate - Offshore Wind', 'MMO Support Officer'
 ]
@@ -676,14 +682,6 @@ software = [
     'VP of Technology', 'Scrum Master', 'Blockchain', 'QA Manager',
     'Solutions Architect', 'Embedded Engineer', 'Cybersecurity', 'Security Lead', 'Senior Principal Engineer', 'Data Architect', 'Geomatics', 'Head of Technology', 'Digital Threats', 'Release Engineer'
 ]
-shit_jobs = [
-    'Hospitality Assistant', 'Catering Assistant', 'Recycling Service Operative',
-    'HGV', 'Maintenance Technician', 'Warehouse Associate', 'Courier',
-    'Sortation Support', 'Retail Assistant',
-    'Retail Sales Associate', 'Retail Supervisor',
-    'Cafe', 'Café', 'Housekeeping', 'Cook', 'Mechanisation Arb',
-    'Mechanised Arb', 'Key Holder', 'Cleaning Technician'
-]
 sw_or_eng = [
     'Lead Engineer', 'Test Engineer', 'Systems Engineer', 'Head of Engineering',
     'Engineering Manager', 'Senior Engineer', 'Director of Engineering', 'Principal Engineer'
@@ -739,7 +737,6 @@ job_types_dict = {
     '🧪 Science': science,
     '🤖 Software': software,
     '⭐️ Trustee': trustees,
-    'Shit Jobs': shit_jobs,
     'sw_or_eng': sw_or_eng,
     'Volunteering': volunteering,
     'Weird other': weird_other_ignore
@@ -765,10 +762,10 @@ for ind in scraped_jobs.index:
 print("These jobs haven't been mapped to any job type:")
 print(scraped_jobs[scraped_jobs['job_types'] == 'not mapped'])
 
-# Remove jobs that have been categorised as Shit Jobs, Weird other, or Volunteering
+# Remove jobs that have been categorised as Weird other, or Volunteering
 for ind in scraped_jobs.index:
   if any(x in scraped_jobs['job_types'][ind]
-         for x in ['Shit Jobs', 'Weird other', 'Volunteering']):
+         for x in ['Weird other', 'Volunteering']):
     scraped_jobs.drop(index=ind, inplace=True)
 
 """ Now map each job to its seniority level """
