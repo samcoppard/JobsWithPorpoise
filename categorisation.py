@@ -18,10 +18,8 @@ for filename in os.listdir(location_yamls_directory):
     filepath = os.path.join(location_yamls_directory, filename)
     with open(filepath, 'r') as file:
         list_of_loc_terms = yaml.safe_load(file)
-        # Format the filenames so that the dictionary keys will look good
-        prepped_filename = filename[:-5].replace("__", " / ").replace("_", " ").title().replace("Of", "of")
         # Add the region and its locations to the dictionary
-        locations_dict[prepped_filename] = list_of_loc_terms
+        locations_dict[list_of_loc_terms[0]] = list_of_loc_terms[1:]
 
 
 # Check each job / row in scraped_jobs
