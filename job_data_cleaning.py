@@ -124,5 +124,5 @@ def create_new_columns(df):
 
 create_new_columns(scraped_jobs)
 
-# Export the cleaned jobs to csv
-scraped_jobs.to_csv("cleaned_jobs.csv", index=False)
+# Export the dataframe of cleaned jobs to JSON
+scraped_jobs.to_json("cleaned_jobs.json", orient="records")

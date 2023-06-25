@@ -8,8 +8,8 @@ import psql_functions
 import webflow_functions as webflow
 
 # Pull in the scraped and categorised jobs as a dataframe
-categorised_jobs_csv = pd.read_csv("categorised_jobs.csv")
-scraped_jobs = pd.DataFrame(categorised_jobs_csv)
+categorised_jobs_import = pd.read_json("categorised_jobs.json")
+scraped_jobs = pd.DataFrame(categorised_jobs_import)
 
 # Connect to the PSQL database and create a cursor object
 conn, cursor = psql_functions.connect_to_psql_database()
