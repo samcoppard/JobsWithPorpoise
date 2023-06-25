@@ -142,9 +142,9 @@ for ind in scraped_jobs.index:
 """ Now map each job to its seniority level """
 
 # Create a dict to hold the regions of the UK and all the locations in that region
-seniority_dict_2 = {}
+seniority_dict = {}
 
-seniority_yamls_directory = './JobsWithPorpoise/seniority_yamls'
+seniority_yamls_directory = './JobsWithPorpoise/seniority_yamls/initial_yamls'
 
 # Loop over all the location YAML files and read the values in each file into a list
 for filename in os.listdir(seniority_yamls_directory):
@@ -152,7 +152,7 @@ for filename in os.listdir(seniority_yamls_directory):
     with open(filepath, 'r') as file:
         list_of_seniority_terms = yaml.safe_load(file)
         # Add the region and its locations to the dictionary
-        seniority_dict_2[list_of_seniority_terms[0]] = list_of_seniority_terms[1:]
+        seniority_dict[list_of_seniority_terms[0]] = list_of_seniority_terms[1:]
 
 
 # Check each job / row in scraped_jobs
@@ -170,45 +170,34 @@ for ind in scraped_jobs.index:
       # Add the string to the 'seniority' column of the scraped_jobs dataframe
       scraped_jobs['seniority'][ind] = z
 
-# Remove seniority tags that aren't actually correct
-# Same procedure as above - start by making the lists of terms that should be used for exclusion
-not_entry_level = [
-    'International', 'Business Partner', 'Marketing Manager', 'Senior',
-    'Contract Manager', 'Development Manager', 'Assistant Manager', 'Internal',
-    'Account Manager', 'Accounts Manager', 'Retail Manager',
-    'Communications Manager', 'Sales Manager'
-]
-not_management = [
-    'Assistant', 'Junior', 'Graduate', 'Trainee', 'Project Manage',
-    'Account Manager', 'Management Accountant', 'Social Media Manage',
-    'Office Manager', 'Change Management Engineer', 'Relationship Manager',
-    'Relationships Manager', 'Database Manager', 'Product Manager',
-    'Contracts Manage', 'Nursery Manager', 'Nature Connection Manager'
-]
-definitely_management = [
-    'Senior', 'Director', 'Head of', 'Lead', 'Chair', 'Team Leader', 'Foreman',
-    'Key Account Manager'
-]
+""" Remove seniority tags that aren't actually correct """
 
-# Then make a dictionary from those lists
-not_seniority_dict = {
-    'Not Entry Level': not_entry_level,
-    'Not Management': not_management,
-    'Definitely Management': definitely_management
-}
+# Create a dict to hold the regions of the UK and all the locations in that region
+refining_seniority_dict = {}
+
+refining_seniority_yamls_directory = './JobsWithPorpoise/seniority_yamls/refinement_yamls'
+
+# Loop over all the location YAML files and read the values in each file into a list
+for filename in os.listdir(refining_seniority_yamls_directory):
+    filepath = os.path.join(refining_seniority_yamls_directory, filename)
+    with open(filepath, 'r') as file:
+        list_of_seniority_terms = yaml.safe_load(file)
+        # Add the region and its locations to the dictionary
+        refining_seniority_dict[list_of_seniority_terms[0]] = list_of_seniority_terms[1:]
+
 
 # Now for each job, check if the job title contains any of the terms that would mean it's not actually entry level, then remove the entry level tag if it was given one erroneously
 for ind in scraped_jobs.index:
   if any(ele in scraped_jobs['Job Title'][ind]
-         for ele in not_seniority_dict['Not Entry Level']):
+         for ele in refining_seniority_dict['Not Entry Level']):
     scraped_jobs['seniority'][ind] = scraped_jobs['seniority'][ind].replace(
         "👶 Entry Level", "mid level")
   # And then same deal for the management tag
   if any(ele in scraped_jobs['Job Title'][ind]
-         for ele in not_seniority_dict['Not Management']):
+         for ele in refining_seniority_dict['Not Management']):
     # But make sure we're not removing the management tag from any that definitely are management
     if not any(ele in scraped_jobs['Job Title'][ind]
-               for ele in not_seniority_dict['Definitely Management']):
+               for ele in refining_seniority_dict['Definitely Management']):
       scraped_jobs['seniority'][ind] = scraped_jobs['seniority'][ind].replace(
           "👵🏻 Senior", "mid level")
 
