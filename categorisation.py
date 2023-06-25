@@ -3,8 +3,8 @@ import os
 import yaml
 
 # Pull in the scraped jobs as a dataframe
-scraped_csv = pd.read_csv('cleaned_jobs.csv')
-scraped_jobs = pd.DataFrame(scraped_csv)
+scraped_jobs_import = pd.read_json('cleaned_jobs.json')
+scraped_jobs = pd.DataFrame(scraped_jobs_import)
 
 """ Map each job to its location(s) first """
 
@@ -206,5 +206,5 @@ for ind in scraped_jobs.index:
   scraped_jobs['seniority'][ind] = scraped_jobs['seniority'][ind].replace(
       "mid level, mid level", "mid level")
 
-# Export all the jobs (with their new locations and job type categorisations and seniority levels) as csv
-scraped_jobs.to_csv('categorised_jobs.csv', index=False)
+# Export the dataframe of categorised jobs to JSON
+scraped_jobs.to_json('categorised_jobs.json', orient="records")

@@ -4,8 +4,8 @@
 import pandas as pd
 
 # Pull in the scraped and categorised jobs as a dataframe
-categorised_jobs_csv = pd.read_csv("categorised_jobs.csv")
-scraped_jobs = pd.DataFrame(categorised_jobs_csv)
+categorised_jobs_import = pd.read_json("categorised_jobs.json")
+scraped_jobs = pd.DataFrame(categorised_jobs_import)
 
 # Create a new dataframe with a row for each org with scraped jobs,
 # and a column containing all the job types available at each company
