@@ -141,29 +141,19 @@ for ind in scraped_jobs.index:
 
 """ Now map each job to its seniority level """
 
-# Create a list of terms for each seniority level, which will be used to map jobs to the right seniority
-entry_level = [
-    'Junior', 'Assistant', 'Intern', 'Trainee', 'Apprentice', 'Student',
-    'Water Engineer', 'intern', 'Graduate', 'Industrial Placement', 'Jr',
-    'New to Nature', 'New To Nature', 'Summer Placement', 'Youth Ambassador',
-    'Industrial Placement', 'Energy Adviser', 'Energy Advisor', 'Placement',
-    'Home Tech Advisor', 'Complaints Advisor', 'Customer Care Advisor',
-    'Part Qualified', 'Part-Qualified', 'Customer Service Team Member',
-    'Gas Operations Specialist', 'Customer Support Executive', 'Tour Guide', 'Brand Ambassador', 'Packing Operator'
-]
-management = [
-    'Senior', 'Manager', 'Director', 'CEO', 'CTO', 'CMO', 'CPO', 'CFO', 'COO',
-    'Head of', 'Leader', 'Lead', 'Controller', 'Chair', 'Principal', 'President',
-    'VP', 'Vice President', 'Managing Director', 'MD', 'Management',
-    'Board Member', 'Team Leader', 'Chief Executive', 'Chief Technical Officer',
-    'Chief Marketing Officer', 'Chief Product Officer', 'Chief of Staff',
-    'Chief Financial Officer', 'Chief Operating Officer', 'Foreman', 'Head Of',
-    'Staff Product Manager', 'Staff / Sr Staff', 'Sr / Staff',
-    'Team Coordinator', 'Governance', 'Recruitment Coordinator', 'Solution Architect', 'Chief Engineer', 'Trustee', 'NED', 'Managing Editor', 'Solutions Architect'
-]
+# Create a dict to hold the regions of the UK and all the locations in that region
+seniority_dict_2 = {}
 
-# Create a dictionary from those lists so that we can scan them at the same time
-seniority_dict = {'👶 Entry Level': entry_level, '👵🏻 Senior': management}
+seniority_yamls_directory = './JobsWithPorpoise/seniority_yamls'
+
+# Loop over all the location YAML files and read the values in each file into a list
+for filename in os.listdir(seniority_yamls_directory):
+    filepath = os.path.join(seniority_yamls_directory, filename)
+    with open(filepath, 'r') as file:
+        list_of_seniority_terms = yaml.safe_load(file)
+        # Add the region and its locations to the dictionary
+        seniority_dict_2[list_of_seniority_terms[0]] = list_of_seniority_terms[1:]
+
 
 # Check each job / row in scraped_jobs
 for ind in scraped_jobs.index:
