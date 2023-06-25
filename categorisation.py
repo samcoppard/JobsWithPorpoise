@@ -11,7 +11,7 @@ scraped_jobs = pd.DataFrame(scraped_csv)
 # Create a dict to hold the regions of the UK and all the locations in that region
 locations_dict = {}
 
-location_yamls_directory = './JobsWithPorpoise/location_yamls'
+location_yamls_directory = './JobsWithPorpoise/location_yamls/initial_yamls'
 
 # Loop over all the location YAML files and read the values in each file into a list
 for filename in os.listdir(location_yamls_directory):
@@ -175,7 +175,7 @@ for ind in scraped_jobs.index:
 # Create a dict to hold the regions of the UK and all the locations in that region
 refining_seniority_dict = {}
 
-refining_seniority_yamls_directory = './JobsWithPorpoise/seniority_yamls/refinement_yamls'
+refining_seniority_yamls_directory = './JobsWithPorpoise/seniority_yamls/refining_yamls'
 
 # Loop over all the location YAML files and read the values in each file into a list
 for filename in os.listdir(refining_seniority_yamls_directory):
