@@ -8,35 +8,36 @@ scraped_jobs = pd.DataFrame(scraped_jobs_import)
 
 """ Map each job to its location(s) first """
 
-# Create a dict to hold the regions of the UK and all the locations in that region
-locations_dict = {}
+def get_mapping_keywords(yamls_directory, dict={}):
+    """ Create a dict of all the keywords required for mapping jobs """
+    # Load keywords from every YAML file in a folder in turn
+    for filename in os.listdir(yamls_directory):
+        filepath = os.path.join(yamls_directory, filename)
+        with open(filepath, 'r') as file:
+            keywords_list = yaml.safe_load(file)
+            # Add the key:value pairs to the dictionary
+            dict[keywords_list[0]] = keywords_list[1:]
+    return dict
 
-location_yamls_directory = './JobsWithPorpoise/location_yamls/initial_yamls'
+# Add a new column to the dataframe to store each job's mapped locations
+scraped_jobs["mapped_location"] = "not mapped"
 
-# Loop over all the location YAML files and read the values in each file into a list
-for filename in os.listdir(location_yamls_directory):
-    filepath = os.path.join(location_yamls_directory, filename)
-    with open(filepath, 'r') as file:
-        list_of_loc_terms = yaml.safe_load(file)
-        # Add the region and its locations to the dictionary
-        locations_dict[list_of_loc_terms[0]] = list_of_loc_terms[1:]
+# Create a dict to hold every region, and the location keywords that map to them
+locations_dict = get_mapping_keywords('./JobsWithPorpoise/location_yamls/initial_yamls')
 
-
-# Check each job / row in scraped_jobs
-for ind in scraped_jobs.index:
-  # Start off with an empty list that we'll populate with the locations
-  a = []
-  # For each possible location, check if one of the defining terms for that location appears in the scraped location, then add it to the list if it does
-  for area in locations_dict:
-    if any(ele in scraped_jobs['Location'][ind]
-           for ele in locations_dict[area]):
-      a.append(area)
-    # Combine all the mapped locations in the dictionary into a single string
-    if a != []:
-      b = ", ".join(a)
-      # Add the string to the 'mapped_location' column of the scraped_jobs dataframe
-      # NB if the scraped location didn't match any of the possible mapped locations, this will still read 'unmapped'
-      scraped_jobs['mapped_location'][ind] = b
+# Iterate over every job / row in the dataframe
+for ind, location in scraped_jobs['Location'].items():
+    # Map locations to regions
+    regions = set()
+    # For each region, iterate over the keywords that map to it, checking if they're contained within the job's location string. If they are, add the region to the set and move on to the next region
+    for region, locs in locations_dict.items():
+        for loc in locs:
+            if loc in location:
+                regions.add(region)
+                break
+    # Update the row with the mapped regions (if mapping was successful)
+    if regions:
+        scraped_jobs.at[ind, 'mapped_location'] = ", ".join(regions)
 
 # Deal with awkward scraped locations, starting with Remote jobs
 remote_matches = [
@@ -50,6 +51,9 @@ north_matches = ['Northern England', 'England, North']
 england_matches = ['England, United Kingdom']
 abroad_matches = ['Ireland', 'Northern Ireland']
 all_matches = ['Nearby Any Sustrans Office Hub Across The Uk']
+
+# Create a dict to hold larger regions, and the keywords that map to them
+wider_locations_dict = get_mapping_keywords('./JobsWithPorpoise/location_yamls/refining_yamls')
 
 for ind in scraped_jobs.index:
   if any(x == scraped_jobs['Location'][ind] for x in remote_matches):
@@ -99,19 +103,11 @@ for ind in scraped_jobs.index:
 
 
 """ Now map each job to its job type(s) """
+# Add a new column to the dataframe to store each job's mapped job types
+scraped_jobs["job_types"] = "not mapped"
 
-# Create a dict to hold the regions of the UK and all the locations in that region
-job_types_dict = {}
-
-job_type_yamls_directory = './JobsWithPorpoise/job_type_yamls'
-
-# Loop over all the location YAML files and read the values in each file into a list
-for filename in os.listdir(job_type_yamls_directory):
-    filepath = os.path.join(job_type_yamls_directory, filename)
-    with open(filepath, 'r') as file:
-        list_of_job_type_terms = yaml.safe_load(file)
-        # Add the region and its locations to the dictionary
-        job_types_dict[list_of_job_type_terms[0]] = list_of_job_type_terms[1:]
+# Create a dict to hold all the different job types, and the keywords that map to them
+job_types_dict = get_mapping_keywords('./JobsWithPorpoise/job_type_yamls')
 
 # Check each job / row in scraped_jobs
 for ind in scraped_jobs.index:
@@ -140,19 +136,11 @@ for ind in scraped_jobs.index:
     scraped_jobs.drop(index=ind, inplace=True)
 
 """ Now map each job to its seniority level """
+# Add a new column to the dataframe to store each job's mapped seniority level
+scraped_jobs["seniority"] = "mid level"
 
-# Create a dict to hold the regions of the UK and all the locations in that region
-seniority_dict = {}
-
-seniority_yamls_directory = './JobsWithPorpoise/seniority_yamls/initial_yamls'
-
-# Loop over all the location YAML files and read the values in each file into a list
-for filename in os.listdir(seniority_yamls_directory):
-    filepath = os.path.join(seniority_yamls_directory, filename)
-    with open(filepath, 'r') as file:
-        list_of_seniority_terms = yaml.safe_load(file)
-        # Add the region and its locations to the dictionary
-        seniority_dict[list_of_seniority_terms[0]] = list_of_seniority_terms[1:]
+# Create a dict to hold the different seniorities, and the keywords that map to them
+seniority_dict = get_mapping_keywords('./JobsWithPorpoise/seniority_yamls/initial_yamls')
 
 
 # Check each job / row in scraped_jobs
@@ -172,18 +160,8 @@ for ind in scraped_jobs.index:
 
 """ Remove seniority tags that aren't actually correct """
 
-# Create a dict to hold the regions of the UK and all the locations in that region
-refining_seniority_dict = {}
-
-refining_seniority_yamls_directory = './JobsWithPorpoise/seniority_yamls/refining_yamls'
-
-# Loop over all the location YAML files and read the values in each file into a list
-for filename in os.listdir(refining_seniority_yamls_directory):
-    filepath = os.path.join(refining_seniority_yamls_directory, filename)
-    with open(filepath, 'r') as file:
-        list_of_seniority_terms = yaml.safe_load(file)
-        # Add the region and its locations to the dictionary
-        refining_seniority_dict[list_of_seniority_terms[0]] = list_of_seniority_terms[1:]
+# Create a dict to hold the keywords for refining the mapping of seniorities
+refining_seniority_dict = get_mapping_keywords('./JobsWithPorpoise/seniority_yamls/refining_yamls')
 
 
 # Now for each job, check if the job title contains any of the terms that would mean it's not actually entry level, then remove the entry level tag if it was given one erroneously
@@ -202,8 +180,7 @@ for ind in scraped_jobs.index:
           "👵🏻 Senior", "mid level")
 
 # Occasionally we can end up with a job where the seniority has now been classed as "mid level, mid level" which causes an error due to duplication when we try to send it to Airtable later on
-for ind in scraped_jobs.index:
-  scraped_jobs['seniority'][ind] = scraped_jobs['seniority'][ind].replace(
+scraped_jobs['seniority'] = scraped_jobs['seniority'].str.replace(
       "mid level, mid level", "mid level")
 
 # Export the dataframe of categorised jobs to JSON

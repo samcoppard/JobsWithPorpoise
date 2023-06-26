@@ -19,10 +19,12 @@ def clean_locations(df, column):
     of edge cases that mess up location mapping"""
     df[column] = (
         df[column]
-        # Convert to title case
+        # Convert to title case and remove whitespace
         .str.title()
+        .str.strip()
         # Remove mentions of New York and New South Wales
-        .str.replace("New York", "USA").str.replace("New South Wales", "Australia")
+        .str.replace("New York", "USA")
+        .str.replace("New South Wales", "Australia")
     )
     # Change "Sale" & "Bury" to "Manchester" (by using a boolean mask)
     mask = df[column].isin(["Sale", "Bury"])
@@ -115,11 +117,6 @@ def create_new_columns(df):
         + " - "
         + scraped_jobs["Location"]
     ).str[:255]
-
-    # Create new columns for the jobs' mapped locations, job types, and seniorities
-    scraped_jobs["mapped_location"] = "not mapped"
-    scraped_jobs["job_types"] = "not mapped"
-    scraped_jobs["seniority"] = "mid level"
 
 
 create_new_columns(scraped_jobs)
