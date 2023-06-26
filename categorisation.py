@@ -19,25 +19,25 @@ def get_mapping_keywords(yamls_directory, dict={}):
             dict[keywords_list[0]] = keywords_list[1:]
     return dict
 
+# Add a new column to the dataframe to store each job's mapped locations
+scraped_jobs["mapped_location"] = "not mapped"
+
 # Create a dict to hold every region, and the location keywords that map to them
 locations_dict = get_mapping_keywords('./JobsWithPorpoise/location_yamls/initial_yamls')
 
-
-# Check each job / row in scraped_jobs
-for ind in scraped_jobs.index:
-  # Start off with an empty list that we'll populate with the locations
-  a = []
-  # For each possible location, check if one of the defining terms for that location appears in the scraped location, then add it to the list if it does
-  for area in locations_dict:
-    if any(ele in scraped_jobs['Location'][ind]
-           for ele in locations_dict[area]):
-      a.append(area)
-    # Combine all the mapped locations in the dictionary into a single string
-    if a != []:
-      b = ", ".join(a)
-      # Add the string to the 'mapped_location' column of the scraped_jobs dataframe
-      # NB if the scraped location didn't match any of the possible mapped locations, this will still read 'unmapped'
-      scraped_jobs['mapped_location'][ind] = b
+# Iterate over every job / row in the dataframe
+for ind, location in scraped_jobs['Location'].items():
+    # Map locations to regions
+    regions = set()
+    # For each region, iterate over the keywords that map to it, checking if they're contained within the job's location string. If they are, add the region to the set and move on to the next region
+    for region, locs in locations_dict.items():
+        for loc in locs:
+            if loc in location:
+                regions.add(region)
+                break
+    # Update the row with the mapped regions (if mapping was successful)
+    if regions:
+        scraped_jobs.at[ind, 'mapped_location'] = ", ".join(regions)
 
 # Deal with awkward scraped locations, starting with Remote jobs
 remote_matches = [
@@ -103,10 +103,11 @@ for ind in scraped_jobs.index:
 
 
 """ Now map each job to its job type(s) """
+# Add a new column to the dataframe to store each job's mapped job types
+scraped_jobs["job_types"] = "not mapped"
 
 # Create a dict to hold all the different job types, and the keywords that map to them
 job_types_dict = get_mapping_keywords('./JobsWithPorpoise/job_type_yamls')
-
 
 # Check each job / row in scraped_jobs
 for ind in scraped_jobs.index:
@@ -135,6 +136,8 @@ for ind in scraped_jobs.index:
     scraped_jobs.drop(index=ind, inplace=True)
 
 """ Now map each job to its seniority level """
+# Add a new column to the dataframe to store each job's mapped seniority level
+scraped_jobs["seniority"] = "mid level"
 
 # Create a dict to hold the different seniorities, and the keywords that map to them
 seniority_dict = get_mapping_keywords('./JobsWithPorpoise/seniority_yamls/initial_yamls')
