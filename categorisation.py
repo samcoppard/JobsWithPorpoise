@@ -134,54 +134,39 @@ seniority_dict = get_mapping_keywords(
     "./JobsWithPorpoise/seniority_yamls/initial_yamls", {}
 )
 
-# Check each job / row in scraped_jobs
-for ind in scraped_jobs.index:
-    # Start off with an empty list that we'll populate with the seniority level (this should eventually be unnecessary when you've improved the mappings enough that nothing gets tagged as both entry level and senior)
-    y = []
-    # For each seniority level, check if one of the defining terms for that seniority level appears in the job title, then add it to the list if it does
-    for seniority in seniority_dict:
-        if any(
-            ele in scraped_jobs["Job Title"][ind] for ele in seniority_dict[seniority]
-        ):
-            y.append(seniority)
-        # Combine all the job types in the dictionary into a single string
-        if y != []:
-            z = ", ".join(y)
-            # Add the string to the 'seniority' column of the scraped_jobs dataframe
-            scraped_jobs["seniority"][ind] = z
+# Map jobs to their seniority level
+map_jobs(scraped_jobs, "Job Title", "seniority", seniority_dict)
 
-""" Remove seniority tags that aren't actually correct """
+
+# The initial mapping isn't perfect, so now we need to remove incorrect seniority tags
 
 # Create a dict to hold the keywords for refining the mapping of seniorities
 refining_seniority_dict = get_mapping_keywords(
     "./JobsWithPorpoise/seniority_yamls/refining_yamls", {}
 )
 
-
-# Now for each job, check if the job title contains any of the terms that would mean it's not actually entry level, then remove the entry level tag if it was given one erroneously
-for ind in scraped_jobs.index:
-    if any(
-        ele in scraped_jobs["Job Title"][ind]
-        for ele in refining_seniority_dict["Not Entry Level"]
-    ):
+# Iterate over every job / row in the dataframe
+for ind, scraped_value in scraped_jobs["Job Title"].items():
+    # Check if the job title gets mapped to any of the anti-categories
+    categories = set()
+    for category, keywords in refining_seniority_dict.items():
+        for keyword in keywords:
+            if keyword in scraped_value:
+                categories.add(category)
+                break
+    # If the job has been mapped to "Not Entry Level", then make that change
+    if "Not Entry Level" in categories:
         scraped_jobs["seniority"][ind] = scraped_jobs["seniority"][ind].replace(
             "👶 Entry Level", "mid level"
         )
-    # And then same deal for the management tag
-    if any(
-        ele in scraped_jobs["Job Title"][ind]
-        for ele in refining_seniority_dict["Not Management"]
-    ):
-        # But make sure we're not removing the management tag from any that definitely are management
-        if not any(
-            ele in scraped_jobs["Job Title"][ind]
-            for ele in refining_seniority_dict["Definitely Management"]
-        ):
-            scraped_jobs["seniority"][ind] = scraped_jobs["seniority"][ind].replace(
-                "👵🏻 Senior", "mid level"
-            )
+    # Same for "Not Management", unless it's ALSO been mapped to "Definitely Management"
+    elif "Not Management" in categories and "Definitely Management" not in categories:
+        scraped_jobs["seniority"][ind] = scraped_jobs["seniority"][ind].replace(
+            "👵🏻 Senior", "mid level"
+        )
 
-# Occasionally we can end up with a job where the seniority has now been classed as "mid level, mid level" which causes an error due to duplication when we try to send it to Airtable later on
+
+# We can end up with some jobs where the seniority is now duplicated, so let's fix that
 scraped_jobs["seniority"] = scraped_jobs["seniority"].str.replace(
     "mid level, mid level", "mid level"
 )
