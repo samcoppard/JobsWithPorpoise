@@ -324,7 +324,10 @@ def publish_items(collection, list_of_item_ids):
 def prep_job_for_webflow(dict_of_job_attributes):
     """Map the PSQL fields of a job to the correctly formatted Webflow fields"""
 
-    collection_items_dict = get_static_collection_items()
+    # Cache the results of get_static_collection_items() so we don't end up calling that
+    # function hundreds of times when this function is called in a loop
+    if not hasattr(prep_job_for_webflow, "collection_items_dict"):
+        prep_job_for_webflow.collection_items_dict = get_static_collection_items()
 
     webflow_ready_job_attributes = {
         "job_name": dict_of_job_attributes["concat_name"],
@@ -333,45 +336,45 @@ def prep_job_for_webflow(dict_of_job_attributes):
         "job_date": str(dict_of_job_attributes["date_added"]),
         "job_date_str": dict_of_job_attributes["date_added_string"],
         "job_location": [
-            collection_items_dict[f"Locations - {location}"]
+            prep_job_for_webflow.collection_items_dict[f"Locations - {location}"]
             for location in dict_of_job_attributes["location"]
         ]
         if dict_of_job_attributes["location"] is not None
         else "",
-        "job_multiple_locations": collection_items_dict["Multiple locations - true"]
+        "job_multiple_locations": prep_job_for_webflow.collection_items_dict["Multiple locations - true"]
         if dict_of_job_attributes["multiple_locations"] == True
-        else collection_items_dict["Multiple locations - false"],
+        else prep_job_for_webflow.collection_items_dict["Multiple locations - false"],
         "job_seniority": [
-            collection_items_dict[f"Seniorities - {seniority}"]
+            prep_job_for_webflow.collection_items_dict[f"Seniorities - {seniority}"]
             for seniority in dict_of_job_attributes["seniority"]
         ]
         if dict_of_job_attributes["seniority"] is not None
         else "",
         "job_type": [
-            collection_items_dict[f"Available roles - {role_type}"]
+            prep_job_for_webflow.collection_items_dict[f"Available roles - {role_type}"]
             for role_type in dict_of_job_attributes["job_type"]
         ]
         if dict_of_job_attributes["job_type"] is not None
         else "",
-        "job_rewilding": collection_items_dict["Rewilding - true"]
+        "job_rewilding": prep_job_for_webflow.collection_items_dict["Rewilding - true"]
         if dict_of_job_attributes["rewilding"] == True
-        else collection_items_dict["Rewilding - false"],
+        else prep_job_for_webflow.collection_items_dict["Rewilding - false"],
         "org": dict_of_job_attributes["org_webflow_id"],
         "org_name": dict_of_job_attributes["org_name"],
         "org_website": dict_of_job_attributes["website"],
         "org_careers_page": dict_of_job_attributes["careers_page"],
         "org_mission": dict_of_job_attributes["mission"],
         "org_accreditations": [
-            collection_items_dict[f"Accreditations - {accreditation}"]
+            prep_job_for_webflow.collection_items_dict[f"Accreditations - {accreditation}"]
             for accreditation in dict_of_job_attributes["accreditations"]
         ]
         if dict_of_job_attributes["accreditations"] is not None
         else "",
-        "org_bizorchar": collection_items_dict["BizOrChar - Business"]
+        "org_bizorchar": prep_job_for_webflow.collection_items_dict["BizOrChar - Business"]
         if dict_of_job_attributes["borch"] == "Business"
-        else collection_items_dict["BizOrChar - Charity"],
+        else prep_job_for_webflow.collection_items_dict["BizOrChar - Charity"],
         "org_sectors": [
-            collection_items_dict[f"Sectors - {sector}"]
+            prep_job_for_webflow.collection_items_dict[f"Sectors - {sector}"]
             for sector in dict_of_job_attributes["sectors"]
         ]
         if dict_of_job_attributes["sectors"] is not None
