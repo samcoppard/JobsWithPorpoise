@@ -112,31 +112,18 @@ scraped_jobs["job_types"] = "not mapped"
 # Create a dict to hold all the different job types, and the keywords that map to them
 job_types_dict = get_mapping_keywords("./JobsWithPorpoise/job_type_yamls", {})
 
-# Check each job / row in scraped_jobs
-for ind in scraped_jobs.index:
-    # Start off with an empty list that we'll populate with the job types
-    a = []
-    # For each job type, check if one of the defining terms for that job type appears in the job title, then add it to the list if it does
-    for type in job_types_dict:
-        if any(ele in scraped_jobs["Job Title"][ind] for ele in job_types_dict[type]):
-            a.append(type)
-        # Combine all the job types in the dictionary into a single string
-        if a != []:
-            b = ", ".join(a)
-            # Add the string to the 'job_types' column of the scraped_jobs dataframe
-            # NB if the job title didn't match any job types, this will still read 'unmapped'
-            scraped_jobs["job_types"][ind] = b
+# Map jobs to the category of job they're in
+map_jobs(scraped_jobs, "Job Title", "job_types", job_types_dict)
 
 # Print out any jobs that haven't been mapped to any job types (for easy review)
 print("These jobs haven't been mapped to any job type:")
 print(scraped_jobs[scraped_jobs["job_types"] == "not mapped"])
 
 # Remove jobs that have been categorised as Weird other, or Volunteering
-for ind in scraped_jobs.index:
-    if any(
-        x in scraped_jobs["job_types"][ind] for x in ["Weird other", "Volunteering"]
-    ):
-        scraped_jobs.drop(index=ind, inplace=True)
+scraped_jobs = scraped_jobs[
+    ~scraped_jobs["job_types"].str.contains("Weird other|Volunteering")
+]
+
 
 """ Now map each job to its seniority level """
 # Add a new column to the dataframe to store each job's mapped seniority level
