@@ -75,22 +75,20 @@ for ind in scraped_jobs.index:
         b = ", ".join(a)
         scraped_jobs['mapped_location'][ind] = b
 
-# Ensure that Remote jobs are only tagged as Remote, not other locations as well
-for ind in scraped_jobs.index:
-  if "Fully Remote" in scraped_jobs['mapped_location'][ind]:
-    scraped_jobs['mapped_location'][ind] = "Fully Remote"
 
-# NB - What to do with jobs like ones from EVenergy that are e.g. 'New York - Fully Remote'? Need to exclude, not class as remote
+# Ensure that Remote jobs are only tagged as Remote. This works by creating a Boolean
+# mask and only replacing those values where the condition is met
+scraped_jobs.loc[scraped_jobs['mapped_location'].str.contains("Fully Remote"), 'mapped_location'] = "Fully Remote"
+
+# TK - What to do with jobs like ones from EVenergy that are e.g. 'New York - Fully Remote'? Need to exclude, not class as remote
+
+# Remove non-UK jobs (by checking the job has only been mapped to 'Abroad' so we don't
+# accidentally exclude jobs with a scraped location like 'Brussels, London, Amsterdam'
+scraped_jobs = scraped_jobs[scraped_jobs['mapped_location'] != 'Abroad']
 
 # Print out any jobs that haven't been mapped to any area (for easy review)
 print("These jobs haven't been mapped to any location:")
 print(scraped_jobs[scraped_jobs['mapped_location'] == 'not mapped'])
-
-# Remove jobs in non-UK locations
-for ind in scraped_jobs.index:
-  # NB Check that the job has only been mapped to 'Abroad' so that we don't accidentally exclude jobs with a scraped location like 'Brussels, London, Amsterdam'
-  if scraped_jobs['mapped_location'][ind] == 'Abroad':
-    scraped_jobs.drop(index=ind, inplace=True)
 
 
 """ Now map each job to its job type(s) """
