@@ -25,19 +25,24 @@ scraped_jobs["mapped_location"] = "not mapped"
 # Create a dict to hold every region, and the location keywords that map to them
 locations_dict = get_mapping_keywords('./JobsWithPorpoise/location_yamls/initial_yamls')
 
-# Iterate over every job / row in the dataframe
-for ind, location in scraped_jobs['Location'].items():
-    # Map locations to regions
-    regions = set()
-    # For each region, iterate over the keywords that map to it, checking if they're contained within the job's location string. If they are, add the region to the set and move on to the next region
-    for region, locs in locations_dict.items():
-        for loc in locs:
-            if loc in location:
-                regions.add(region)
-                break
-    # Update the row with the mapped regions (if mapping was successful)
-    if regions:
-        scraped_jobs.at[ind, 'mapped_location'] = ", ".join(regions)
+def map_jobs(df, scraped_column, mapped_column, mapping_dict):
+    """ Map jobs into the correct categories """
+    # Iterate over every job / row in the dataframe
+    for ind, attribute in df[scraped_column].items():
+        # Map the attributes to the right categories
+        categories = set()
+        # For each category, iterate over the keywords that map to it, checking if they're contained within the string. If they are, add the category to the set and move on to the next category
+        for category, keywords in mapping_dict.items():
+            for keyword in keywords:
+                if keyword in attribute:
+                    categories.add(category)
+                    break
+        # Update the row with the mapped categories (if mapping was successful)
+        if categories:
+           df.at[ind, mapped_column] = ", ".join(categories)
+
+# Map each job to its correct region(s)
+map_jobs(scraped_jobs, 'Location', 'mapped_location', locations_dict)
 
 # Overwrite the mappings above for cases where the scraped location is awkward - either
 # it's too short to map like that ("Remote"), or it maps to multiple regions ("Midlands")
