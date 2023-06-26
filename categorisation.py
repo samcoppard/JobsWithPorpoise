@@ -39,35 +39,25 @@ for ind, location in scraped_jobs['Location'].items():
     if regions:
         scraped_jobs.at[ind, 'mapped_location'] = ", ".join(regions)
 
-# Deal with awkward scraped locations, starting with Remote jobs
-remote_matches = [
-    'Remote', 'Fully Remote', 'Remote Job', 'Uk', 'Remote, United Kingdom',
-    'Uk, United Kingdom', 'Remote (Ireland Or Uk Only)', 'United Kingdom',
-    'Home Based', 'Home-Based', 'Working From Home', 'Europe', 'Nationwide',
-    'Flexible/Home Working', 'Uk Wide', 'Flexible'
-]
-midlands_matches = ['Midlands', 'Midlands, United Kingdom', 'Midlands, Gb']
-north_matches = ['Northern England', 'England, North']
-england_matches = ['England, United Kingdom']
-abroad_matches = ['Ireland', 'Northern Ireland']
-all_matches = ['Nearby Any Sustrans Office Hub Across The Uk']
+# Overwrite the mappings above for cases where the scraped location is awkward - either
+# it's too short to map like that ("Remote"), or it maps to multiple regions ("Midlands")
 
-# Create a dict to hold larger regions, and the keywords that map to them
-wider_locations_dict = get_mapping_keywords('./JobsWithPorpoise/location_yamls/refining_yamls')
+# Create a dict to handle regions and keywords for these awkward cases
+awkward_locations_dict = get_mapping_keywords('./JobsWithPorpoise/location_yamls/refining_yamls')
 
 for ind in scraped_jobs.index:
-  if any(x == scraped_jobs['Location'][ind] for x in remote_matches):
+  if any(x == scraped_jobs['Location'][ind] for x in awkward_locations_dict['remote_matches']):
     scraped_jobs['mapped_location'][ind] = "Fully Remote"
-  elif any(x == scraped_jobs['Location'][ind] for x in midlands_matches):
+  elif any(x == scraped_jobs['Location'][ind] for x in awkward_locations_dict['midlands_matches']):
     scraped_jobs['mapped_location'][ind] = "East Midlands, West Midlands"
-  elif any(x == scraped_jobs['Location'][ind] for x in north_matches):
+  elif any(x == scraped_jobs['Location'][ind] for x in awkward_locations_dict['north_matches']):
     scraped_jobs['mapped_location'][ind] = "North East, North West"
-  elif any(x == scraped_jobs['Location'][ind] for x in england_matches):
+  elif any(x == scraped_jobs['Location'][ind] for x in awkward_locations_dict['england_matches']):
     scraped_jobs['mapped_location'][
         ind] = "London, South East, South West, North East, North West, East Midlands, West Midlands, East of England, Yorkshire / Humber"
-  elif any(x == scraped_jobs['Location'][ind] for x in abroad_matches):
+  elif any(x == scraped_jobs['Location'][ind] for x in awkward_locations_dict['abroad_matches']):
     scraped_jobs['mapped_location'][ind] = "Abroad"
-  elif any(x in scraped_jobs['Location'][ind] for x in all_matches):
+  elif any(x in scraped_jobs['Location'][ind] for x in awkward_locations_dict['all_matches']):
     scraped_jobs['mapped_location'][
         ind] = "Scotland, Wales, London, South East, South West, North East, North West, East Midlands, West Midlands, East of England, Yorkshire / Humber"
 
