@@ -46,20 +46,21 @@ for ind, location in scraped_jobs['Location'].items():
 awkward_locations_dict = get_mapping_keywords('./JobsWithPorpoise/location_yamls/refining_yamls')
 
 for ind in scraped_jobs.index:
-  if any(x == scraped_jobs['Location'][ind] for x in awkward_locations_dict['remote_matches']):
-    scraped_jobs['mapped_location'][ind] = "Fully Remote"
-  elif any(x == scraped_jobs['Location'][ind] for x in awkward_locations_dict['midlands_matches']):
-    scraped_jobs['mapped_location'][ind] = "East Midlands, West Midlands"
-  elif any(x == scraped_jobs['Location'][ind] for x in awkward_locations_dict['north_matches']):
-    scraped_jobs['mapped_location'][ind] = "North East, North West"
-  elif any(x == scraped_jobs['Location'][ind] for x in awkward_locations_dict['england_matches']):
-    scraped_jobs['mapped_location'][
-        ind] = "London, South East, South West, North East, North West, East Midlands, West Midlands, East of England, Yorkshire / Humber"
-  elif any(x == scraped_jobs['Location'][ind] for x in awkward_locations_dict['abroad_matches']):
-    scraped_jobs['mapped_location'][ind] = "Abroad"
-  elif any(x in scraped_jobs['Location'][ind] for x in awkward_locations_dict['all_matches']):
-    scraped_jobs['mapped_location'][
-        ind] = "Scotland, Wales, London, South East, South West, North East, North West, East Midlands, West Midlands, East of England, Yorkshire / Humber"
+    location = scraped_jobs['Location'][ind]
+
+    if location in awkward_locations_dict['remote_matches']:
+        scraped_jobs['mapped_location'][ind] = "Fully Remote"
+    elif location in awkward_locations_dict['midlands_matches']:
+        scraped_jobs['mapped_location'][ind] = 'East Midlands, West Midlands'
+    elif location in awkward_locations_dict['north_matches']:
+        scraped_jobs['mapped_location'][ind] = "North East, North West"
+    elif location in awkward_locations_dict['england_matches']:
+        scraped_jobs['mapped_location'][ind] = "London, South East, South West, North East, North West, East Midlands, West Midlands, East of England, Yorkshire / Humber"
+    elif location in awkward_locations_dict['abroad_matches']:
+        scraped_jobs['mapped_location'][ind] = 'Abroad'
+    elif location in awkward_locations_dict['all_matches']:
+        scraped_jobs['mapped_location'][ind] = "Scotland, Wales, London, South East, South West, North East, North West, East Midlands, West Midlands, East of England, Yorkshire / Humber"
+
 
 # Sometimes the location only appears in the job title, not where it 'should' be, so let's deal with that by checking job titles for locations IF the normal way hasn't worked
 
