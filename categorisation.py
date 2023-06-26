@@ -28,13 +28,13 @@ locations_dict = get_mapping_keywords('./JobsWithPorpoise/location_yamls/initial
 def map_jobs(df, scraped_column, mapped_column, mapping_dict):
     """ Map jobs into the correct categories """
     # Iterate over every job / row in the dataframe
-    for ind, attribute in df[scraped_column].items():
+    for ind, scraped_value in df[scraped_column].items():
         # Map the attributes to the right categories
         categories = set()
         # For each category, iterate over the keywords that map to it, checking if they're contained within the string. If they are, add the category to the set and move on to the next category
         for category, keywords in mapping_dict.items():
             for keyword in keywords:
-                if keyword in attribute:
+                if keyword in scraped_value:
                     categories.add(category)
                     break
         # Update the row with the mapped categories (if mapping was successful)
@@ -67,18 +67,11 @@ for ind in scraped_jobs.index:
         scraped_jobs['mapped_location'][ind] = "Scotland, Wales, London, South East, South West, North East, North West, East Midlands, West Midlands, East of England, Yorkshire / Humber"
 
 
-# Sometimes the location only appears in the job title, not where it 'should' be, so let's deal with that by checking job titles for locations IF the normal way hasn't worked
-
-for ind in scraped_jobs.index:
-  if scraped_jobs['mapped_location'][ind] == "not mapped":
-    a = []
-    for area in locations_dict:
-      if any(ele in scraped_jobs['Job Title'][ind]
-             for ele in locations_dict[area]):
-        a.append(area)
-      if a != []:
-        b = ", ".join(a)
-        scraped_jobs['mapped_location'][ind] = b
+# Sometimes the location only appears in the job title, not where it 'should' be, so
+# let's deal with that by mapping job titles to regions IF the normal way hasn't worked
+not_mapped_rows = scraped_jobs[scraped_jobs['mapped_location'] == "not mapped"]
+map_jobs(not_mapped_rows, 'Job Title', 'mapped_location', locations_dict)
+scraped_jobs.update(not_mapped_rows)
 
 
 # Ensure that Remote jobs are only tagged as Remote. This works by creating a Boolean
