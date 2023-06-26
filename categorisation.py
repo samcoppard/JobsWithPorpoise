@@ -25,7 +25,9 @@ def get_mapping_keywords(yamls_directory, dict={}):
 scraped_jobs["mapped_location"] = "not mapped"
 
 # Create a dict to hold every region, and the location keywords that map to them
-locations_dict = get_mapping_keywords("./JobsWithPorpoise/location_yamls/initial_yamls")
+locations_dict = get_mapping_keywords(
+    "./JobsWithPorpoise/location_yamls/initial_yamls", {}
+)
 
 
 def map_jobs(df, scraped_column, mapped_column, mapping_dict):
@@ -55,7 +57,7 @@ map_jobs(scraped_jobs, "Location", "mapped_location", locations_dict)
 
 # Create a dict to handle regions and keywords for these awkward cases
 awkward_locations_dict = get_mapping_keywords(
-    "./JobsWithPorpoise/location_yamls/refining_yamls"
+    "./JobsWithPorpoise/location_yamls/refining_yamls", {}
 )
 
 for ind in scraped_jobs.index:
@@ -70,15 +72,13 @@ for ind in scraped_jobs.index:
     elif location in awkward_locations_dict["england_matches"]:
         scraped_jobs["mapped_location"][
             ind
-        ] = "London, South East, South West, North East, North West, East Midlands, \
-        West Midlands, East of England, Yorkshire / Humber"
+        ] = "London, South East, South West, North East, North West, East Midlands, West Midlands, East of England, Yorkshire / Humber"
     elif location in awkward_locations_dict["abroad_matches"]:
         scraped_jobs["mapped_location"][ind] = "Abroad"
     elif location in awkward_locations_dict["all_matches"]:
         scraped_jobs["mapped_location"][
             ind
-        ] = "Scotland, Wales, London, South East, South West, North East, North West, \
-            East Midlands, West Midlands, East of England, Yorkshire / Humber"
+        ] = "Scotland, Wales, London, South East, South West, North East, North West, East Midlands, West Midlands, East of England, Yorkshire / Humber"
 
 
 # Sometimes the location only appears in the job title, not where it 'should' be, so
@@ -110,7 +110,7 @@ print(scraped_jobs[scraped_jobs["mapped_location"] == "not mapped"])
 scraped_jobs["job_types"] = "not mapped"
 
 # Create a dict to hold all the different job types, and the keywords that map to them
-job_types_dict = get_mapping_keywords("./JobsWithPorpoise/job_type_yamls")
+job_types_dict = get_mapping_keywords("./JobsWithPorpoise/job_type_yamls", {})
 
 # Check each job / row in scraped_jobs
 for ind in scraped_jobs.index:
@@ -144,9 +144,8 @@ scraped_jobs["seniority"] = "mid level"
 
 # Create a dict to hold the different seniorities, and the keywords that map to them
 seniority_dict = get_mapping_keywords(
-    "./JobsWithPorpoise/seniority_yamls/initial_yamls"
+    "./JobsWithPorpoise/seniority_yamls/initial_yamls", {}
 )
-
 
 # Check each job / row in scraped_jobs
 for ind in scraped_jobs.index:
@@ -168,7 +167,7 @@ for ind in scraped_jobs.index:
 
 # Create a dict to hold the keywords for refining the mapping of seniorities
 refining_seniority_dict = get_mapping_keywords(
-    "./JobsWithPorpoise/seniority_yamls/refining_yamls"
+    "./JobsWithPorpoise/seniority_yamls/refining_yamls", {}
 )
 
 
