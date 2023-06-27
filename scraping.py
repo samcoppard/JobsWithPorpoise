@@ -421,11 +421,7 @@ class Arrival(scrapy.Spider):
       b = "https://talent.arrival.com/vacancy/"+data[i]['id']
       # Get locations
       c = data[i]['location']
-      # Exclude non-UK locations
-      unwanteds = ["Tbilisi", "Berlin", "Charlotte",
-                   "Los Angeles", "Rock Hill", "Turkey"]
-      if not any(x in c for x in unwanteds):
-        job_list.append({'Company': 'Arrival', 'Job Title': a,
+      job_list.append({'Company': 'Arrival', 'Job Title': a,
                         'Job URL': b, 'Location': c})
 
 
@@ -529,11 +525,7 @@ class Ballard_Motive_Solutions(scrapy.Spider):
       b = job.xpath('./div[1]/a/@href').extract_first()
       # Get the locations
       c = job.xpath('./div[2]/text()').extract_first().strip()
-      # Only UK jobs
-      unwanteds = ['Vancouver', 'British Columbia', 'Canada', 'America', 'USA', 'United States', 'Bend',
-                   'Oregon', 'China', 'Guangzhou', 'Shenzhen', 'Burnaby', 'OR', 'Shanghai', 'Flexible Location']
-      if not any(x in c for x in unwanteds):
-        job_list.append({'Company': 'Ballard Motive Solutions',
+      job_list.append({'Company': 'Ballard Motive Solutions',
                         'Job Title': a, 'Job URL': b, 'Location': c})
 
 
@@ -719,11 +711,10 @@ class Biorecro(scrapy.Spider):
       b = "https://www.biorecro.com/careers/"
       # Get the locations
       c = job.xpath('./div[1]/div/div[1]/div/p/text()').extract_first()
-      # Filter out Swedish jobs and cut out the non-job results
+      # Cut out the non-job results
       if a != None:
-        if 'Sweden' not in c:
-          job_list.append(
-              {'Company': 'Biorecro', 'Job Title': a, 'Job URL': b, 'Location': c})
+        job_list.append(
+            {'Company': 'Biorecro', 'Job Title': a, 'Job URL': b, 'Location': c})
 
 
 # Create the Spider class
@@ -747,8 +738,7 @@ class Birdlife(scrapy.Spider):
       b = job.xpath('./div[1]/h3/a/@href').extract_first()
       # Get the location
       c = job.xpath('./div[2]/text()').extract_first().strip()
-      if 'UK' in c:
-        job_list.append({'Company': 'BirdLife International',
+      job_list.append({'Company': 'BirdLife International',
                         'Job Title': a, 'Job URL': b, 'Location': c})
 
 
@@ -1073,7 +1063,7 @@ class Cairngorms_National_Park(scrapy.Spider):
       b = 'https://careers.cairngorms.co.uk' + \
           job.xpath('./@href').extract_first()
       # Get the locations
-      c = "Scotland"
+      c = "Cairngorms or elsewhere in Scotland"
       job_list.append({'Company': 'Cairngorms National Park',
                       'Job Title': a, 'Job URL': b, 'Location': c})
 
@@ -1363,8 +1353,7 @@ class Clean_Air_Fund(scrapy.Spider):
       c1 = job.xpath('./div/p[1]//text()').extract()
       # The line above produces a list of strings, so need to pick out the list item that contains the location
       c = c1[2].strip()
-      if "London" in c:
-        job_list.append({'Company': 'Clean Air Fund',
+      job_list.append({'Company': 'Clean Air Fund',
                         'Job Title': a, 'Job URL': b, 'Location': c})
 
 
@@ -1847,9 +1836,7 @@ class Earthwatch(scrapy.Spider):
     a = response.css('h2.itemTitle').xpath('./text()').extract_first().strip()
     # Get the locations
     c = response.css('div.itemFullText').xpath('./p[1]/text()').extract_first()
-    # Remove Dutch jobs
-    if 'Netherlands' not in c:
-      job_list.append({'Company': 'Earthwatch', 'Job Title': a,
+    job_list.append({'Company': 'Earthwatch', 'Job Title': a,
                       'Job URL': response.url, 'Location': c})
 
 
@@ -2009,9 +1996,7 @@ class Ember(scrapy.Spider):
       b = job.xpath('./div[2]/a/@href').extract_first()
       # Get the locations
       c = job.xpath('.//div[@class="vacancy-location"]/text()').extract_first()
-      # Exclude jobs in Asia
-      if 'Asia' not in a:
-        job_list.append({'Company': 'Ember', 'Job Title': a,
+      job_list.append({'Company': 'Ember', 'Job Title': a,
                         'Job URL': b, 'Location': c})
 
 
@@ -2808,7 +2793,6 @@ class Higher_Steaks(scrapy.Spider):
         c = c3 + " - " + remote + " remote"
       else:
         c = c3
-      # Filter out non-UK jobs
       job_list.append({'Company': 'Higher Steaks',
                       'Job Title': a, 'Job URL': b, 'Location': c})
 
@@ -2834,7 +2818,6 @@ class Highview_Power(scrapy.Spider):
       b = job.xpath('./div[3]/a/@href').extract_first()
       # Get the locations
       c = job.xpath('./div[2]/p[2]/text()').extract_first()
-      # Exclude crap
       job_list.append({'Company': 'Highview Power',
                       'Job Title': a, 'Job URL': b, 'Location': c})
 
@@ -3060,7 +3043,6 @@ class Keep_Scotland_Beautiful(scrapy.Spider):
           job.xpath('./@href').extract_first()
       # Get the locations
       c = job.xpath('./div/p[3]/text()').extract_first().strip()
-      # Exclude crap
       job_list.append({'Company': 'Keep Scotland Beautiful',
                       'Job Title': a, 'Job URL': b, 'Location': c})
 
@@ -3903,7 +3885,7 @@ class Olio(scrapy.Spider):
       # Get the locations
       c = 'Fully Remote'
       # Exclude crap
-      if not any(x in a for x in ['volunteering', 'Our Values']):
+      if 'Our Values' not in a:
         job_list.append({'Company': 'Olio', 'Job Title': a,
                         'Job URL': b, 'Location': c})
 
@@ -4997,8 +4979,7 @@ class Sylvera(scrapy.Spider):
       b = job.xpath('./@href').extract_first()
       # Get the location
       c = job.xpath('./div/span/text()').extract_first()
-      if 'England' in c:
-        job_list.append({'Company': 'Sylvera', 'Job Title': a,
+      job_list.append({'Company': 'Sylvera', 'Job Title': a,
                         'Job URL': b, 'Location': c})
 
 
@@ -5023,10 +5004,9 @@ class Tenzo(scrapy.Spider):
         # Get the locations
         c = job.xpath('./div[2]/div/span[3]/text()').extract_first()
         # Exclude unwanted results
-        if 'North Carolina' not in c:
-          if 'Join Our Talent Pool' not in a:
-            job_list.append(
-                {'Company': 'Tenzo', 'Job Title': a, 'Job URL': b, 'Location': c})
+        if 'Join Our Talent Pool' not in a:
+          job_list.append(
+              {'Company': 'Tenzo', 'Job Title': a, 'Job URL': b, 'Location': c})
 
 
 # Create the Spider class
@@ -5490,7 +5470,7 @@ class Tree_Aid(scrapy.Spider):
       c1 = job.xpath('./div/p[3]//text()').extract()
       c = "".join(c1)
       # Exclude non-UK jobs:
-      if not any(x in a for x in ['(e)', '(ve)', 'Facilitateur', 'Burkina Faso', 'Ouagadougou', 'Tamale', 'Ghana']):
+      if not any(x in a for x in ['(e)', '(ve)', 'Facilitateur']):
         job_list.append({'Company': 'Tree Aid', 'Job Title': a,
                         'Job URL': b, 'Location': c})
 
@@ -5655,9 +5635,8 @@ class Trove_Research(scrapy.Spider):
       b = job.xpath('./a/@href').extract_first()
       # Get locations
       c = job.xpath('./div/h3/span[2]/text()').extract_first()
-      if c != "Bengaluru":
-        job_list.append({'Company': 'Trove Research',
-                        'Job Title': a, 'Job URL': b, 'Location': c})
+      job_list.append({'Company': 'Trove Research',
+                      'Job Title': a, 'Job URL': b, 'Location': c})
 
 
 # Create the Spider class
@@ -5842,12 +5821,9 @@ class Volta_Trucks(scrapy.Spider):
           job.xpath('./@href').extract_first()
       # Get the locations
       c = job.xpath('./ul/li[1]/span/text()').extract_first()
-      unwanteds = ['Amsterdam', 'Berlin', 'Brussels', 'Cologne', 'Duesseldorf', 'Duisbourg', 'Essen', 'Hamburg', 'Lyon',
-                   'Madrid', 'Milan', 'Netherlands', 'Paris', 'Rome', 'Rotterdam', 'Steyr', 'Stockholm', 'The Hague', 'Vienna', 'milan']
-      if not any(x in c for x in unwanteds):
-        if 'Arrival Employees' not in a:
-          job_list.append({'Company': 'Volta Trucks',
-                          'Job Title': a, 'Job URL': b, 'Location': c})
+      if 'Arrival Employees' not in a:
+        job_list.append({'Company': 'Volta Trucks',
+                        'Job Title': a, 'Job URL': b, 'Location': c})
 
 
 # Create the Spider class
@@ -6192,16 +6168,6 @@ class Zedify(scrapy.Spider):
       b = job.xpath('./@href').extract_first()
       # Get the locations
       c = 'Unknown'
-      if 'London' in a:
-        c = 'London'
-      elif 'Edinburgh' in a:
-        c = 'Edinburgh'
-      elif 'Manchester' in a:
-        c = 'Manchester'
-      elif 'Birmingham' in a:
-        c = 'Birmingham'
-      elif 'Nottingham' in a:
-        c = 'Nottingham'
       job_list.append({'Company': 'Zedify', 'Job Title': a,
                       'Job URL': b, 'Location': c})
 
