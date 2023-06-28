@@ -19,12 +19,12 @@ def clean_locations(df, column):
     of edge cases that mess up location mapping"""
     df[column] = (
         df[column]
-        # Convert to title case and remove whitespace
-        .str.title()
-        .str.strip()
         # Remove mentions of New York and New South Wales
         .str.replace("New York", "USA")
         .str.replace("New South Wales", "Australia")
+        # Convert to title case and remove whitespace
+        .str.title()
+        .str.strip()
     )
     # Change "Sale" & "Bury" to "Manchester" (by using a boolean mask)
     mask = df[column].isin(["Sale", "Bury"])
