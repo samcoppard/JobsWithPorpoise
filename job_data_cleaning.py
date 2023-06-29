@@ -89,7 +89,7 @@ def convert_to_title_case(string):
     """Change the string to title case, except where you wouldn't actually want to"""
     words = string.split()
     capitalized_words = [
-        word.capitalize() if word not in exclusions else word for word in words
+        word.title() if word not in exclusions else word for word in words
     ]
     capitalized_string = " ".join(capitalized_words)
     # Fix an edge case with Next.js
