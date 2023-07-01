@@ -315,7 +315,7 @@ class Agile_Charging(scrapy.Spider):
     for job in response.css('div.sqs-block-content > h2'):
       # Get the job titles
       a = job.xpath('./a/text()').extract_first()
-      # Get the URLs for those jobs (these appear as truncated pathnames so need to concatenate with the rest of the URL)
+      # Get the URLs for those jobs
       b = 'https://www.agilecharging.com' + \
           job.xpath('./a/@href').extract_first()
       # Get the location
@@ -326,7 +326,6 @@ class Agile_Charging(scrapy.Spider):
 
 job_desc_urls_airly = []
 # Create the Spider class
-
 
 class Airly(scrapy.Spider):
   name = "airly"
@@ -389,7 +388,7 @@ class Allplants(scrapy.Spider):
       elif any(x in c2 for x in ['Veg Patch', 'Greenhouse']):
         c = 'London'
       else:
-        c = 'nooo, scraping error'
+        c = c1
       job_list.append({'Company': 'Allplants', 'Job Title': a,
                       'Job URL': b, 'Location': c})
 
@@ -5649,11 +5648,9 @@ process.crawl(Workable_Jobs)
 process.crawl(Bamboo_Jobs)
 process.crawl(Breezy_Jobs)
 # All other orgs
-process.crawl(Three_Fifty_Org)
 process.crawl(Agile_Charging)
 process.crawl(Airly)
 process.crawl(Allplants)
-process.crawl(Altruistiq)
 process.crawl(Amphibian_Reptile_Conservation)
 process.crawl(Arrival)
 process.crawl(Aura_Power)
@@ -5677,12 +5674,10 @@ process.crawl(Butterfly_Conservation)
 process.crawl(Byway)
 process.crawl(CABI)
 process.crawl(Cairngorms_National_Park)
-process.crawl(Carbon_Chain)
 process.crawl(CAT)
 process.crawl(Cenex)
 process.crawl(Centre_Climate_Engagement)
 process.crawl(Centre_Sustainable_Energy)
-process.crawl(Cervest)
 process.crawl(Changeworks)
 process.crawl(Circa5000)
 process.crawl(City_Of_Trees)
@@ -5699,7 +5694,6 @@ process.crawl(Delphis)
 process.crawl(Dizzie)
 process.crawl(Dulas)
 process.crawl(Earth_Trust)
-process.crawl(Earthly)
 process.crawl(Earthwatch)
 process.crawl(EcoACTIVE)
 process.crawl(Ecologi)
@@ -5712,7 +5706,6 @@ process.crawl(Enviral)
 process.crawl(Environment_Agency)
 process.crawl(Environmental_Defense_Fund)
 process.crawl(EIA)
-process.crawl(Equilibrium_Energy)
 process.crawl(EVenergy)
 process.crawl(Fidra)
 process.crawl(Finance_Earth)
@@ -5746,7 +5739,6 @@ process.crawl(Knepp_Wildland_Foundation)
 process.crawl(Lime)
 process.crawl(Living_Streets)
 process.crawl(Lucy_Yak)
-process.crawl(Lunar_Energy)
 process.crawl(Lune)
 process.crawl(Manufacture_2030)
 process.crawl(Matter)
@@ -5758,7 +5750,6 @@ process.crawl(Mootral)
 process.crawl(Natural_England)
 process.crawl(Naturbeads)
 process.crawl(Nature_North)
-process.crawl(Nautilus_Labs)
 process.crawl(Normative)
 process.crawl(North_Devon_Biosphere)
 process.crawl(North_Wales_Rivers_Trust)
@@ -5770,14 +5761,11 @@ process.crawl(Oddbox)
 process.crawl(Odyssey)
 process.crawl(Olio)
 process.crawl(One_Click_LCA)
-process.crawl(Only_One)
 process.crawl(Open_Climate_Fix)
 process.crawl(Origen)
 process.crawl(Otovo)
-process.crawl(OVO_Energy)
 process.crawl(Patch)
 process.crawl(PECT)
-process.crawl(Piclo)
 process.crawl(Planet_Mark)
 process.crawl(Planet_Patrol)
 process.crawl(Proforest)
@@ -5803,7 +5791,6 @@ process.crawl(South_Pole)
 process.crawl(Sunswap)
 process.crawl(Surfers_Against_Sewage)
 process.crawl(Sustainable_Food_Trust)
-process.crawl(SustainLife)
 process.crawl(Sustrans)
 process.crawl(Sylvera)
 process.crawl(Tenzo)
@@ -5829,11 +5816,9 @@ process.crawl(Triodos)
 process.crawl(Trove_Research)
 process.crawl(UK100)
 process.crawl(Upcircle)
-process.crawl(Vaayu)
 process.crawl(Veganuary)
 process.crawl(Watershed)
 process.crawl(Waterwise)
-process.crawl(Who_Gives_A_Crap)
 process.crawl(Wessex_Rivers_Trust)
 process.crawl(Wholegrain_Digital)
 process.crawl(Wild)
