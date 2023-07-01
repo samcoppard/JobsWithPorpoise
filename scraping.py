@@ -167,6 +167,47 @@ class Workable_Jobs(scrapy.Spider):
             )
 
 
+""" Scrape all the organisations hosting jobs on the Bamboo ATS """
+
+# Get the names and Breezy shortcodes of every organisation being scraped from Breezy ATS
+with open("./JobsWithPorpoise/scraping_yamls/bamboo_orgs.yaml", "r") as file:
+    bamboo_org_list = yaml.safe_load(file)
+
+
+# Create a Spider class
+class Bamboo_Jobs(scrapy.Spider):
+    name = "bamboojobs"
+    custom_settings = {"DOWNLOAD_DELAY": 0.6}
+
+    # Loop over all the organisations
+    def start_requests(self):
+        for organisation in bamboo_org_list:
+            yield scrapy.Request(
+                url=f"https://{organisation['bamboo_shortcode']}.bamboohr.com/jobs/embed2.php?version=1.0.0",
+                callback=self.parse,
+                meta={"org_name": organisation["org_name"]},
+            )
+
+    # Handle the response received for each URL i.e. each organisation
+    def parse(self, response):
+        """Add the title, link, and location for each job to the job_list"""
+        # Get the organisation's name from the metadata
+        org_name = response.meta["org_name"]
+        # Loop over all the available jobs
+        for job in response.css("li.BambooHR-ATS-Jobs-Item"):
+            job_title = job.xpath("./a/text()").extract_first()
+            link_to_apply = f"https:{job.xpath('./a/@href').extract_first()}"
+            job_location = job.xpath("./span/text()").extract_first().strip()
+            job_list.append(
+                {
+                    "Company": org_name,
+                    "Job Title": job_title,
+                    "Job URL": link_to_apply,
+                    "Location": job_location,
+                }
+            )
+
+
 """ Now scrape all the organisations hosting jobs on the Breezy ATS """
 
 # Get the names and Breezy shortcodes of every organisation being scraped from Breezy ATS
@@ -195,20 +236,17 @@ class Breezy_Jobs(scrapy.Spider):
     # Handle the response received for each URL i.e. each organisation
     def parse(self, response):
         """Add the title, link, and location for each job to the job_list"""
-        # Get the organisation's name from the metadata
+        # Get the organisation's name & shortcode from the metadata
         org_name = response.meta["org_name"]
         breezy_shortcode = response.meta["breezy_shortcode"]
         # Loop over all the available jobs
         for job in response.css("li.position.transition > a"):
             job_title = job.xpath("./h2/text()").extract_first()
-            print(job_title)
             link_to_apply = (
                 f"https://{breezy_shortcode}.breezy.hr"
                 + job.xpath("./@href").extract_first()
             )
-            print(link_to_apply)
             job_location = job.xpath("./ul/li[1]/span/text()").extract_first()
-            print(job_location)
             job_list.append(
                 {
                     "Company": org_name,
@@ -662,33 +700,6 @@ class BeZero(scrapy.Spider):
       # Weird indentations and spaces sometimes
       c = c2.strip()
       job_list.append({'Company': 'BeZero', 'Job Title': a,
-                      'Job URL': b, 'Location': c})
-
-
-# Create the Spider class
-class Bike_Club(scrapy.Spider):
-  name = "bikeclub"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://bikeclub.bamboohr.com/jobs/embed2.php?version=1.0.0']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages
-  def parse(self, response):
-    for job in response.css('li.BambooHR-ATS-Jobs-Item'):
-      # Get the job titles
-      a = job.xpath('./a/text()').extract_first()
-      # Get the URLs for those jobs
-      b = 'https:'+job.xpath('./a/@href').extract_first()
-      # Get the locations
-      c = job.xpath('./span/text()').extract_first().strip()
-      if c == 'John Lewis':
-        c = 'London'
-      job_list.append({'Company': 'Bike Club', 'Job Title': a,
                       'Job URL': b, 'Location': c})
 
 
@@ -1277,31 +1288,6 @@ class Changeworks(scrapy.Spider):
 
 
 # Create the Spider class
-class Chargy(scrapy.Spider):
-  name = "chargy"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://chargy.bamboohr.com/jobs/embed2.php?version=1.0.0']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages
-  def parse(self, response):
-    for job in response.css('li.BambooHR-ATS-Jobs-Item'):
-      # Get the job titles
-      a = job.xpath('./a/text()').extract_first()
-      # Get the URLs for those jobs
-      b = 'https:'+job.xpath('./a/@href').extract_first()
-      # Get the locations
-      c = job.xpath('./span/text()').extract_first().strip()
-      job_list.append({'Company': 'char.gy', 'Job Title': a,
-                      'Job URL': b, 'Location': c})
-
-
-# Create the Spider class
 class Circa5000(scrapy.Spider):
   name = "circa5000"
   custom_settings = {'DOWNLOAD_DELAY': 0.6}
@@ -1559,31 +1545,6 @@ class ClimateX(scrapy.Spider):
       #Exclude US jobs
       if "USA" not in a:
         job_list.append({'Company': 'Climate X', 'Job Title': a,
-                      'Job URL': b, 'Location': c})
-
-
-# Create the Spider class
-class Cogo(scrapy.Spider):
-  name = "cogo"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://cogo.bamboohr.com/jobs/embed2.php?version=1.0.0']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages
-  def parse(self, response):
-    for job in response.css('li.BambooHR-ATS-Jobs-Item'):
-      # Get the job titles
-      a = job.xpath('./a/text()').extract_first()
-      # Get the URLs for those jobs
-      b = 'https:'+job.xpath('./a/@href').extract_first()
-      # Get the locations
-      c = job.xpath('./span/text()').extract_first().strip()
-      job_list.append({'Company': 'Cogo', 'Job Title': a,
                       'Job URL': b, 'Location': c})
 
 
@@ -1947,31 +1908,6 @@ class Ecosia(scrapy.Spider):
       if 'remote' in c:
         job_list.append({'Company': 'Ecosia', 'Job Title': a,
                         'Job URL': b, 'Location': c})
-
-
-# Create the Spider class
-class Ecosulis(scrapy.Spider):
-  name = "ecosulis"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://ecosulis.bamboohr.com/jobs/embed2.php?version=1.0.0']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages
-  def parse(self, response):
-    for job in response.css('li.BambooHR-ATS-Jobs-Item'):
-      # Get the job titles
-      a = job.xpath('./a/text()').extract_first()
-      # Get the URLs for those jobs
-      b = 'https:'+job.xpath('./a/@href').extract_first()
-      # Get the locations
-      c = job.xpath('./span/text()').extract_first().strip()
-      job_list.append({'Company': 'Ecosulis', 'Job Title': a,
-                      'Job URL': b, 'Location': c})
 
 
 # Create the Spider class
@@ -3100,31 +3036,6 @@ class Knepp_Wildland_Foundation(scrapy.Spider):
 
 
 # Create the Spider class
-class Leanpath(scrapy.Spider):
-  name = "leanpath"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://leanpath.bamboohr.com/jobs/embed2.php?version=1.0.0']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages
-  def parse(self, response):
-    for job in response.css('li.BambooHR-ATS-Jobs-Item'):
-      # Get the job titles
-      a = job.xpath('./a/text()').extract_first()
-      # Get the URLs for those jobs
-      b = 'https:'+job.xpath('./a/@href').extract_first()
-      # Get the locations
-      c = job.xpath('./span/text()').extract_first().strip()
-      job_list.append({'Company': 'Leanpath', 'Job Title': a,
-                      'Job URL': b, 'Location': c})
-
-
-# Create the Spider class
 class Lime(scrapy.Spider):
   name = "lime"
   custom_settings = {'DOWNLOAD_DELAY': 0.6}
@@ -3186,31 +3097,6 @@ class Living_Streets(scrapy.Spider):
         c = c1
       job_list.append({'Company': 'Living Streets',
                       'Job Title': a, 'Job URL': b, 'Location': c})
-
-
-# Create the Spider class
-class Low_Carbon(scrapy.Spider):
-  name = "lowcarbon"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://lowcarbon.bamboohr.com/jobs/embed2.php?version=1.0.0']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages
-  def parse(self, response):
-    for job in response.css('li.BambooHR-ATS-Jobs-Item'):
-      # Get the job titles
-      a = job.xpath('./a/text()').extract_first()
-      # Get the URLs for those jobs
-      b = 'https:'+job.xpath('./a/@href').extract_first()
-      # Get the locations
-      c = job.xpath('./span/text()').extract_first().strip()
-      job_list.append({'Company': 'Low Carbon', 'Job Title': a,
-                      'Job URL': b, 'Location': c})
 
 
 # Create the Spider class
@@ -5641,31 +5527,6 @@ class UK100(scrapy.Spider):
 
 
 # Create the Spider class
-class UNDO(scrapy.Spider):
-  name = "undo"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://undo.bamboohr.com/jobs/embed2.php?version=1.0.0']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages
-  def parse(self, response):
-    for job in response.css('li.BambooHR-ATS-Jobs-Item'):
-      # Get the job titles
-      a = job.xpath('./a/text()').extract_first()
-      # Get the URLs for those jobs
-      b = 'https:'+job.xpath('./a/@href').extract_first()
-      # Get the locations
-      c = job.xpath('./span/text()').extract_first().strip()
-      job_list.append({'Company': 'UNDO', 'Job Title': a,
-                      'Job URL': b, 'Location': c})
-
-
-# Create the Spider class
 class Upcircle(scrapy.Spider):
   name = "upcircle"
   custom_settings = {'DOWNLOAD_DELAY': 0.6}
@@ -6121,36 +5982,12 @@ class Zedify(scrapy.Spider):
                       'Job URL': b, 'Location': c})
 
 
-# Create the Spider class
-class Zenobe(scrapy.Spider):
-  name = "zenobe"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://zenobe.bamboohr.com/jobs/embed2.php?version=1.0.0']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages
-  def parse(self, response):
-    for job in response.css('li.BambooHR-ATS-Jobs-Item'):
-      # Get the job titles
-      a = job.xpath('./a/text()').extract_first()
-      # Get the URLs for those jobs
-      b = 'https:'+job.xpath('./a/@href').extract_first()
-      # Get the locations
-      c = job.xpath('./span/text()').extract_first().strip()
-      job_list.append({'Company': 'Zenobe', 'Job Title': a,
-                      'Job URL': b, 'Location': c})
-
-
 # Run the Spider
 process = CrawlerProcess()
 # LinkedIn and the various ATS
 process.crawl(LinkedIn_Jobs)
 process.crawl(Workable_Jobs)
+process.crawl(Bamboo_Jobs)
 process.crawl(Breezy_Jobs)
 # All other orgs
 process.crawl(Three_Fifty_Org)
@@ -6168,7 +6005,6 @@ process.crawl(Bat_Conservation_Trust)
 process.crawl(Baukjen)
 process.crawl(Beaver_Trust)
 process.crawl(BeZero)
-process.crawl(Bike_Club)
 process.crawl(Biophilica)
 process.crawl(Biorecro)
 process.crawl(Birdlife)
@@ -6189,7 +6025,6 @@ process.crawl(Centre_Climate_Engagement)
 process.crawl(Centre_Sustainable_Energy)
 process.crawl(Cervest)
 process.crawl(Changeworks)
-process.crawl(Chargy)
 process.crawl(Circa5000)
 process.crawl(City_Of_Trees)
 process.crawl(Clean_Air_Fund)
@@ -6198,7 +6033,6 @@ process.crawl(Climate_Connect_Digital)
 process.crawl(Climate_Impact_Partners)
 process.crawl(Climate_Policy_Radar)
 process.crawl(ClimateX)
-process.crawl(Cogo)
 process.crawl(Common_Seas)
 process.crawl(Cultivate_London)
 process.crawl(Decent_Packaging)
@@ -6211,7 +6045,6 @@ process.crawl(Earthwatch)
 process.crawl(EcoACTIVE)
 process.crawl(Ecologi)
 process.crawl(Ecosia)
-process.crawl(Ecosulis)
 process.crawl(Eden_Rivers_Trust)
 process.crawl(Ember)
 process.crawl(Emitwise)
@@ -6251,10 +6084,8 @@ process.crawl(Keep_Britain_Tidy)
 process.crawl(KeepCup)
 process.crawl(Keep_Scotland_Beautiful)
 process.crawl(Knepp_Wildland_Foundation)
-process.crawl(Leanpath)
 process.crawl(Lime)
 process.crawl(Living_Streets)
-process.crawl(Low_Carbon)
 process.crawl(Lucy_Yak)
 process.crawl(Lunar_Energy)
 process.crawl(Lune)
@@ -6338,7 +6169,6 @@ process.crawl(Trees_For_Life)
 process.crawl(Triodos)
 process.crawl(Trove_Research)
 process.crawl(UK100)
-process.crawl(UNDO)
 process.crawl(Upcircle)
 process.crawl(Vaayu)
 process.crawl(Veganuary)
@@ -6355,7 +6185,6 @@ process.crawl(World_Land_Trust)
 process.crawl(WWF)
 process.crawl(Yum_Bug)
 process.crawl(Zedify)
-process.crawl(Zenobe)
 process.start()
 
 
