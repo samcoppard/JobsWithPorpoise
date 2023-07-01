@@ -1,6 +1,7 @@
 # Import packages
 import scrapy
 import csv
+import requests
 import yaml
 import json
 import re
@@ -53,7 +54,7 @@ class LinkedIn_Jobs(scrapy.Spider):
             )
 
 
-""" Now scrape all the organisations hosting jobs on the Workable ATS """
+""" Scrape all the organisations hosting jobs on the Workable ATS """
 
 # Get the names and Workable shortcodes of every organisation being scraped from Workable
 with open("./JobsWithPorpoise/scraping_yamls/workable_orgs.yaml", "r") as file:
@@ -208,7 +209,7 @@ class Bamboo_Jobs(scrapy.Spider):
             )
 
 
-""" Now scrape all the organisations hosting jobs on the Breezy ATS """
+""" Scrape all the organisations hosting jobs on the Breezy ATS """
 
 # Get the names and Breezy shortcodes of every organisation being scraped from Breezy ATS
 with open("./JobsWithPorpoise/scraping_yamls/breezy_orgs.yaml", "r") as file:
@@ -257,35 +258,45 @@ class Breezy_Jobs(scrapy.Spider):
             )
 
 
+""" Pull jobs from orgs using the Greenhouse ATS via API """
+
+def scrape_greenhouse_orgs():
+    # Get the names and shortcodes of every organisation using Greenhouse ATS
+    with open("./JobsWithPorpoise/scraping_yamls/greenhouse_orgs.yaml", "r") as file:
+        greenhouse_org_list = yaml.safe_load(file)
+
+    # Loop over all the organisations
+    for organisation in greenhouse_org_list:
+        response = requests.get(
+            f"https://boards-api.greenhouse.io/v1/boards/{organisation['greenhouse_shortcode']}/jobs"
+        )
+
+        json_string = response.text
+        data = json.loads(json_string)
+
+        # Loop over all the jobs within this organisation
+        for job in data["jobs"]:
+            job_title = job["title"]
+            link_to_apply = job["absolute_url"]
+            job_location = job["location"]["name"]
+            if (
+                organisation["org_name"] == "OVO Energy"
+                and job_location == "Any of our offices"
+            ):
+                job_location = "London, Bristol, Glasgow"
+            elif organisation["org_name"] == "Equilibrium Energy":
+                job_location = "Fully Remote"
+            job_list.append(
+                {
+                    "Company": organisation["org_name"],
+                    "Job Title": job_title,
+                    "Job URL": link_to_apply,
+                    "Location": job_location,
+                }
+            )
+
+
 """ Now scrape every other organisation """
-
-# Create the Spider class
-class Three_Fifty_Org(scrapy.Spider):
-  name = "threefiftyorg"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://boards.greenhouse.io/350org']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages
-  def parse(self, response):
-    for job in response.css('div.opening'):
-      # Get the job titles
-      a = job.xpath('./a/text()').extract_first()
-      # Get the URLs for those jobs
-      b = 'https://boards.greenhouse.io' + \
-          job.xpath('./a/@href').extract_first()
-      # Get the locations
-      c1 = job.xpath('./span/text()').extract_first()
-      if any(x in c1 for x in ['Remote in 1 of 26 countries', 'countries we are currently operating in', 'Europe', 'Remote in the United Kingdom']):
-        c = 'Fully Remote'
-        job_list.append({'Company': '350.org', 'Job Title': a,
-                        'Job URL': b, 'Location': c})
-
 
 # Create the Spider class
 class Agile_Charging(scrapy.Spider):
@@ -380,32 +391,6 @@ class Allplants(scrapy.Spider):
       else:
         c = 'nooo, scraping error'
       job_list.append({'Company': 'Allplants', 'Job Title': a,
-                      'Job URL': b, 'Location': c})
-
-
-# Create the Spider class
-class Altruistiq(scrapy.Spider):
-  name = "altruistiq"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://boards.greenhouse.io/altruistiq']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages
-  def parse(self, response):
-    for job in response.css('div.opening'):
-      # Get the job titles
-      a = job.xpath('./a/text()').extract_first()
-      # Get the URLs for those jobs
-      b = 'https://boards.greenhouse.io' + \
-          job.xpath('./a/@href').extract_first()
-      # Get the locations
-      c = job.xpath('./span/text()').extract_first()
-      job_list.append({'Company': 'Altruistiq', 'Job Title': a,
                       'Job URL': b, 'Location': c})
 
 
@@ -1107,32 +1092,6 @@ class Cairngorms_National_Park(scrapy.Spider):
 
 
 # Create the Spider class
-class Carbon_Chain(scrapy.Spider):
-  name = "carbonchain"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://boards-api.greenhouse.io/v1/boards/carbonchain/jobs']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages (API)
-  def parse(self, response):
-    data = json.loads(response.text)
-    for job in data['jobs']:
-      # Get the job titles
-      a = job['title']
-      # All job descriptions are on the same URL
-      b = job['absolute_url']
-      # Get the locations
-      c = job['location']['name']
-      job_list.append({'Company': 'Carbon Chain',
-                      'Job Title': a, 'Job URL': b, 'Location': c})
-
-
-# Create the Spider class
 class CAT(scrapy.Spider):
   name = "cat"
   custom_settings = {'DOWNLOAD_DELAY': 0.6}
@@ -1230,34 +1189,6 @@ class Centre_Sustainable_Energy(scrapy.Spider):
       c = 'Bristol'
       job_list.append({'Company': 'Centre for Sustainable Energy',
                       'Job Title': a, 'Job URL': b, 'Location': c})
-
-
-# Create the Spider class
-class Cervest(scrapy.Spider):
-  name = "cervest"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://boards.greenhouse.io/cervest']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages
-  def parse(self, response):
-    for job in response.css('div.opening'):
-      # Get the job titles
-      a = job.xpath('./a/text()').extract_first().title().strip()
-      # Get the URLs for those jobs
-      b = 'https://boards.greenhouse.io' + \
-          job.xpath('./a/@href').extract_first()
-      # Get the locations
-      c = 'Fully Remote'
-      # Get rid of US jobs
-      if not any(x in a for x in ["- Us", "US"]):
-        job_list.append({'Company': 'Cervest', 'Job Title': a,
-                        'Job URL': b, 'Location': c})
 
 
 # Create the Spider class
@@ -1766,35 +1697,8 @@ class Earth_Trust(scrapy.Spider):
           {'Company': 'Earth Trust', 'Job Title': a, 'Job URL': b, 'Location': c})
 
 
-# Create the Spider class
-class Earthly(scrapy.Spider):
-  name = "earthly"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://boards-api.greenhouse.io/v1/boards/earthly/jobs']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages (API)
-  def parse(self, response):
-    data = json.loads(response.text)
-    for job in data['jobs']:
-      # Get the job titles
-      a = job['title']
-      # All job descriptions are on the same URL
-      b = job['absolute_url']
-      # Get the locations
-      c = job['location']['name']
-      job_list.append({'Company': 'Earthly', 'Job Title': a,
-                      'Job URL': b, 'Location': c})
-
-
 job_desc_urls_earthwatch = []
 # Create the Spider class
-
 
 class Earthwatch(scrapy.Spider):
   name = "earthwatch"
@@ -2134,32 +2038,6 @@ class Enviral(scrapy.Spider):
       c = "Bristol"
       job_list.append({'Company': 'Enviral', 'Job Title': a,
                       'Job URL': b, 'Location': c})
-
-
-# Create the Spider class
-class Equilibrium_Energy(scrapy.Spider):
-  name = "equilibriumenergy"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://boards.greenhouse.io/equilibriumenergy']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages
-  def parse(self, response):
-    for job in response.css('div.opening'):
-      # Get the job titles
-      a = job.xpath('./a/text()').extract_first()
-      # Get the URLs for those jobs
-      b = 'https://boards.greenhouse.io' + \
-          job.xpath('./a/@href').extract_first()
-      # Get the locations
-      c = 'Fully Remote'
-      job_list.append({'Company': 'Equilibrium Energy',
-                      'Job Title': a, 'Job URL': b, 'Location': c})
 
 
 # Create the Spider class
@@ -3127,34 +3005,6 @@ class Lucy_Yak(scrapy.Spider):
 
 
 # Create the Spider class
-class Lunar_Energy(scrapy.Spider):
-  name = "lunarenergy"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://boards.greenhouse.io/lunarenergy']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages
-  def parse(self, response):
-    for job in response.css('div.opening'):
-      # Get the job titles
-      a = job.xpath('./a/text()').extract_first()
-      # Get the URLs for those jobs
-      b = 'https://boards.greenhouse.io' + \
-          job.xpath('./a/@href').extract_first()
-      # Get the locations
-      c1 = job.xpath('./span/text()').extract_first()
-      if 'UK' in c1:
-        c = 'Fully Remote'
-        job_list.append({'Company': 'Lunar Energy',
-                        'Job Title': a, 'Job URL': b, 'Location': c})
-
-
-# Create the Spider class
 class Lune(scrapy.Spider):
   name = "lune"
   custom_settings = {'DOWNLOAD_DELAY': 0.6}
@@ -3471,32 +3321,6 @@ class Nature_North(scrapy.Spider):
       # Get the locations
       c = 'Northern England'
       job_list.append({'Company': 'Nature North',
-                      'Job Title': a, 'Job URL': b, 'Location': c})
-
-
-# Create the Spider class
-class Nautilus_Labs(scrapy.Spider):
-  name = "nautiluslabs"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://boards-api.greenhouse.io/v1/boards/nautiluslabs/jobs/']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages (API)
-  def parse(self, response):
-    data = json.loads(response.text)
-    for job in data['jobs']:
-      # Get the job titles
-      a = job['title']
-      # All job descriptions are on the same URL
-      b = job['absolute_url']
-      # Get the locations
-      c = job['location']['name']
-      job_list.append({'Company': 'Nautilus Labs',
                       'Job Title': a, 'Job URL': b, 'Location': c})
 
 
@@ -3832,32 +3656,6 @@ class One_Click_LCA(scrapy.Spider):
 
 
 # Create the Spider class
-class Only_One(scrapy.Spider):
-  name = "onlyone"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://boards-api.greenhouse.io/v1/boards/onlyone/jobs']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages (API)
-  def parse(self, response):
-    data = json.loads(response.text)
-    for job in data['jobs']:
-      # Get the job titles
-      a = job['title']
-      # All job descriptions are on the same URL
-      b = job['absolute_url']
-      # Get the locations
-      c = job['location']['name']
-      job_list.append({'Company': 'Only One', 'Job Title': a,
-                      'Job URL': b, 'Location': c})
-
-
-# Create the Spider class
 class Open_Climate_Fix(scrapy.Spider):
   name = "openclimatefix"
   custom_settings = {'DOWNLOAD_DELAY': 0.6}
@@ -3953,38 +3751,6 @@ class Otovo(scrapy.Spider):
 
 
 # Create the Spider class
-class OVO_Energy(scrapy.Spider):
-  name = "ovoenergy"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://boards-api.greenhouse.io/v1/boards/ovoenergy/jobs']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages (API)
-  def parse(self, response):
-    data = json.loads(response.text)
-    for job in data['jobs']:
-      # Get the job titles
-      a = job['title']
-      # All job descriptions are on the same URL
-      b = job['absolute_url']
-      # Get the locations and tidy up what you can
-      c1 = job['location']['name']
-      if 'Any of our offices' in c1:
-        c = 'London, Bristol, Glasgow'
-      elif 'Field Based' in c1:
-        c = 'Unknown'
-      else:
-        c = c1
-      job_list.append({'Company': 'OVO Energy', 'Job Title': a,
-                      'Job URL': b, 'Location': c})
-
-
-# Create the Spider class
 class Patch(scrapy.Spider):
   name = "patch"
   custom_settings = {'DOWNLOAD_DELAY': 0.6}
@@ -4037,32 +3803,6 @@ class PECT(scrapy.Spider):
       # Get the locations
       c = job.xpath('./div[1]/div/span[2]/text()').extract_first()
       job_list.append({'Company': 'PECT', 'Job Title': a,
-                      'Job URL': b, 'Location': c})
-
-
-# Create the Spider class
-class Piclo(scrapy.Spider):
-  name = "piclo"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://boards.greenhouse.io/piclo']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages
-  def parse(self, response):
-    for job in response.css('div.opening'):
-      # Get the job titles
-      a = job.xpath('./a/text()').extract_first()
-      # Get the URLs for those jobs
-      b = 'https://boards.greenhouse.io' + \
-          job.xpath('./a/@href').extract_first()
-      # Get the locations
-      c = job.xpath('./span/text()').extract_first()
-      job_list.append({'Company': 'Piclo', 'Job Title': a,
                       'Job URL': b, 'Location': c})
 
 
@@ -4762,32 +4502,6 @@ class Sustainable_Food_Trust(scrapy.Spider):
       # Get the locations
       c = 'Bristol'
       job_list.append({'Company': 'Sustainable Food Trust',
-                      'Job Title': a, 'Job URL': b, 'Location': c})
-
-
-# Create the Spider class
-class SustainLife(scrapy.Spider):
-  name = "sustainlife"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://boards.greenhouse.io/sustainlife']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages
-  def parse(self, response):
-    for job in response.css('div.opening'):
-      # Get the job titles
-      a = job.xpath('./a/text()').extract_first()
-      # Get the URLs for those jobs
-      b = 'https://boards.greenhouse.io' + \
-          job.xpath('./a/@href').extract_first()
-      # Get the locations
-      c = job.xpath('./span/text()').extract_first()
-      job_list.append({'Company': 'Sustain.Life',
                       'Job Title': a, 'Job URL': b, 'Location': c})
 
 
@@ -5580,35 +5294,6 @@ class Uplift(scrapy.Spider):
 
 '''
 
-# Create the Spider class
-
-
-class Vaayu(scrapy.Spider):
-  name = "vaayu"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://boards-api.greenhouse.io/v1/boards/vaayutech/jobs/']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages (API)
-  def parse(self, response):
-    data = json.loads(response.text)
-    for job in data['jobs']:
-      # Get the job titles
-      a = job['title']
-      # All job descriptions are on the same URL
-      b = 'https://www.vaayu.tech/careers'
-      # Get the locations
-      c = job['location']['name']
-      # Remove French jobs
-      if 'France' not in a:
-        job_list.append({'Company': 'Vaayu', 'Job Title': a,
-                        'Job URL': b, 'Location': c})
-
 
 # Create the Spider class
 class Veganuary(scrapy.Spider):
@@ -5709,34 +5394,6 @@ class Wessex_Rivers_Trust(scrapy.Spider):
       c = 'Salisbury'
       job_list.append({'Company': 'Wessex Rivers Trust',
                       'Job Title': a, 'Job URL': b, 'Location': c})
-
-
-# Create the Spider class
-class Who_Gives_A_Crap(scrapy.Spider):
-  name = "whogivesacrap"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://boards.greenhouse.io/whogivesacrap']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages
-  def parse(self, response):
-    for job in response.css('div.opening'):
-      # Get the job titles
-      a = job.xpath('./a/text()').extract_first()
-      # Get the URLs for those jobs
-      b = 'https://boards.greenhouse.io' + \
-          job.xpath('./a/@href').extract_first()
-      # Get the locations
-      c1 = job.xpath('./span/text()').extract_first()
-      if any(x in c1 for x in ['London', 'England', 'United Kingdom']):
-        c = 'Fully Remote'
-        job_list.append({'Company': 'Who Gives A Crap',
-                        'Job Title': a, 'Job URL': b, 'Location': c})
 
 
 # Create the Spider class
@@ -5982,6 +5639,8 @@ class Zedify(scrapy.Spider):
                       'Job URL': b, 'Location': c})
 
 
+# Pull jobs from orgs using Greenhouse ATS
+scrape_greenhouse_orgs()
 # Run the Spider
 process = CrawlerProcess()
 # LinkedIn and the various ATS
