@@ -170,7 +170,7 @@ class Workable_Jobs(scrapy.Spider):
 
 """ Scrape all the organisations hosting jobs on the Bamboo ATS """
 
-# Get the names and Breezy shortcodes of every organisation being scraped from Breezy ATS
+# Get the names and Bamboo shortcodes of every organisation being scraped from Bamboo ATS
 with open("./JobsWithPorpoise/scraping_yamls/bamboo_orgs.yaml", "r") as file:
     bamboo_org_list = yaml.safe_load(file)
 
@@ -289,6 +289,47 @@ def scrape_greenhouse_orgs():
             job_list.append(
                 {
                     "Company": organisation["org_name"],
+                    "Job Title": job_title,
+                    "Job URL": link_to_apply,
+                    "Location": job_location,
+                }
+            )
+
+
+""" Scrape all the organisations hosting jobs on the Lever ATS """
+
+# Get the names and Lever shortcodes of every organisation being scraped from Lever ATS
+with open("./JobsWithPorpoise/scraping_yamls/lever_orgs.yaml", "r") as file:
+    lever_org_list = yaml.safe_load(file)
+
+
+# Create a Spider class
+class Lever_Jobs(scrapy.Spider):
+    name = "leverjobs"
+    custom_settings = {"DOWNLOAD_DELAY": 0.6}
+
+    # Loop over all the organisations
+    def start_requests(self):
+        for organisation in lever_org_list:
+            yield scrapy.Request(
+                url=f"https://jobs.lever.co/{organisation['lever_shortcode']}",
+                callback=self.parse,
+                meta={"org_name": organisation["org_name"]},
+            )
+
+    # Handle the response received for each URL i.e. each organisation
+    def parse(self, response):
+        """Add the title, link, and location for each job to the job_list"""
+        # Get the organisation's name from the metadata
+        org_name = response.meta["org_name"]
+        # Loop over all the available jobs
+        for job in response.css("a.posting-title"):
+            job_title = job.xpath("./h5/text()").extract_first()
+            link_to_apply = job.xpath("./@href").extract_first()
+            job_location = job.xpath("./div/span/text()").extract_first()
+            job_list.append(
+                {
+                    "Company": org_name,
                     "Job Title": job_title,
                     "Job URL": link_to_apply,
                     "Location": job_location,
@@ -1788,32 +1829,6 @@ class Ecologi(scrapy.Spider):
 
 
 # Create the Spider class
-class Ecosia(scrapy.Spider):
-  name = "ecosia"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://jobs.lever.co/ecosia']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages
-  def parse(self, response):
-    for job in response.css('a.posting-title'):
-      # Get the job titles
-      a = job.xpath('./h5/text()').extract_first()
-      # Get the URLs for those jobs
-      b = job.xpath('./@href').extract_first()
-      # Get the locations
-      c = job.xpath('./div/span/text()').extract_first()
-      if 'remote' in c:
-        job_list.append({'Company': 'Ecosia', 'Job Title': a,
-                        'Job URL': b, 'Location': c})
-
-
-# Create the Spider class
 class Eden_Rivers_Trust(scrapy.Spider):
   name = "edenriverstrust"
   custom_settings = {'DOWNLOAD_DELAY': 0.6}
@@ -1864,31 +1879,6 @@ class Ember(scrapy.Spider):
       c = job.xpath('.//div[@class="vacancy-location"]/text()').extract_first()
       job_list.append({'Company': 'Ember', 'Job Title': a,
                         'Job URL': b, 'Location': c})
-
-
-# Create the Spider class
-class Emitwise(scrapy.Spider):
-  name = "emitwise"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://jobs.lever.co/emitwise']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages
-  def parse(self, response):
-    for job in response.css('a.posting-title'):
-      # Get the job titles
-      a = job.xpath('./h5/text()').extract_first()
-      # Get the URLs for those jobs
-      b = job.xpath('./@href').extract_first()
-      # Get the location
-      c = job.xpath('./div/span/text()').extract_first()
-      job_list.append({'Company': 'Emitwise', 'Job Title': a,
-                      'Job URL': b, 'Location': c})
 
 
 # Create the Spider class
@@ -2345,31 +2335,6 @@ class Global_Witness(scrapy.Spider):
           './div[1]/div/text()').extract_first().strip().replace("Location: ", "")
       job_list.append({'Company': 'Global Witness',
                       'Job Title': a, 'Job URL': b, 'Location': c})
-
-
-# Create the Spider class
-class Granular(scrapy.Spider):
-  name = "granular"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://jobs.lever.co/Granular']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages
-  def parse(self, response):
-    for job in response.css('a.posting-title'):
-      # Get the job titles
-      a = job.xpath('./h5/text()').extract_first()
-      # Get the URLs for those jobs
-      b = job.xpath('./@href').extract_first()
-      # Get the locations
-      c = job.xpath('./div/span/text()').extract_first()
-      job_list.append({'Company': 'Granular', 'Job Title': a,
-                      'Job URL': b, 'Location': c})
 
 
 # Create the Spider class
@@ -2913,40 +2878,6 @@ class Knepp_Wildland_Foundation(scrapy.Spider):
 
 
 # Create the Spider class
-class Lime(scrapy.Spider):
-  name = "lime"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://jobs.lever.co/lime']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages
-  def parse(self, response):
-    for job in response.css('a.posting-title'):
-      # Get the job titles
-      a = job.xpath('./h5/text()').extract_first()
-      # Get the URLs for those jobs
-      b = job.xpath('./@href').extract_first()
-      # Check whether it's remote or not
-      c1 = job.xpath('./div/span[3]/text()').extract_first()
-      # Now get the location, and check it's in the UK
-      uk = ['EMEA', 'London', 'UK', 'United Kingdom']
-      c2 = job.xpath('./div/span[1]/text()').extract_first()
-      if any(x in c2 for x in uk):
-        # Tag as Remote or by location if not Remote
-        if "Remote" in c1:
-          c = "Fully Remote"
-        else:
-          c = c2
-        job_list.append({'Company': 'Lime', 'Job Title': a,
-                        'Job URL': b, 'Location': c})
-
-
-# Create the Spider class
 class Living_Streets(scrapy.Spider):
   name = "livingstreets"
   custom_settings = {'DOWNLOAD_DELAY': 0.6}
@@ -3482,41 +3413,6 @@ class Ocean_Conservation_Trust(scrapy.Spider):
       c = "Plymouth"
       job_list.append({'Company': 'Ocean Conservation Trust',
                       'Job Title': a, 'Job URL': b, 'Location': c})
-
-
-# Create the Spider class
-class Octopus_Energy(scrapy.Spider):
-  name = "octopusenergy"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://jobs.lever.co/octoenergy']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages
-  def parse(self, response):
-    for job in response.css('a.posting-title'):
-      # Get the job titles
-      a = job.xpath('./h5/text()').extract_first()
-      # Get the URLs for those jobs
-      b = job.xpath('./@href').extract_first()
-      # Get the locations
-      c1 = job.xpath('./div/span[1]/text()').extract_first()
-      if c1 == 'United Kingdom, Remote':
-        c = 'Unknown'
-      elif 'DigiOps' in c1:
-        c = 'Fully Remote'
-      elif c1 == 'Nationwide, UK':
-        c = 'Darlington'
-      else:
-        c = c1
-      # Exclude crap
-      if not any(x in a for x in ["Can't find", "Octopus Internships"]):
-        job_list.append({'Company': 'Octopus Energy',
-                        'Job Title': a, 'Job URL': b, 'Location': c})
 
 
 # Create the Spider class
@@ -4531,31 +4427,6 @@ class Sustrans(scrapy.Spider):
         c = 'Nearby Any Sustrans Office Hub Across The Uk'
       job_list.append({'Company': 'Sustrans', 'Job Title': a,
                       'Job URL': b, 'Location': c})
-
-
-# Create the Spider class
-class Sylvera(scrapy.Spider):
-  name = "sylvera"
-  custom_settings = {'DOWNLOAD_DELAY': 0.6}
-
-  # start_requests method
-  def start_requests(self):
-    urls = ['https://jobs.lever.co/sylvera']
-    for url in urls:
-      yield scrapy.Request(url=url,
-                           callback=self.parse)
-
-  # First parsing method to scrape job titles and links to individual job pages
-  def parse(self, response):
-    for job in response.css('a.posting-title'):
-      # Get the job titles
-      a = job.xpath('./h5/text()').extract_first()
-      # Get the URLs for those jobs
-      b = job.xpath('./@href').extract_first()
-      # Get the location
-      c = job.xpath('./div/span/text()').extract_first()
-      job_list.append({'Company': 'Sylvera', 'Job Title': a,
-                        'Job URL': b, 'Location': c})
 
 
 # Create the Spider class
@@ -5647,6 +5518,7 @@ process.crawl(LinkedIn_Jobs)
 process.crawl(Workable_Jobs)
 process.crawl(Bamboo_Jobs)
 process.crawl(Breezy_Jobs)
+process.crawl(Lever_Jobs)
 # All other orgs
 process.crawl(Agile_Charging)
 process.crawl(Airly)
@@ -5697,10 +5569,8 @@ process.crawl(Earth_Trust)
 process.crawl(Earthwatch)
 process.crawl(EcoACTIVE)
 process.crawl(Ecologi)
-process.crawl(Ecosia)
 process.crawl(Eden_Rivers_Trust)
 process.crawl(Ember)
-process.crawl(Emitwise)
 process.crawl(Energy_Climate_Intelligence_Unit)
 process.crawl(Enviral)
 process.crawl(Environment_Agency)
@@ -5717,7 +5587,6 @@ process.crawl(Friends_Earth)
 process.crawl(Futerra)
 process.crawl(Galapagos_Conservation_Trust)
 process.crawl(Global_Witness)
-process.crawl(Granular)
 process.crawl(Green_Alliance)
 process.crawl(Greenpeace)
 process.crawl(Ground_Control)
@@ -5736,7 +5605,6 @@ process.crawl(Keep_Britain_Tidy)
 process.crawl(KeepCup)
 process.crawl(Keep_Scotland_Beautiful)
 process.crawl(Knepp_Wildland_Foundation)
-process.crawl(Lime)
 process.crawl(Living_Streets)
 process.crawl(Lucy_Yak)
 process.crawl(Lune)
@@ -5756,7 +5624,6 @@ process.crawl(North_Wales_Rivers_Trust)
 process.crawl(Notpla)
 process.crawl(Ocean_Bottle)
 process.crawl(Ocean_Conservation_Trust)
-process.crawl(Octopus_Energy)
 process.crawl(Oddbox)
 process.crawl(Odyssey)
 process.crawl(Olio)
@@ -5792,7 +5659,6 @@ process.crawl(Sunswap)
 process.crawl(Surfers_Against_Sewage)
 process.crawl(Sustainable_Food_Trust)
 process.crawl(Sustrans)
-process.crawl(Sylvera)
 process.crawl(Tenzo)
 process.crawl(Tepeo)
 process.crawl(Tevva)
