@@ -1,0 +1,9 @@
+# PostgreSQL database configuration
+# At some point I'll add a database initialisation script to make it easy to replicate
+# the database and actually use this
+
+database:
+  host: localhost
+  name: jobs_with_porpoise
+  user: username
+  password: password
