@@ -4,7 +4,7 @@ This is the code that powers the back end of [Jobs With Porpoise](https://www.jo
 
 A daily cron job runs the file __synchronise.py__, which runs the following files in turn:
 - __scraping.py__
-    * Code to scrape 1500+ jobs from 250+ green organisations
+    * Scrapes 1500+ jobs from 250+ green organisations
     * Some are pulled from APIs, some are scraped from Applicant Tracking Systems, but most are scraped from individual careers pages
 
 - __job_data_cleaning.py__
