@@ -7,7 +7,7 @@ def connect_to_psql_database():
     """Establish a connection to the local PSQL database, and create a DictCursor object"""
 
     # Get the connection details from config.yaml
-    with open("./JobsWithPorpoise/config.yaml", "r") as file:
+    with open("./config.yaml", "r") as file:
         database_connection_details = yaml.safe_load(file)["database"]
 
     # Establish the connection

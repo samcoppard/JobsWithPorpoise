@@ -341,7 +341,9 @@ def prep_job_for_webflow(dict_of_job_attributes):
         ]
         if dict_of_job_attributes["location"] is not None
         else "",
-        "job_multiple_locations": prep_job_for_webflow.collection_items_dict["Multiple locations - true"]
+        "job_multiple_locations": prep_job_for_webflow.collection_items_dict[
+            "Multiple locations - true"
+        ]
         if dict_of_job_attributes["multiple_locations"] == True
         else prep_job_for_webflow.collection_items_dict["Multiple locations - false"],
         "job_seniority": [
@@ -365,12 +367,16 @@ def prep_job_for_webflow(dict_of_job_attributes):
         "org_careers_page": dict_of_job_attributes["careers_page"],
         "org_mission": dict_of_job_attributes["mission"],
         "org_accreditations": [
-            prep_job_for_webflow.collection_items_dict[f"Accreditations - {accreditation}"]
+            prep_job_for_webflow.collection_items_dict[
+                f"Accreditations - {accreditation}"
+            ]
             for accreditation in dict_of_job_attributes["accreditations"]
         ]
         if dict_of_job_attributes["accreditations"] is not None
         else "",
-        "org_bizorchar": prep_job_for_webflow.collection_items_dict["BizOrChar - Business"]
+        "org_bizorchar": prep_job_for_webflow.collection_items_dict[
+            "BizOrChar - Business"
+        ]
         if dict_of_job_attributes["borch"] == "Business"
         else prep_job_for_webflow.collection_items_dict["BizOrChar - Charity"],
         "org_sectors": [
