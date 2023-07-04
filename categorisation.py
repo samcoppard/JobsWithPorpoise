@@ -25,9 +25,7 @@ def get_mapping_keywords(yamls_directory, dict={}):
 scraped_jobs["mapped_location"] = "not mapped"
 
 # Create a dict to hold every region, and the location keywords that map to them
-locations_dict = get_mapping_keywords(
-    "./JobsWithPorpoise/location_yamls/initial_yamls", {}
-)
+locations_dict = get_mapping_keywords("./location_yamls/initial_yamls", {})
 
 
 def map_jobs(df, scraped_column, mapped_column, mapping_dict):
@@ -56,9 +54,7 @@ map_jobs(scraped_jobs, "Location", "mapped_location", locations_dict)
 # it's too short to map like that ("Remote"), or it maps to multiple regions ("Midlands")
 
 # Create a dict to handle regions and keywords for these awkward cases
-awkward_locations_dict = get_mapping_keywords(
-    "./JobsWithPorpoise/location_yamls/refining_yamls", {}
-)
+awkward_locations_dict = get_mapping_keywords("./location_yamls/refining_yamls", {})
 
 for ind in scraped_jobs.index:
     location = scraped_jobs["Location"][ind]
@@ -110,7 +106,7 @@ print(scraped_jobs[scraped_jobs["mapped_location"] == "not mapped"])
 scraped_jobs["job_types"] = "not mapped"
 
 # Create a dict to hold all the different job types, and the keywords that map to them
-job_types_dict = get_mapping_keywords("./JobsWithPorpoise/job_type_yamls", {})
+job_types_dict = get_mapping_keywords("./job_type_yamls", {})
 
 # Map jobs to the category of job they're in
 map_jobs(scraped_jobs, "Job Title", "job_types", job_types_dict)
@@ -130,9 +126,7 @@ scraped_jobs = scraped_jobs[
 scraped_jobs["seniority"] = "mid level"
 
 # Create a dict to hold the different seniorities, and the keywords that map to them
-seniority_dict = get_mapping_keywords(
-    "./JobsWithPorpoise/seniority_yamls/initial_yamls", {}
-)
+seniority_dict = get_mapping_keywords("./seniority_yamls/initial_yamls", {})
 
 # Map jobs to their seniority level
 map_jobs(scraped_jobs, "Job Title", "seniority", seniority_dict)
@@ -141,9 +135,7 @@ map_jobs(scraped_jobs, "Job Title", "seniority", seniority_dict)
 # The initial mapping isn't perfect, so now we need to remove incorrect seniority tags
 
 # Create a dict to hold the keywords for refining the mapping of seniorities
-refining_seniority_dict = get_mapping_keywords(
-    "./JobsWithPorpoise/seniority_yamls/refining_yamls", {}
-)
+refining_seniority_dict = get_mapping_keywords("./seniority_yamls/refining_yamls", {})
 
 # Iterate over every job / row in the dataframe
 for ind, scraped_value in scraped_jobs["Job Title"].items():

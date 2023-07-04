@@ -78,7 +78,7 @@ def clean_job_titles(df, column):
 
 def load_exclusions():
     """Load a list of words from a YAML file to exclude from being capitalized"""
-    with open("./JobsWithPorpoise/other_yamls/capital_exclusions.yaml", "r") as file:
+    with open("./other_yamls/capital_exclusions.yaml", "r") as file:
         return yaml.safe_load(file)
 
 

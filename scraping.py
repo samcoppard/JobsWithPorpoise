@@ -16,7 +16,7 @@ job_list = []
 """ Start by scraping all the organisations on LinkedIn """
 
 # Get the names and LinkedIn shortcodes of every organisation being scraped from LinkedIn
-with open("./JobsWithPorpoise/scraping_yamls/linkedin_orgs.yaml", "r") as file:
+with open("./scraping_yamls/linkedin_orgs.yaml", "r") as file:
     linkedin_org_list = yaml.safe_load(file)
 
 
@@ -58,7 +58,7 @@ class LinkedIn_Jobs(scrapy.Spider):
 """ Scrape all the organisations hosting jobs on the Workable ATS """
 
 # Get the names and Workable shortcodes of every organisation being scraped from Workable
-with open("./JobsWithPorpoise/scraping_yamls/workable_orgs.yaml", "r") as file:
+with open("./scraping_yamls/workable_orgs.yaml", "r") as file:
     workable_org_list = yaml.safe_load(file)
 
 
@@ -173,7 +173,7 @@ class Workable_Jobs(scrapy.Spider):
 """ Scrape all the organisations hosting jobs on the Bamboo ATS """
 
 # Get the names and Bamboo shortcodes of every organisation being scraped from Bamboo ATS
-with open("./JobsWithPorpoise/scraping_yamls/bamboo_orgs.yaml", "r") as file:
+with open("./scraping_yamls/bamboo_orgs.yaml", "r") as file:
     bamboo_org_list = yaml.safe_load(file)
 
 
@@ -214,7 +214,7 @@ class Bamboo_Jobs(scrapy.Spider):
 """ Scrape all the organisations hosting jobs on the Breezy ATS """
 
 # Get the names and Breezy shortcodes of every organisation being scraped from Breezy ATS
-with open("./JobsWithPorpoise/scraping_yamls/breezy_orgs.yaml", "r") as file:
+with open("./scraping_yamls/breezy_orgs.yaml", "r") as file:
     breezy_org_list = yaml.safe_load(file)
 
 
@@ -265,7 +265,7 @@ class Breezy_Jobs(scrapy.Spider):
 
 def scrape_greenhouse_orgs():
     # Get the names and shortcodes of every organisation using Greenhouse ATS
-    with open("./JobsWithPorpoise/scraping_yamls/greenhouse_orgs.yaml", "r") as file:
+    with open("./scraping_yamls/greenhouse_orgs.yaml", "r") as file:
         greenhouse_org_list = yaml.safe_load(file)
 
     # Loop over all the organisations
@@ -302,7 +302,7 @@ def scrape_greenhouse_orgs():
 """ Scrape all the organisations hosting jobs on the Lever ATS """
 
 # Get the names and Lever shortcodes of every organisation being scraped from Lever ATS
-with open("./JobsWithPorpoise/scraping_yamls/lever_orgs.yaml", "r") as file:
+with open("./scraping_yamls/lever_orgs.yaml", "r") as file:
     lever_org_list = yaml.safe_load(file)
 
 
