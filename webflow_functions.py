@@ -57,7 +57,11 @@ def get_collection_items(collection, offset, dict={}):
         print("Please use a valid collection name")
 
     else:
-        url = f"https://api.webflow.com/collections/{get_collections()[collection]}/items?limit=100&offset={offset}"
+        # Cache the results of get_collections() to prevent unnecessary extra calls
+        if not hasattr(get_collection_items, "get_collections"):
+            get_collection_items.get_collections = get_collections()
+
+        url = f"https://api.webflow.com/collections/{get_collection_items.get_collections[collection]}/items?limit=100&offset={offset}"
 
         headers = {"accept": "application/json", "authorization": f"Bearer {api_key}"}
 
@@ -116,9 +120,14 @@ def get_static_collection_items():
 
 
 def split_list_decorator(func):
+    """If a list passed to another function contains >100 item_ids, split the list
+    into multiple lists of <=100 item_ids, and run the function with each of them"""
+
     def wrapper(collection, list_of_item_ids):
+        # No change in func behaviour if <= 100 item_ids
         if len(list_of_item_ids) <= 100:
             return func(collection, list_of_item_ids)
+        # Split lists of >100 item_ids, and run the function with each of them
         else:
             num_sublists = (len(list_of_item_ids) + 99) // 100
             for i in range(num_sublists):
@@ -132,6 +141,7 @@ def split_list_decorator(func):
 def delete_items(collection, list_of_item_ids):
     """Delete multiple items in a single Webflow collection"""
 
+    # No need to cache get_collections() because delete_items() is never called twice
     url = f"https://api.webflow.com/collections/{get_collections()[collection]}/items"
 
     payload = {"itemIds": list_of_item_ids}
@@ -212,7 +222,7 @@ def create_job(prepped_dict_of_job_attributes):
 def get_orgs_with_all_attributes(offset=0, orgs_list=[]):
     """Return a dictionary of all orgs in Webflow with all their key attributes"""
 
-    url = f"https://api.webflow.com/collections/{get_collections()['Organisations']}/items?limit=100&offset={offset}"
+    url = f"https://api.webflow.com/collections/62e3ab17f169f84e746dc54e/items?limit=100&offset={offset}"
 
     headers = {
         "accept": "application/json",
@@ -306,6 +316,7 @@ def create_or_patch_org(create_or_patch, prepped_dict_of_org_attributes):
 def publish_items(collection, list_of_item_ids):
     """Publish multiple items in a single Webflow collection"""
 
+    # No need to cache get_collections() because publish_items() is never called twice
     url = f"https://api.webflow.com/collections/{get_collections()[collection]}/items/publish"
 
     payload = {"itemIds": list_of_item_ids}
