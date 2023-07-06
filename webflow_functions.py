@@ -120,9 +120,14 @@ def get_static_collection_items():
 
 
 def split_list_decorator(func):
+    """If a list passed to another function contains >100 item_ids, split the list
+    into multiple lists of <=100 item_ids, and run the function with each of them"""
+
     def wrapper(collection, list_of_item_ids):
+        # No change in func behaviour if <= 100 item_ids
         if len(list_of_item_ids) <= 100:
             return func(collection, list_of_item_ids)
+        # Split lists of >100 item_ids, and run the function with each of them
         else:
             num_sublists = (len(list_of_item_ids) + 99) // 100
             for i in range(num_sublists):
