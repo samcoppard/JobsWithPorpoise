@@ -1,8 +1,17 @@
+import sys
+import os
 import pandas as pd
 import pytest
 
+# Modify the sys.path list to include the path to the folder containing the functions
+# we want to test
+# Get the path of this file, then of its parent folder, then of that folder's parent folder
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
 
-from job_data_cleaning import remove_incomplete_rows
+
+from data_cleaning_functions import remove_incomplete_rows
 
 
 @pytest.fixture

@@ -5,3 +5,4 @@ __pycache__/
 config.yaml
 deprecated/
 *.json
+*.pytest_cache

@@ -2,6 +2,7 @@
     and one for a list of the unique job categories that organisation is hiring for """
 
 import pandas as pd
+from data_cleaning_functions import clean_job_types
 
 # Pull in the scraped and categorised jobs as a dataframe
 categorised_jobs_import = pd.read_json("categorised_jobs.json")
@@ -14,16 +15,6 @@ orgs = (
     .apply(list)
     .reset_index(name="job_types")
 )
-
-
-def clean_job_types(list_of_job_types):
-    """Separate out the job types for each job (so e.g. ["IT, HR"] becomes ["IT", "HR"])
-    Then remove duplicate job types, and remove the string 'not mapped'"""
-    split_job_types = [item for ele in list_of_job_types for item in ele.split(", ")]
-    unique_job_types = list(set(split_job_types))
-    unique_job_types = [string for string in unique_job_types if string != "not mapped"]
-    return unique_job_types
-
 
 # Create a new column to hold the unique job types each org is hiring for
 orgs["unique_job_types"] = orgs["job_types"].apply(lambda lst: clean_job_types(lst))
