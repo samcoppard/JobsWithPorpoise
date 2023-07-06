@@ -7,9 +7,6 @@ import data_cleaning_functions as dcf
 scraped_csv = pd.read_csv("scraped_jobs.csv")
 scraped_jobs = pd.DataFrame(scraped_csv)
 
-# Create a list of words that shouldn't be capitalized
-exclusions = dcf.load_exclusions()
-
 # Remove rows with empty values, and tidy up the scraped job titles and locations
 dcf.remove_incomplete_rows(scraped_jobs)
 dcf.clean_locations(scraped_jobs, "Location")

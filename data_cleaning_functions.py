@@ -71,6 +71,8 @@ def clean_job_titles(df, column):
         .str.strip()
         # Get rid of trailing punctuation
         .str.replace(r"[:,(/-]+$", "", regex=True)
+        # Add space around slashes (so splitting and capitalizing strings is easier)
+        .str.replace("/", " / ")
         # Remove extra spaces again (including mid-string this time)
         .str.strip()
         .str.replace("  ", " ")
@@ -94,9 +96,12 @@ def convert_to_title_case(string):
     ]
     capitalized_string = " ".join(capitalized_words)
 
-    # Fix an edge case with Next.js and Node.js
-    capitalized_string = capitalized_string.replace("Nextjs", "Next.js").replace(
-        "Nodejs", "Node.js"
+    # Fix a few edge cases
+    capitalized_string = (
+        capitalized_string.replace("Nextjs", "Next.js")
+        .replace("Nodejs", "Node.js")
+        .replace("UI / UX", "UI/UX")
+        .replace("UX / UI", "UI/UX")
     )
     return capitalized_string
 
