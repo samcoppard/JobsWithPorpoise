@@ -1,6 +1,8 @@
+""" Categorise the scraped jobs, mapping them to the correct area of the country,
+the correct job type, and the correct seniority level """
+
 import pandas as pd
-import os
-import yaml
+import mapping_functions as mf
 
 # Pull in the scraped jobs as a dataframe
 scraped_jobs_import = pd.read_json("cleaned_jobs.json")
@@ -8,53 +10,21 @@ scraped_jobs = pd.DataFrame(scraped_jobs_import)
 
 """ Map each job to its location(s) first """
 
-
-def get_mapping_keywords(yamls_directory, dict={}):
-    """Create a dict of all the keywords required for mapping jobs"""
-    # Load keywords from every YAML file in a folder in turn
-    for filename in os.listdir(yamls_directory):
-        filepath = os.path.join(yamls_directory, filename)
-        with open(filepath, "r") as file:
-            keywords_list = yaml.safe_load(file)
-            # Add the key:value pairs to the dictionary
-            dict[keywords_list[0]] = keywords_list[1:]
-    return dict
-
-
 # Add a new column to the dataframe to store each job's mapped locations
 scraped_jobs["mapped_location"] = "not mapped"
 
 # Create a dict to hold every region, and the location keywords that map to them
-locations_dict = get_mapping_keywords("./location_yamls/initial_yamls", {})
-
-
-def map_jobs(df, scraped_column, mapped_column, mapping_dict):
-    """Map jobs into the correct categories"""
-    # Iterate over every job / row in the dataframe
-    for ind, scraped_value in df[scraped_column].items():
-        # Map the attributes to the right categories
-        categories = set()
-        # For each category, iterate over the keywords that map to it, checking if they're
-        # contained within the string. If they are, add the category to the set and move
-        # on to the next category
-        for category, keywords in mapping_dict.items():
-            for keyword in keywords:
-                if keyword in scraped_value:
-                    categories.add(category)
-                    break
-        # Update the row with the mapped categories (if mapping was successful)
-        if categories:
-            df.at[ind, mapped_column] = ", ".join(categories)
+locations_dict = mf.get_mapping_keywords("./location_yamls/initial_yamls", {})
 
 
 # Map each job to its correct region(s)
-map_jobs(scraped_jobs, "Location", "mapped_location", locations_dict)
+mf.map_jobs(scraped_jobs, "Location", "mapped_location", locations_dict)
 
 # Overwrite the mappings above for cases where the scraped location is awkward - either
 # it's too short to map like that ("Remote"), or it maps to multiple regions ("Midlands")
 
 # Create a dict to handle regions and keywords for these awkward cases
-awkward_locations_dict = get_mapping_keywords("./location_yamls/refining_yamls", {})
+awkward_locations_dict = mf.get_mapping_keywords("./location_yamls/refining_yamls", {})
 
 for ind in scraped_jobs.index:
     location = scraped_jobs["Location"][ind]
@@ -80,7 +50,7 @@ for ind in scraped_jobs.index:
 # Sometimes the location only appears in the job title, not where it 'should' be, so
 # let's deal with that by mapping job titles to regions IF the normal way hasn't worked
 not_mapped_rows = scraped_jobs[scraped_jobs["mapped_location"] == "not mapped"]
-map_jobs(not_mapped_rows, "Job Title", "mapped_location", locations_dict)
+mf.map_jobs(not_mapped_rows, "Job Title", "mapped_location", locations_dict)
 scraped_jobs.update(not_mapped_rows)
 
 
@@ -102,14 +72,15 @@ print(scraped_jobs[scraped_jobs["mapped_location"] == "not mapped"])
 
 
 """ Now map each job to its job type(s) """
+
 # Add a new column to the dataframe to store each job's mapped job types
 scraped_jobs["job_types"] = "not mapped"
 
 # Create a dict to hold all the different job types, and the keywords that map to them
-job_types_dict = get_mapping_keywords("./job_type_yamls", {})
+job_types_dict = mf.get_mapping_keywords("./job_type_yamls", {})
 
 # Map jobs to the category of job they're in
-map_jobs(scraped_jobs, "Job Title", "job_types", job_types_dict)
+mf.map_jobs(scraped_jobs, "Job Title", "job_types", job_types_dict)
 
 # Print out any jobs that haven't been mapped to any job types (for easy review)
 print("These jobs haven't been mapped to any job type:")
@@ -122,20 +93,23 @@ scraped_jobs = scraped_jobs[
 
 
 """ Now map each job to its seniority level """
+
 # Add a new column to the dataframe to store each job's mapped seniority level
 scraped_jobs["seniority"] = "mid level"
 
 # Create a dict to hold the different seniorities, and the keywords that map to them
-seniority_dict = get_mapping_keywords("./seniority_yamls/initial_yamls", {})
+seniority_dict = mf.get_mapping_keywords("./seniority_yamls/initial_yamls", {})
 
 # Map jobs to their seniority level
-map_jobs(scraped_jobs, "Job Title", "seniority", seniority_dict)
+mf.map_jobs(scraped_jobs, "Job Title", "seniority", seniority_dict)
 
 
 # The initial mapping isn't perfect, so now we need to remove incorrect seniority tags
 
 # Create a dict to hold the keywords for refining the mapping of seniorities
-refining_seniority_dict = get_mapping_keywords("./seniority_yamls/refining_yamls", {})
+refining_seniority_dict = mf.get_mapping_keywords(
+    "./seniority_yamls/refining_yamls", {}
+)
 
 # Iterate over every job / row in the dataframe
 for ind, scraped_value in scraped_jobs["Job Title"].items():
