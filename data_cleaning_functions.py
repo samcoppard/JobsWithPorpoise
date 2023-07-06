@@ -94,8 +94,10 @@ def convert_to_title_case(string):
     ]
     capitalized_string = " ".join(capitalized_words)
 
-    # Fix an edge case with Next.js
-    capitalized_string = capitalized_string.replace("Nextjs", "Next.js")
+    # Fix an edge case with Next.js and Node.js
+    capitalized_string = capitalized_string.replace("Nextjs", "Next.js").replace(
+        "Nodejs", "Node.js"
+    )
     return capitalized_string
 
 
