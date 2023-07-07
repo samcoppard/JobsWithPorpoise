@@ -127,8 +127,9 @@ def create_concat_column(df):
 
 def clean_job_types(list_of_job_types):
     """Separate out the job types for each job (so e.g. ["IT, HR"] becomes ["IT", "HR"])
-    Then remove duplicate job types, and remove the string 'not mapped'"""
+    Then remove duplicate job types, sort the job types (unordered sets make for lots
+    of unnecessary PSQL & Webflow updating) and remove the string 'not mapped'"""
     split_job_types = [item for ele in list_of_job_types for item in ele.split(", ")]
-    unique_job_types = list(set(split_job_types))
+    unique_job_types = sorted(set(split_job_types))
     unique_job_types = [string for string in unique_job_types if string != "not mapped"]
     return unique_job_types
