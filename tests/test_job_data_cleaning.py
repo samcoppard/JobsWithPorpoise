@@ -50,16 +50,21 @@ from data_cleaning_functions import clean_locations
 
 @pytest.fixture
 def sample_dataframe_2():
-    """Create a sample dataframe for testing the clean_locations function"""
+    """Create a sample dataframe for testing the next few functions"""
     data = {
-        "column_1": ["Job1", "Job2", "Job3", "Job4"],
+        "job_titles": [
+            " Data Engineer- Job Description   ",
+            "BizDev Manager : £60k",
+            "Frontend Developer/Front-End Developer → Keep writing more and more and more until we get to over 255 characters, which seems like a lot but does happen sometimes, and causes problems whenever it does because the scraped string length doesn't match the PSQL string length (",
+            " 🌿 Nature’s Recovery Manager.docx.",
+        ],
         "locations": [
             "new york or san francisco  ",
             " sydney, New South Wales",
             "Bury or Derby",
             " sale ",
         ],
-        "column_3": ["Org1", "Org2", "Org3", "Org4"],
+        "organisation": ["Org1", "Org2", "Org3", "Org4"],
     }
     return pd.DataFrame(data)
 
@@ -75,5 +80,46 @@ def test_clean_locations(sample_dataframe_2):
     assert sample_dataframe_2["locations"][3] == "Manchester"
 
     # Verify that the other columns are unchanged
-    assert sample_dataframe_2["column_1"].tolist() == ["Job1", "Job2", "Job3", "Job4"]
-    assert sample_dataframe_2["column_3"].tolist() == ["Org1", "Org2", "Org3", "Org4"]
+    assert sample_dataframe_2["job_titles"].tolist() == [
+        " Data Engineer- Job Description   ",
+        "BizDev Manager : £60k",
+        "Frontend Developer/Front-End Developer → Keep writing more and more and more until we get to over 255 characters, which seems like a lot but does happen sometimes, and causes problems whenever it does because the scraped string length doesn't match the PSQL string length (",
+        " 🌿 Nature’s Recovery Manager.docx.",
+    ]
+    assert sample_dataframe_2["organisation"].tolist() == [
+        "Org1",
+        "Org2",
+        "Org3",
+        "Org4",
+    ]
+
+
+from data_cleaning_functions import clean_job_titles
+
+
+def test_clean_job_titles(sample_dataframe_2):
+    # Call the clean_job_titles function on the sample dataframe
+    clean_job_titles(sample_dataframe_2, "job_titles")
+    print(sample_dataframe_2["job_titles"][2])
+    # Verify that the job types have been cleaned as expected
+    assert sample_dataframe_2["job_titles"][0] == "Data Engineer"
+    assert sample_dataframe_2["job_titles"][1] == "BizDev Manager: £60k"
+    assert (
+        sample_dataframe_2["job_titles"][2]
+        == "Frontend Developer / Front-End Developer Keep writing more and more and more until we get to over 255 characters, which seems like a lot but does happen sometimes, and causes problems whenever it does because the scraped string length doesn't match the PS"
+    )
+    assert sample_dataframe_2["job_titles"][3] == "Nature's Recovery Manager"
+
+    # Verify that the other columns are unchanged
+    assert sample_dataframe_2["locations"].tolist() == [
+        "new york or san francisco  ",
+        " sydney, New South Wales",
+        "Bury or Derby",
+        " sale ",
+    ]
+    assert sample_dataframe_2["organisation"].tolist() == [
+        "Org1",
+        "Org2",
+        "Org3",
+        "Org4",
+    ]
