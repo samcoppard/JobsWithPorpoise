@@ -127,8 +127,52 @@ def test_clean_job_titles(sample_dataframe_2):
 
 from data_cleaning_functions import convert_to_title_case
 
+
 def test_convert_to_title_case():
     # Verify the function converts various strings to title case like a human would
-    assert convert_to_title_case("software engineer - react, nextjs, nodejs") == "Software Engineer - React, Next.js, Node.js"
-    assert convert_to_title_case("UX / UI designer, IT department") == "UI/UX Designer, IT Department"
-    assert convert_to_title_case("Sustainable Transport Engineer for HS2 + EVs and other GHG reducing options") == "Sustainable Transport Engineer for HS2 + EVs and Other GHG Reducing Options"
+    assert (
+        convert_to_title_case("software engineer - react, nextjs, nodejs")
+        == "Software Engineer - React, Next.js, Node.js"
+    )
+    assert (
+        convert_to_title_case("UX / UI designer, IT department")
+        == "UI/UX Designer, IT Department"
+    )
+    assert (
+        convert_to_title_case(
+            "Sustainable Transport Engineer for HS2 + EVs and other GHG reducing options"
+        )
+        == "Sustainable Transport Engineer for HS2 + EVs and Other GHG Reducing Options"
+    )
+
+
+from data_cleaning_functions import clean_job_types
+
+
+def test_clean_job_types():
+    # Verify the function splits the list into all the individual job types, puts them
+    # in alphabetical order, and removes 'not mapped'
+    list_of_job_types = [
+        "Rewilding, Outdoorsy",
+        "Outdoorsy, Other",
+        "not mapped",
+        "Business Development, Sales & Fundraising",
+        "Software",
+        "Data & Analysis, Software",
+        "Business Development",
+        "Operations, Marketing",
+        "Other",
+        "not mapped",
+        "Other",
+    ]
+    assert (clean_job_types(list_of_job_types)) == [
+        "Business Development",
+        "Data & Analysis",
+        "Marketing",
+        "Operations",
+        "Other",
+        "Outdoorsy",
+        "Rewilding",
+        "Sales & Fundraising",
+        "Software",
+    ]
