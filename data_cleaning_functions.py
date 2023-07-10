@@ -81,6 +81,7 @@ def clean_job_titles(df, column):
 
 def convert_to_title_case(string):
     """Change the string to title case, except where you wouldn't actually want to"""
+    # Should improve this in future to consistently handle commas, brackets etc
 
     # Cache the results of load_exclusions() so we don't run that function every single
     # time we run this function

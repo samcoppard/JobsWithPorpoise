@@ -100,7 +100,7 @@ from data_cleaning_functions import clean_job_titles
 def test_clean_job_titles(sample_dataframe_2):
     # Call the clean_job_titles function on the sample dataframe
     clean_job_titles(sample_dataframe_2, "job_titles")
-    print(sample_dataframe_2["job_titles"][2])
+
     # Verify that the job types have been cleaned as expected
     assert sample_dataframe_2["job_titles"][0] == "Data Engineer"
     assert sample_dataframe_2["job_titles"][1] == "BizDev Manager: £60k"
@@ -123,3 +123,12 @@ def test_clean_job_titles(sample_dataframe_2):
         "Org3",
         "Org4",
     ]
+
+
+from data_cleaning_functions import convert_to_title_case
+
+def test_convert_to_title_case():
+    # Verify the function converts various strings to title case like a human would
+    assert convert_to_title_case("software engineer - react, nextjs, nodejs") == "Software Engineer - React, Next.js, Node.js"
+    assert convert_to_title_case("UX / UI designer, IT department") == "UI/UX Designer, IT Department"
+    assert convert_to_title_case("Sustainable Transport Engineer for HS2 + EVs and other GHG reducing options") == "Sustainable Transport Engineer for HS2 + EVs and Other GHG Reducing Options"
