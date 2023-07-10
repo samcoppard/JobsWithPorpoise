@@ -53,9 +53,6 @@ def clean_job_titles(df, column):
     for char in chars_to_remove:
         df[column] = df[column].str.replace(char, "")
 
-    # Limit the 'Job Title' column to 255 characters (to match length in PSQL)
-    df[column] = df[column].str[:255]
-
     df[column] = (
         df[column]
         # Tidy up hyphens
@@ -64,6 +61,7 @@ def clean_job_titles(df, column):
         .str.replace("  ", " ")
         # Tidy up colons
         .str.replace(" :", ": ")
+        .str.replace(" : ", ": ")
         .str.replace("  ", " ")
         # Replace a weird apostrophe with a normal one
         .str.replace("’", "'")
@@ -77,10 +75,13 @@ def clean_job_titles(df, column):
         .str.strip()
         .str.replace("  ", " ")
     )
+    # Limit the column to 255 characters (to match length in PSQL)
+    df[column] = df[column].str[:255]
 
 
 def convert_to_title_case(string):
     """Change the string to title case, except where you wouldn't actually want to"""
+    # Should improve this in future to consistently handle commas, brackets etc
 
     # Cache the results of load_exclusions() so we don't run that function every single
     # time we run this function
