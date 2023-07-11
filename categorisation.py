@@ -66,10 +66,6 @@ scraped_jobs.loc[
 # accidentally exclude jobs with a scraped location like 'Brussels, London, Amsterdam'
 scraped_jobs = scraped_jobs[scraped_jobs["mapped_location"] != "Abroad"]
 
-# Print out any jobs that haven't been mapped to any area (for easy review)
-print("These jobs haven't been mapped to any location:")
-print(scraped_jobs[scraped_jobs["mapped_location"] == "not mapped"])
-
 
 """ Now map each job to its job type(s) """
 
@@ -82,9 +78,6 @@ job_types_dict = mf.get_mapping_keywords("./job_type_yamls", {})
 # Map jobs to the category of job they're in
 mf.map_jobs(scraped_jobs, "Job Title", "job_types", job_types_dict)
 
-# Print out any jobs that haven't been mapped to any job types (for easy review)
-print("These jobs haven't been mapped to any job type:")
-print(scraped_jobs[scraped_jobs["job_types"] == "not mapped"])
 
 # Remove jobs that have been categorised as Weird other, or Volunteering
 scraped_jobs = scraped_jobs[
@@ -139,3 +132,11 @@ scraped_jobs["seniority"] = scraped_jobs["seniority"].str.replace(
 
 # Export the dataframe of categorised jobs to JSON
 scraped_jobs.to_json("categorised_jobs.json", orient="records")
+
+
+# Print out jobs that haven't been mapped to an area / job type (for easy review)
+print("These jobs haven't been mapped to any location:")
+print(scraped_jobs[scraped_jobs["mapped_location"] == "not mapped"])
+
+print("These jobs haven't been mapped to any job type:")
+print(scraped_jobs[scraped_jobs["job_types"] == "not mapped"])
