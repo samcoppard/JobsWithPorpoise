@@ -2086,6 +2086,7 @@ class Ember(scrapy.Spider):
             )
 
 
+"""
 # Create the Spider class
 class Energy_Climate_Intelligence_Unit(scrapy.Spider):
     name = "energyclimateintelligenceunit"
@@ -2114,6 +2115,7 @@ class Energy_Climate_Intelligence_Unit(scrapy.Spider):
                     "Location": c,
                 }
             )
+"""
 
 
 # Create the Spider class
@@ -2896,55 +2898,6 @@ class Heura(scrapy.Spider):
                 c = c3
             job_list.append(
                 {"Company": "Heura", "Job Title": a, "Job URL": b, "Location": c}
-            )
-
-
-# Create the Spider class
-class Higher_Steaks(scrapy.Spider):
-    name = "highersteaks"
-    custom_settings = {"DOWNLOAD_DELAY": 0.6}
-
-    # start_requests method
-    def start_requests(self):
-        urls = [
-            "https://api.teamtailor.com/v1/jobs?&api_key=SN4Omb1K4NRbPOlXqGt6JuIznfx5J4muK71N0oBD&api_version=20161108&include=department,role,regions,locations&fields[departments]=name&fields[roles]=name&fields[locations]=name,city&fields[regions]=name&page[size]=20&filter[feed]=public&"
-        ]
-        for url in urls:
-            yield scrapy.Request(url=url, callback=self.parse)
-
-    # First parsing method to scrape job titles and links to individual job pages (API)
-    def parse(self, response):
-        data = json.loads(response.text)
-        for job in data["data"]:
-            # Get the job titles
-            a = job["attributes"]["title"]
-            # Get the URLs for those jobs
-            b = job["links"]["careersite-job-url"]
-            # Get the location. This one is messy with a self-referencing API with optional fields
-            # Check if the city is filled in
-            c0 = job["relationships"]["locations"]["data"]
-            # If the city is filled in, store it in c. Otherwise, set c to be an empty string
-            if c0 != []:
-                c1 = job["relationships"]["locations"]["data"][0]["id"]
-                c2 = data["included"]
-                for item in c2:
-                    if item["id"] == c1:
-                        c3 = item["attributes"]["name"]
-            else:
-                c3 = ""
-            # Check if the job is remote (this seems to always be filled in, hopefully it stays that way), then append that status to the location (unless it's not remote)
-            remote = job["attributes"]["remote-status"]
-            if remote != "none":
-                c = c3 + " - " + remote + " remote"
-            else:
-                c = c3
-            job_list.append(
-                {
-                    "Company": "Higher Steaks",
-                    "Job Title": a,
-                    "Job URL": b,
-                    "Location": c,
-                }
             )
 
 
@@ -5765,6 +5718,39 @@ class UK100(scrapy.Spider):
 
 
 # Create the Spider class
+class Uncommon(scrapy.Spider):
+    name = "uncommon"
+    custom_settings = {"DOWNLOAD_DELAY": 0.6}
+
+    # start_requests method
+    def start_requests(self):
+        urls = [
+            "https://api.teamtailor.com/v1/jobs?&api_key=SN4Omb1K4NRbPOlXqGt6JuIznfx5J4muK71N0oBD&api_version=20161108&include=department,role,regions,locations&fields[departments]=name&fields[roles]=name&fields[locations]=name,city&fields[regions]=name&page[size]=20&filter[feed]=public&"
+        ]
+        for url in urls:
+            yield scrapy.Request(url=url, callback=self.parse)
+
+    # First parsing method to scrape job titles and links to individual job pages (API)
+    def parse(self, response):
+        data = json.loads(response.text)
+        for job in data["data"]:
+            # Get the job titles
+            a = job["attributes"]["title"]
+            # Get the URLs for those jobs
+            b = job["links"]["careersite-job-url"]
+            # Get the locations
+            c = "Cambridge"
+            job_list.append(
+                {
+                    "Company": "Uncommon",
+                    "Job Title": a,
+                    "Job URL": b,
+                    "Location": c,
+                }
+            )
+
+
+# Create the Spider class
 class Upcircle(scrapy.Spider):
     name = "upcircle"
     custom_settings = {"DOWNLOAD_DELAY": 0.6}
@@ -6261,7 +6247,6 @@ process.crawl(EcoACTIVE)
 process.crawl(Ecologi)
 process.crawl(Eden_Rivers_Trust)
 process.crawl(Ember)
-process.crawl(Energy_Climate_Intelligence_Unit)
 process.crawl(Enviral)
 process.crawl(Environment_Agency)
 process.crawl(Environmental_Defense_Fund)
@@ -6284,7 +6269,6 @@ process.crawl(Guru_Systems)
 process.crawl(Heal_Rewilding)
 process.crawl(Heart_Of_England_Forest)
 process.crawl(Heura)
-process.crawl(Higher_Steaks)
 process.crawl(Highview_Power)
 process.crawl(Hubbub)
 process.crawl(IIGCC)
@@ -6371,6 +6355,7 @@ process.crawl(Trees_For_Life)
 process.crawl(Triodos)
 process.crawl(Trove_Research)
 process.crawl(UK100)
+process.crawl(Uncommon)
 process.crawl(Upcircle)
 process.crawl(Veganuary)
 process.crawl(Watershed)
