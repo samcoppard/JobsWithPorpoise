@@ -835,14 +835,18 @@ class BeZero(scrapy.Spider):
             # Get the URLs for those jobs
             b = job.xpath("./@href").extract_first()
             # Get the locations
-            c1 = job.xpath("./div/span[3]//text()").extract_first()
-            # That works most of the time, but some jobs don't have the department listed, so there's not always another span before the location span
-            if "Remote" not in c1:
-                c2 = c1
+            c1 = job.xpath("./div/span[1]//text()").extract_first()
+            c2 = job.xpath("./div/span[3]//text()").extract_first()
+            c3 = job.xpath("./div/span[5]//text()").extract_first()
+            if c3 != None:
+                c = f"{c2.strip()}, {c3.strip()}"
+            elif c2 != None:
+                c = c2.strip()
+            elif c1 != None:
+                c = c1.strip()
             else:
-                c2 = job.xpath("./div/span[1]/text()").extract_first().strip()
-            # Weird indentations and spaces sometimes
-            c = c2.strip()
+                c = 'Unknown'
+            print(c1, c2, c3)
             job_list.append(
                 {"Company": "BeZero", "Job Title": a, "Job URL": b, "Location": c}
             )
