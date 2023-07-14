@@ -53,18 +53,21 @@ not_mapped_rows = scraped_jobs[scraped_jobs["mapped_location"] == "not mapped"]
 mf.map_jobs(not_mapped_rows, "Job Title", "mapped_location", locations_dict)
 scraped_jobs.update(not_mapped_rows)
 
+# Remove non-UK jobs, including jobs that are fully remote but outside the UK.
+# Do this by checking the job has only been mapped to 'Abroad' or 'Abroad, Fully Remote'
+# so we don't accidentally exclude jobs with a scraped location like
+# 'Brussels, London, Amsterdam', or 'Tokyo - Fully Remote'
+scraped_jobs = scraped_jobs[
+    ~scraped_jobs["mapped_location"].isin(
+        ["Abroad", "Abroad, Fully Remote", "Fully Remote, Abroad"]
+    )
+]
 
 # Ensure that Remote jobs are only tagged as Remote. This works by creating a Boolean
 # mask and only replacing those values where the condition is met
 scraped_jobs.loc[
     scraped_jobs["mapped_location"].str.contains("Fully Remote"), "mapped_location"
 ] = "Fully Remote"
-
-# TK - How to handle jobs that are e.g. 'New York - Fully Remote'? Need to exclude them!
-
-# Remove non-UK jobs (by checking the job has only been mapped to 'Abroad' so we don't
-# accidentally exclude jobs with a scraped location like 'Brussels, London, Amsterdam'
-scraped_jobs = scraped_jobs[scraped_jobs["mapped_location"] != "Abroad"]
 
 
 """ Now map each job to its job type(s) """
