@@ -170,6 +170,80 @@ class Workable_Jobs(scrapy.Spider):
             )
 
 
+""" Pull jobs from orgs using the Ashby ATS via API """
+
+
+def scrape_ashby_orgs():
+    # Get the names and shortcodes of every organisation using Ashby ATS
+    with open("./scraping_yamls/ashby_orgs.yaml", "r") as file:
+        ashby_org_list = yaml.safe_load(file)
+
+    # Loop over all the organisations
+    for organisation in ashby_org_list:
+        # Same API endpoint for every organisation (only the body of the request changes)
+        url = "https://jobs.ashbyhq.com/api/non-user-graphql?op=ApiBoardWithTeams"
+        body = {
+            "operationName": "ApiBoardWithTeams",
+            "variables": {
+                "organizationHostedJobsPageName": organisation["ashby_shortcode"],
+            },
+            # GraphQL query
+            "query": """
+                query ApiBoardWithTeams($organizationHostedJobsPageName: String!) {
+                jobBoard: jobBoardWithTeams(
+                    organizationHostedJobsPageName: $organizationHostedJobsPageName
+                ) {
+                    jobPostings {
+                    id
+                    title
+                    locationName
+                    secondaryLocations {
+                        locationName
+                    }
+                    }
+                }
+                }
+            """,
+        }
+
+        # Send a POST request to the API endpoint
+        response = requests.post(
+            url, json=body, headers={"content-type": "application/json"}
+        )
+
+        # Extract the JSON data with all the job listings from the response
+        json_string = response.text
+        data = json.loads(json_string)
+
+        # Loop over all the jobs within this organisation
+        for job in data["data"]["jobBoard"]["jobPostings"]:
+            job_title = job["title"]
+            link_to_apply = f"https://jobs.ashbyhq.com/{organisation['ashby_shortcode']}/{job['id']}"
+            # Jobs with only one listed location are easy
+            if job["secondaryLocations"] == []:
+                job_location = job["locationName"]
+            # Jobs hiring in multiple locations are a bit more fiddly
+            else:
+                extra_locations_list = [
+                    job["secondaryLocations"][i]["locationName"]
+                    for i in range(len(job["secondaryLocations"]))
+                ]
+                extra_locations_str = ", ".join(extra_locations_list)
+                job_location = f"{job['locationName']}, {extra_locations_str}"
+            # Safi list their remote jobs as "Flexible"
+            if job_location == "Flexible":
+                job_location = "Fully Remote"
+
+            job_list.append(
+                {
+                    "Company": organisation["org_name"],
+                    "Job Title": job_title,
+                    "Job URL": link_to_apply,
+                    "Location": job_location,
+                }
+            )
+
+
 """ Scrape all the organisations hosting jobs on the Bamboo ATS """
 
 # Get the names and Bamboo shortcodes of every organisation being scraped from Bamboo ATS
@@ -6185,7 +6259,8 @@ class Zedify(scrapy.Spider):
             )
 
 
-# Pull jobs from orgs using Greenhouse ATS
+# Pull jobs from orgs using Ashby or Greenhouse ATS
+scrape_ashby_orgs()
 scrape_greenhouse_orgs()
 # Run the Spider
 process = CrawlerProcess()
